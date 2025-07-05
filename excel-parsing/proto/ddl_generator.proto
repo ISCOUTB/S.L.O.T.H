@@ -13,8 +13,10 @@ message DDLRequest {
 }
 
 message DDLResponse {
-    string type = 1;
+    dtypes.AstType type = 1;
     string sql = 2;
+
+    // Numeric, Logical, and Text Values
     oneof value {
         float number_value = 3;
         string text_value = 4;
@@ -24,7 +26,7 @@ message DDLResponse {
     // Cell Reference
     optional string cell = 6;
     optional dtypes.RefType refType = 7;
-    optional string key = 8;
+    optional string column = 8;
     optional string eror = 9;
 
     // Cell Range
