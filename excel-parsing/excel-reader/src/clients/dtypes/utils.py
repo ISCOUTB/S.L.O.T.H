@@ -1,6 +1,6 @@
 import services.dtypes as dtypes
 from typing import Dict, Callable, Literal
-from clients.formula_parser import dtypes_pb2
+from clients.dtypes import dtypes_pb2
 
 
 MAPS: Dict[dtypes.AstTypes, Callable[[dtypes_pb2.AST], dtypes.AST]] = {

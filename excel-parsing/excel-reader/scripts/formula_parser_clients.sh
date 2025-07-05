@@ -1,5 +1,5 @@
 python3 -m grpc_tools.protoc \
-  dtypes.proto formula_parser.proto \
+  formula_parser.proto \
   --proto_path ../proto/ --python_out ./src/clients/formula_parser/ \
   --pyi_out ./src/clients/formula_parser/ \
   --grpc_python_out ./src/clients/formula_parser/
