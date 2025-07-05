@@ -1,5 +1,5 @@
-from clients.formula_parser import dtypes_pb2
-from typing import TypedDict, Literal, Optional
+from clients.dtypes import dtypes_pb2
+from typing import TypedDict, Literal, Optional, Union, Any, Dict
 
 
 AstTypes = Literal[
@@ -16,6 +16,7 @@ RefTypes = Literal[
     "relative",  # Obtained from a cell reference like "A1" or "B2"
     "absolute",  # Obtained from a cell reference like "$A$1" or "$B$2"
     "mixed",  # Obtained from a cell reference like "A$1" or "$B2"
+    "",  # Empty string for cases where the reference type is not applicable
 ]
 
 
@@ -68,6 +69,9 @@ class CellData(TypedDict):
         value (str | float | int | None): The value of the cell, which can be a string, float, int, or None.
         data_type (str): The data type of the cell value (e.g., "s", "n", etc.).
         is_formula (bool): Indicates whether the cell contains a formula.
+        ast (Optional[AST | dtypes_pb2.AST]): The Abstract Syntax Tree representation of the formula,
+            if applicable. This can be either a custom AST or a protobuf AST.
+        sql (Optional[str]): The SQL representation of the cell value, typically used for database operations.
     """
 
     cell: str
@@ -75,6 +79,11 @@ class CellData(TypedDict):
     data_type: str
     is_formula: bool
     ast: Optional[AST | dtypes_pb2.AST] = None
+    sql: Optional[str] = None
+
+
+ColumnsInfo = Dict[str, Dict[str, str]]
+DataInfo = Dict[str, Dict[str, list[CellData]]]
 
 
 class SpreadsheetContent(TypedDict):
@@ -82,11 +91,149 @@ class SpreadsheetContent(TypedDict):
     TypedDict for representing the content of a spreadsheet.
 
     Attributes:
-        raw_data (dict[str, dict[str, list[CellData]]]): The raw data extracted from the spreadsheet.
-        columns (dict[str, list[str]]): A dictionary mapping sheet names to lists of column values.
-        data (dict[str, dict[str, list[CellData]]]): A dictionary mapping sheet names to dictionaries of cell data.
+        raw_data (DataInfo): The raw data extracted from the spreadsheet.
+        columns (Dict[str, Dict[str, str]]): A Dictionary mapping sheet names to lists of column values.
+        data (DataInfo): A Dictionary mapping sheet names to Dictionaries of cell data.
     """
 
-    raw_data: dict[str, dict[str, list[CellData]]]
-    columns: dict[str, list[str]]
-    data: dict[str, dict[str, list[CellData]]]
+    raw_data: DataInfo
+    columns: ColumnsInfo
+    data: DataInfo
+
+
+class NumberMapsOutput(TypedDict):
+    """
+    Represents the output of number mapping.
+
+    Attributes:
+        type (Literal["number"]): The type of the mapping, always "number".
+        value (float): The numeric value represented by the AST node.
+        sql (str): The string representation of the number, e.g., "42".
+    """
+
+    type: Literal["number"]
+    value: float
+    sql: str
+
+
+class LogicalMapsOutput(TypedDict):
+    """
+    Represents the output of logical mapping.
+
+    Attributes:
+        type (Literal["logical"]): The type of the mapping, always "logical".
+        value (bool): The boolean value represented by the AST node.
+        sql (str): The string representation of the logical value, e.g., "true" or "false".
+    """
+
+    type: Literal["logical"]
+    value: bool
+    sql: str
+
+
+class CellMapsOutput(TypedDict):
+    """
+    Represents the output of cell mapping.
+
+    Attributes:
+        type (Literal["cell"]): The type of the mapping, always "cell".
+        cell (str): The cell reference (e.g., "A1").
+        refType (Reftypes): The type of cell reference ("relative", "absolute" and "mixed").
+        column (str): The column name corresponding to the cell reference (e.g., "A").
+        error (Optional[str]): An error message if there was an issue with the mapping,
+            otherwise None.
+        sql (str): The SQL representation of the cell reference, typically the column name.
+    """
+
+    type: Literal["cell"]
+    cell: str
+    refType: RefTypes
+    column: str
+    error: Optional[str]
+    sql: str
+
+
+class CellRangeMapsOutput(TypedDict):
+    """
+    Represents the output of cell range mapping.
+
+    Attributes:
+        type (Literal["cell_range"]): The type of the mapping, always "cell_range".
+        start (str): The starting cell reference of the range (e.g., "A1").
+        end (str): The ending cell reference of the range (e.g., "B2").
+        cells (list[str]): A list of cell references in the range (e.g., ["A1", "A2", ...]).
+        columns (list[str]): A list of column names corresponding to the cells in the range.
+        error (Optional[str]): An error message if there was an issue with the mapping,
+            otherwise None.
+    """
+
+    type: Literal["cell_range"]
+    start: str
+    end: str
+    cells: list[str]
+    columns: list[str]
+    error: Optional[str]
+
+
+class BinaryExpressionMapsOutput(TypedDict):
+    """
+    Represents the output of binary expression mapping.
+
+    Attributes:
+        type (Literal["binary_expression"]): The type of the mapping, always "binary_expression".
+        operator (str): The operator used in the binary expression (e.g., "+", "-", "*", "/").
+        left (Any): The left operand of the binary expression.
+        right (Any): The right operand of the binary expression.
+        sql (str): The SQL representation of the binary expression, combining the left and right
+            operands with the operator.
+    """
+
+    type: Literal["binary_expression"]
+    operator: str
+    left: Any
+    right: Any
+    sql: str
+
+
+class FunctionMapsOutput(TypedDict):
+    """
+    Represents the output of function mapping.
+
+    Attributes:
+        type (Literal["function"]): The type of the mapping, always "function".
+        name (str): The name of the function being called (e.g., "SUM", "IF").
+        arguments (list[Any]): A list of AST nodes representing the arguments passed to the function.
+        sql (str): The SQL representation of the function call, including its name and arguments.
+    """
+
+    type: Literal["function"]
+    name: str
+    arguments: list[Any]
+    sql: str
+
+
+class TextMapsOutput(TypedDict):
+    """
+    Represents the output of text mapping.
+
+    Attributes:
+        type (Literal["text"]): The type of the mapping, always "text".
+        value (str): The text value represented by the AST node.
+        sql (str): The SQL representation of the text value, typically enclosed in quotes.
+    """
+
+    type: Literal["text"]
+    value: str
+    sql: str
+
+
+DDLResponse = Union[
+    CellMapsOutput,
+    CellRangeMapsOutput,
+    NumberMapsOutput,
+    BinaryExpressionMapsOutput,
+    FunctionMapsOutput,
+    LogicalMapsOutput,
+    TextMapsOutput,
+]
+"""Union type representing all possible output types from AST processing functions."""

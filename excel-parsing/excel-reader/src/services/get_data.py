@@ -28,7 +28,7 @@ def get_data_from_spreadsheet(
 
     cells = extract_formulas(workbook)
     columns = {
-        sheet: list(map(lambda x: x[0]["value"], sheet_data.values()))
+        sheet: dict(map(lambda x: (x[0], x[1][0]["value"]), sheet_data.items()))
         for sheet, sheet_data in cells.items()
     }
     return {
@@ -43,3 +43,15 @@ def get_data_from_spreadsheet(
             for sheet, sheet_data in cells.items()
         },
     }
+
+
+if __name__ == "__main__":
+    import json
+    import os.path
+
+    file_example = "../../../typechecking/backend/static/acme__users__sample1.xlsx"
+    with open(file_example, "rb") as file:
+        file_bytes = file.read()
+
+    content = get_data_from_spreadsheet(os.path.basename(file_example), file_bytes)
+    print(json.dumps(content, indent=4))
