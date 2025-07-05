@@ -13,7 +13,7 @@ The types are organized into:
 - Union types for flexible type handling
 """
 
-from typing import TypedDict, Literal, Optional, Dict, Union
+from typing import TypedDict, Literal, Optional, Dict, Union, Any
 
 
 AstTypes = Literal[
@@ -168,16 +168,16 @@ class BinaryExpressionMapsOutput(TypedDict):
     Attributes:
         type (Literal["binary_expression"]): The type of the mapping, always "binary_expression".
         operator (str): The operator used in the binary expression (e.g., "+", "-", "*", "/").
-        left (AST): The left operand of the binary expression.
-        right (AST): The right operand of the binary expression.
+        left (Any): The left operand of the binary expression.
+        right (Any): The right operand of the binary expression.
         sql (str): The SQL representation of the binary expression, combining the left and right
             operands with the operator.
     """
 
     type: Literal["binary_expression"]
     operator: str
-    left: AST
-    right: AST
+    left: Any
+    right: Any
     sql: str
 
 
@@ -188,13 +188,13 @@ class FunctionMapsOutput(TypedDict):
     Attributes:
         type (Literal["function"]): The type of the mapping, always "function".
         name (str): The name of the function being called (e.g., "SUM", "IF").
-        arguments (list[AST]): A list of AST nodes representing the arguments passed to the function.
+        arguments (list[Any]): A list of AST nodes representing the arguments passed to the function.
         sql (str): The SQL representation of the function call, including its name and arguments.
     """
 
     type: Literal["function"]
     name: str
-    arguments: list[AST]
+    arguments: list[Any]
     sql: str
 
 
@@ -220,11 +220,13 @@ AllOutputs = Union[
     BinaryExpressionMapsOutput,
     FunctionMapsOutput,
     LogicalMapsOutput,
-    TextMapsOutput
+    TextMapsOutput,
 ]
 """Union type representing all possible output types from AST processing functions."""
 
-SingleOutput = Union[CellMapsOutput, NumberMapsOutput, LogicalMapsOutput, TextMapsOutput]
+SingleOutput = Union[
+    CellMapsOutput, NumberMapsOutput, LogicalMapsOutput, TextMapsOutput
+]
 """Union type for simple, single-value outputs (cells, numbers, logical values and text)."""
 
 ComplexOutput = Union[FunctionMapsOutput, BinaryExpressionMapsOutput]

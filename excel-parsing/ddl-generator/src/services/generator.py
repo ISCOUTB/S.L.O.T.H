@@ -9,11 +9,11 @@ The module defines a dispatcher pattern using the MAPS dictionary to route diffe
 AST node types to their appropriate processing functions.
 """
 
-from sql import get_sql_from_function
-from utils import get_column_range, get_column_from_cell
+from services.sql import get_sql_from_function
+from services.utils import get_column_range, get_column_from_cell
 
 from typing import Dict, Callable
-from dtypes import (
+from services.dtypes import (
     AST,
     AstTypes,
     CellMapsOutput,
@@ -22,10 +22,11 @@ from dtypes import (
     BinaryExpressionMapsOutput,
     FunctionMapsOutput,
     TextMapsOutput,
+    AllOutputs
 )
 
 
-MAPS: Dict[AstTypes, Callable] = {
+MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
     "binary-expression": lambda ast, columns: binary_maps(ast, columns),
     "cell-range": lambda ast, columns: cell_range_maps(ast, columns),
     "function": lambda ast, columns: function_maps(ast, columns),

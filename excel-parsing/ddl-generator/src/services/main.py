@@ -6,10 +6,10 @@ into SQL expressions. It processes input data containing ASTs and column mapping
 to generate corresponding SQL output.
 """
 
-from generator import MAPS
+from services.generator import MAPS
 
 from typing import Dict
-from dtypes import InputData, AST, AllOutputs
+from services.dtypes import InputData, AST, AllOutputs
 
 
 def main(data: InputData) -> AllOutputs:
