@@ -17,9 +17,17 @@ class Settings(BaseSettings):
     def FORMULA_PARSER_CHANNEL(self) -> str:
         return f"{self.FORMULA_PARSER_HOST}:{self.FORMULA_PARSER_PORT}"
 
+    DDL_GENERATOR_HOST: str = "localhost"
+    DDL_GENERATOR_PORT: str = "50053"
+
+    @computed_field
+    @property
+    def DDL_GENERATOR_CHANNEL(self) -> str:
+        return f"{self.DDL_GENERATOR_HOST}:{self.DDL_GENERATOR_PORT}"
+
 
 settings = Settings()
 
 
 if __name__ == "__main__":
-    print(settings.model_dump())
+    print(settings.model_dump_json(indent=4))
