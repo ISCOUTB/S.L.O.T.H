@@ -30,6 +30,7 @@ RefTypes = Literal[
     "relative",  # Obtained from a cell reference like "A1" or "B2"
     "absolute",  # Obtained from a cell reference like "$A$1" or "$B$2"
     "mixed",  # Obtained from a cell reference like "A$1" or "$B2"
+    "",  # Represents an empty or unknown reference type
 ]
 
 

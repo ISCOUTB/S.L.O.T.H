@@ -210,7 +210,7 @@ def cell_maps(ast: AST, columns: Dict[str, str]) -> CellMapsOutput:
     return {
         "type": "cell",
         "cell": cell,
-        "refType": ast["refType"],
+        "refType": ast.get("refType", ""),
         "column": column,
         "error": error,
         "sql": column,
