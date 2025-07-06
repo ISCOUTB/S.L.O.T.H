@@ -1,7 +1,7 @@
-import dtypes
-from typing import Dict, Any
+from services import dtypes
+from typing import Dict
 from igraph import Graph
-from utils import get_outgoing_connections, has_cyclic_dependencies
+from services.utils import get_outgoing_connections
 
 
 def build_sql(
@@ -9,7 +9,7 @@ def build_sql(
     dependency_graph: Graph,
     dtypes: Dict[str, str],
     table_name: str,
-) -> Dict[int, Any]:
+) -> Dict[int, str | list[str]]:
     """
     Build SQL expressions from the provided column definitions and their dependencies.
 
@@ -20,11 +20,8 @@ def build_sql(
         table_name (str): Name of the table to create.
 
     Returns:
-        Dict[int, Any]: Dictionary mapping column names to their SQL expressions.
+        Dict[int, list[str]]: Dictionary mapping column names to their SQL expressions.
     """
-    if has_cyclic_dependencies(dependency_graph):
-        raise ValueError("The dependency graph contains cyclic dependencies.")
-
     priorities = {col: get_outgoing_connections(dependency_graph, col) for col in cols}
     level_0 = list(filter(lambda pair: pair[1] == 0, priorities.items()))
     sql_expressions = {0: f"CREATE TABLE IF NOT EXISTS {table_name} ("}
@@ -35,6 +32,8 @@ def build_sql(
             sql_expressions[0] += f"{base_sql});"
             continue
         sql_expressions[0] += f"{base_sql}, "
+
+    sql_expressions[0] = [sql_expressions[0]]  # Convert to list for consistency
 
     # Sort based on the priority
     priorities_levels = list(set(priorities.values()))

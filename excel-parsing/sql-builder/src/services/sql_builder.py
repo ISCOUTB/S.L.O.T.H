@@ -1,15 +1,16 @@
-import dtypes
+from services import dtypes
 from typing import Dict
 
-from create_graph import create_dependency_graph
-from builder import build_sql
+from services.builder import build_sql
+from services.utils import has_cyclic_dependencies
+from services.create_graph import create_dependency_graph
 
 
-def main(
+def sql_builder(
     cols: Dict[str, dtypes.AllOutputs],
     dtypes: Dict[str, str],
     table_name: str,
-) -> str:
+) -> dtypes.SQLExpressions:
     """
     Main function to build SQL expressions from column definitions and their dependencies.
 
@@ -19,21 +20,19 @@ def main(
         table_name (str): Name of the table to create.
 
     Returns:
-        str: SQL expressions for creating the table and adding generated columns.
+        dtypes.SQLExpressions: Dictionary mapping column names to their SQL expressions.
     """
     graph = create_dependency_graph(cols)
-    sql_expressions = build_sql(cols, graph, dtypes, table_name)
-    sql_expression = f"{sql_expressions[0]}\n"  # Start with the CREATE TABLE statement
-    for level, expressions in sql_expressions.items():
-        if level == 0:
-            continue
-        for expr in expressions:
-            sql_expression += f"\n{expr}"
+    if has_cyclic_dependencies(graph):
+        return {"content": {}, "error": "The AST contains cyclic dependencies."}
 
-    return sql_expression
+    sql_expressions = build_sql(cols, graph, dtypes, table_name)
+    return {"content": sql_expressions, "error": None}
 
 
 if __name__ == "__main__":
+    import json
+
     cols: Dict[str, dtypes.AllOutputs] = {
         "col1": {"type": "number", "value": 10},
         "col2": {
@@ -70,15 +69,23 @@ if __name__ == "__main__":
         "col4": {"type": "number", "value": 10},
     }
 
-    print(
-        main(
-            cols,
-            table_name="test_table",
-            dtypes={
-                "col1": {"type": "INTEGER"},
-                "col2": {"type": "TEXT"},
-                "col3": {"type": "TEXT"},
-                "col4": {"type": "INTEGER"},
-            },
-        )
+    content = sql_builder(
+        cols,
+        table_name="test_table",
+        dtypes={
+            "col1": {"type": "INTEGER"},
+            "col2": {"type": "TEXT"},
+            "col3": {"type": "TEXT"},
+            "col4": {"type": "INTEGER"},
+        },
     )
+
+    print(json.dumps(content, indent=2))
+
+    priorities = content["content"]
+    sql_expression = ""
+    for level, expressions in priorities.items():
+        for expr in expressions:
+            sql_expression += f"\n{expr}"
+
+    print(sql_expression)

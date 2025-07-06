@@ -1,4 +1,4 @@
-import dtypes
+from services import dtypes
 from typing import Dict, Callable
 from igraph import Graph
 

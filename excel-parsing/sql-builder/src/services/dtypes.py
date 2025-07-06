@@ -13,7 +13,7 @@ The types are organized into:
 - Union types for flexible type handling
 """
 
-from typing import TypedDict, Literal, Optional, Union
+from typing import TypedDict, Literal, Optional, Union, Any, Dict
 
 
 AstTypes = Literal[
@@ -30,6 +30,7 @@ RefTypes = Literal[
     "relative",  # Obtained from a cell reference like "A1" or "B2"
     "absolute",  # Obtained from a cell reference like "$A$1" or "$B$2"
     "mixed",  # Obtained from a cell reference like "A$1" or "$B2"
+    "",  # Represents an empty or unknown reference type
 ]
 
 
@@ -58,7 +59,7 @@ class AST(TypedDict):
             reference type nodes.
         key (Optional[str]): The specific cell reference key, such as "A1", "B2", or
             "C3:D5". Only used for cell reference type nodes.
-        value (Optional[float]): The numeric value for nodes representing numbers. Only used
+        value (Optional[float | str | bool]): The numeric value for nodes representing numbers. Only used
             for number type nodes.
     """
 
@@ -70,7 +71,7 @@ class AST(TypedDict):
     name: Optional[str]
     refType: Optional[RefTypes]
     key: Optional[str]
-    value: Optional[float]
+    value: Optional[float | str | bool]
 
 
 class NumberMapsOutput(TypedDict):
@@ -154,16 +155,16 @@ class BinaryExpressionMapsOutput(TypedDict):
     Attributes:
         type (Literal["binary-expression"]): The type of the mapping, always "binary-expression".
         operator (str): The operator used in the binary expression (e.g., "+", "-", "*", "/").
-        left (AST): The left operand of the binary expression.
-        right (AST): The right operand of the binary expression.
+        left (Any): The left operand of the binary expression.
+        right (Any): The right operand of the binary expression.
         sql (str): The SQL representation of the binary expression, combining the left and right
             operands with the operator.
     """
 
     type: Literal["binary-expression"]
     operator: str
-    left: AST
-    right: AST
+    left: Any
+    right: Any
     sql: str
 
 
@@ -174,13 +175,13 @@ class FunctionMapsOutput(TypedDict):
     Attributes:
         type (Literal["function"]): The type of the mapping, always "function".
         name (str): The name of the function being called (e.g., "SUM", "IF").
-        arguments (list[AST]): A list of AST nodes representing the arguments passed to the function.
+        arguments (list[Any]): A list of AST nodes representing the arguments passed to the function.
         sql (str): The SQL representation of the function call, including its name and arguments.
     """
 
     type: Literal["function"]
     name: str
-    arguments: list[AST]
+    arguments: list[Any]
     sql: str
 
 
@@ -222,9 +223,25 @@ AllOutputs = Union[
     BinaryExpressionMapsOutput,
     FunctionMapsOutput,
     LogicalMapsOutput,
-    TextMapsOutput
+    TextMapsOutput,
 ]
 """Union type representing all possible output types from AST processing functions."""
 
 ConstantsOutputs = Union[TextMapsOutput, NumberMapsOutput, LogicalMapsOutput]
 """Union type representing outputs that are constants values."""
+
+
+class SQLExpressions(TypedDict):
+    """
+    SQl expressions for creating and altering tables.
+
+    Attributes:
+        content (Optional[Dict[int, list[str]]]): A dictionary mapping levels to SQL expressions.
+            The keys are integers representing the level of the expression, and the values
+            are strings containing the SQL expression for that level.
+        error (Optional[str]): An error message if there was an issue generating the SQL expressions,
+            otherwise None.
+    """
+
+    content: Optional[Dict[int, list[str]]] = {}
+    error: Optional[str] = None
