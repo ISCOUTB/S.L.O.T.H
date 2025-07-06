@@ -1,0 +1,23 @@
+syntax = "proto3";
+import "ddl_generator.proto";
+
+package sql_builder;
+
+service SQLBuilder {
+    rpc BuildSQL(BuildSQLRequest) returns (BuildSQLResponse);
+}
+
+message BuildSQLRequest {
+    map<string, ddl_generator.DDLResponse> cols = 1;
+    map<string, string> dtypes = 2;
+    string table_name = 3;
+}
+
+message BuildSQLResponse {
+    message Sentence {
+        repeated string sql = 1;
+    }
+
+    map<int32, Sentence> content = 1;
+    optional string error = 2;
+}
