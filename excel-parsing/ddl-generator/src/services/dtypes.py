@@ -59,7 +59,7 @@ class AST(TypedDict):
             reference type nodes.
         key (Optional[str]): The specific cell reference key, such as "A1", "B2", or
             "C3:D5". Only used for cell reference type nodes.
-        value (Optional[float]): The numeric value for nodes representing numbers. Only used
+        value (Optional[float | str | bool]): The numeric value for nodes representing numbers. Only used
             for number type nodes.
     """
 
@@ -71,7 +71,7 @@ class AST(TypedDict):
     name: Optional[str]
     refType: Optional[RefTypes]
     key: Optional[str]
-    value: Optional[float]
+    value: Optional[float | str | bool]
 
 
 class InputData(TypedDict):
@@ -145,7 +145,7 @@ class CellRangeMapsOutput(TypedDict):
     Represents the output of cell range mapping.
 
     Attributes:
-        type (Literal["cell_range"]): The type of the mapping, always "cell_range".
+        type (Literal["cell-range"]): The type of the mapping, always "cell-range".
         start (str): The starting cell reference of the range (e.g., "A1").
         end (str): The ending cell reference of the range (e.g., "B2").
         cells (list[str]): A list of cell references in the range (e.g., ["A1", "A2", ...]).
@@ -154,7 +154,7 @@ class CellRangeMapsOutput(TypedDict):
             otherwise None.
     """
 
-    type: Literal["cell_range"]
+    type: Literal["cell-range"]
     start: str
     end: str
     cells: list[str]
@@ -167,7 +167,7 @@ class BinaryExpressionMapsOutput(TypedDict):
     Represents the output of binary expression mapping.
 
     Attributes:
-        type (Literal["binary_expression"]): The type of the mapping, always "binary_expression".
+        type (Literal["binary-expression"]): The type of the mapping, always "binary-expression".
         operator (str): The operator used in the binary expression (e.g., "+", "-", "*", "/").
         left (Any): The left operand of the binary expression.
         right (Any): The right operand of the binary expression.
@@ -175,7 +175,7 @@ class BinaryExpressionMapsOutput(TypedDict):
             operands with the operator.
     """
 
-    type: Literal["binary_expression"]
+    type: Literal["binary-expression"]
     operator: str
     left: Any
     right: Any

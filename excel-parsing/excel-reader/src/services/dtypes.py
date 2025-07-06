@@ -45,7 +45,7 @@ class AST(TypedDict):
             reference type nodes.
         key (Optional[str]): The specific cell reference key, such as "A1", "B2", or
             "C3:D5". Only used for cell reference type nodes.
-        value (Optional[float]): The numeric value for nodes representing numbers. Only used
+        value (Optional[float | str | bool]): The numeric value for nodes representing numbers. Only used
             for number type nodes.
     """
 
