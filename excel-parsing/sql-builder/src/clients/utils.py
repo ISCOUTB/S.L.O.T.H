@@ -3,88 +3,87 @@ from services import dtypes
 from clients import dtypes_pb2, ddl_generator_pb2, sql_builder_pb2
 
 
-AST_TYPES_TO_PROTO: Dict[dtypes.AstTypes, dtypes_pb2.AstType] = {
-    "binary-expression": dtypes_pb2.AstType.AST_BINARY_EXPRESSION,
-    "cell-range": dtypes_pb2.AstType.AST_CELL_RANGE,
-    "function": dtypes_pb2.AstType.AST_FUNCTION,
-    "cell": dtypes_pb2.AstType.AST_CELL,
-    "number": dtypes_pb2.AstType.AST_NUMBER,
-    "logical": dtypes_pb2.AstType.AST_LOGICAL,
-    "text": dtypes_pb2.AstType.AST_TEXT,
+AST_TYPES_MAPPING: Dict[dtypes_pb2.AstType, dtypes.AstTypes] = {
+    dtypes_pb2.AstType.AST_BINARY_EXPRESSION: "binary-expression",
+    dtypes_pb2.AstType.AST_CELL_RANGE: "cell-range",
+    dtypes_pb2.AstType.AST_FUNCTION: "function",
+    dtypes_pb2.AstType.AST_CELL: "cell",
+    dtypes_pb2.AstType.AST_NUMBER: "number",
+    dtypes_pb2.AstType.AST_LOGICAL: "logical",
+    dtypes_pb2.AstType.AST_TEXT: "text",
 }
 
-REFTYPES_TO_PROTO: Dict[dtypes.RefTypes, dtypes_pb2.RefType] = {
-    "relative": dtypes_pb2.RefType.REF_RELATIVE,
-    "absolute": dtypes_pb2.RefType.REF_ABSOLUTE,
-    "mixed": dtypes_pb2.RefType.REF_MIXED,
+REFTYPES_MAPPING: Dict[dtypes_pb2.RefType, dtypes.RefTypes] = {
+    dtypes_pb2.RefType.REF_RELATIVE: "relative",
+    dtypes_pb2.RefType.REF_ABSOLUTE: "absolute",
+    dtypes_pb2.RefType.REF_MIXED: "mixed",
 }
 
 
-def parse_output_to_proto(output: dtypes.AllOutputs) -> ddl_generator_pb2.DDLResponse:
-    ast_type: dtypes_pb2.AstType = AST_TYPES_TO_PROTO.get(
-        output["type"], dtypes_pb2.AstType.AST_UNKNOWN
-    )
-    sql = str(output.get("sql", ""))
+def parse_ddlresponse(response: ddl_generator_pb2.DDLResponse) -> dtypes.AllOutputs:
+    """
+    Converts a DDLResponse protobuf message to a dictionary format.
 
-    if ast_type == dtypes_pb2.AstType.AST_CELL:
-        return ddl_generator_pb2.DDLResponse(
-            type=ast_type,
-            cell=output["cell"],
-            refType=REFTYPES_TO_PROTO.get(
-                output["refType"], dtypes_pb2.RefType.REF_UNKNOWN
-            ),
-            column=output.get("column", ""),
-            error=output.get("error", ""),
-            sql=sql,
-        )
+    Args:
+        response (ddl_generator_pb2.DDLResponse): The DDLResponse protobuf message.
 
-    if ast_type in {
-        dtypes_pb2.AstType.AST_NUMBER,
-        dtypes_pb2.AstType.AST_LOGICAL,
-        dtypes_pb2.AstType.AST_TEXT,
-    }:
-        response = ddl_generator_pb2.DDLResponse(type=ast_type, sql=sql)
-        if ast_type == dtypes_pb2.AstType.AST_NUMBER:
-            response.number_value = output["value"]
-        if ast_type == dtypes_pb2.AstType.AST_LOGICAL:
-            response.logical_value = output["value"]
-        if ast_type == dtypes_pb2.AstType.AST_TEXT:
-            response.text_value = output["value"]
-        return response
+    Returns:
+        dtypes.AllOutputs: The parsed output as a dictionary.
+    """
+    ast_type: dtypes_pb2.AstType = response.type
+    ast_type_str: dtypes.AstTypes = AST_TYPES_MAPPING.get(ast_type, "unknown")
+    if ast_type_str == "binary-expression":
+        return {
+            "type": ast_type_str,
+            "left": parse_ddlresponse(response.left),
+            "right": parse_ddlresponse(response.right),
+            "operator": response.operator,
+            "sql": response.sql,
+        }
+    
+    if ast_type_str == "cell-range":
+        return {
+            "type": ast_type_str,
+            "start": response.start,
+            "end": response.end,
+            "cells": [cell for cell in response.cells],
+            "columns": [col for col in response.columns],
+            "error": response.error,
+            "sql": response.sql,
+        }
+    
+    if ast_type_str == "function":
+        return {
+            "type": ast_type_str,
+            "name": response.name,
+            "arguments": [
+                parse_ddlresponse(arg) for arg in response.arguments
+            ],
+            "sql": response.sql,
+        }
+    
+    if ast_type_str == "cell":
+        return {
+            "type": ast_type_str,
+            "cell": response.cell,
+            "refType": REFTYPES_MAPPING.get(response.refType, ""),
+            "column": response.column,
+            "error": response.error,
+            "sql": response.sql,
+        }
+    
+    if ast_type_str == "number":
+        value = response.number_value
+    elif ast_type_str == "text":
+        value = response.text_value
+    else:
+        value = response.logical_value
 
-    if ast_type == dtypes_pb2.AstType.AST_BINARY_EXPRESSION:
-        return ddl_generator_pb2.DDLResponse(
-            type=ast_type,
-            operator=output["operator"],
-            left=parse_output_to_proto(output["left"]),
-            right=parse_output_to_proto(output["right"]),
-            sql=sql,
-        )
-
-    if ast_type == dtypes_pb2.AstType.AST_CELL_RANGE:
-        return ddl_generator_pb2.DDLResponse(
-            type=ast_type,
-            start=output["start"],
-            end=output["end"],
-            cells=output["cells"],
-            columns=output["columns"],
-            error=output.get("error", None),
-            sql=sql,
-        )
-
-    if ast_type == dtypes_pb2.AstType.AST_FUNCTION:
-        return ddl_generator_pb2.DDLResponse(
-            type=ast_type,
-            name=output["name"],
-            arguments=[parse_output_to_proto(arg) for arg in output["arguments"]],
-            sql=sql,
-        )
-
-    return ddl_generator_pb2.DDLResponse(
-        type=ast_type,
-        sql=sql,
-        error=output.get("error", ""),
-    )
+    return {
+        "type": ast_type_str,
+        "value": value,
+        "sql": response.sql,
+    }
 
 
 def parse_to_sql_response(
@@ -107,7 +106,7 @@ def parse_to_sql_response(
 
     return sql_builder_pb2.BuildSQLResponse(
         content={
-            level: sql_builder_pb2.BuildSQLResponse.Sentence(expr)
+            level: sql_builder_pb2.BuildSQLResponse.Sentence(sql=expr)
             for level, expr in sql_expressions["content"].items()
         },
         error=None,
