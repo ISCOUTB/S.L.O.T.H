@@ -52,7 +52,12 @@ def generate_sql(
 ) -> str:
     request = sql_builder_pb2.BuildSQLRequest(
         cols=cols,
-        dtypes={dtype: sql_builder_pb2.BuildSQLRequest.ColumnInfo(type=dtypes[dtype]["type"], extra=dtypes[dtype].get("extra", "")) for dtype in dtypes},
+        dtypes={
+            dtype: sql_builder_pb2.BuildSQLRequest.ColumnInfo(
+                type=dtypes[dtype]["type"], extra=dtypes[dtype].get("extra", "")
+            )
+            for dtype in dtypes
+        },
         table_name=table_name,
     )
     response: sql_builder_pb2.BuildSQLResponse = stub.BuildSQL(request)
