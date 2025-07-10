@@ -8,7 +8,7 @@ from services.create_graph import create_dependency_graph
 
 def sql_builder(
     cols: Dict[str, dtypes.AllOutputs],
-    dtypes: Dict[str, str],
+    dtypes: Dict[str, Dict[str, str]],
     table_name: str,
 ) -> dtypes.SQLExpressions:
     """
@@ -16,7 +16,7 @@ def sql_builder(
 
     Args:
         cols (Dict[str, dtypes.AllOutputs]): Column definitions with their types and SQL expressions.
-        dtypes (Dict[str, str]): Data types for each column.
+        dtypes (Dict[str, Dict[str, str]]): Data types for each column.
         table_name (str): Name of the table to create.
 
     Returns:

@@ -7,16 +7,16 @@ from services.utils import get_outgoing_connections
 def build_sql(
     cols: Dict[str, dtypes.AllOutputs],
     dependency_graph: Graph,
-    dtypes: Dict[str, str],
+    dtypes: Dict[str, Dict[str, str]],
     table_name: str,
-) -> Dict[int, str | list[str]]:
+) -> Dict[int, list[str]]:
     """
     Build SQL expressions from the provided column definitions and their dependencies.
 
     Args:
         cols (Dict[str, dtypes.AllOutputs]): Dictionary mapping column names to their definitions.
         dependency_graph (Graph): Dependency graph representing relationships between columns.
-        dtypes (Dict[str, str]): Dictionary mapping column names to their SQL data types.
+        dtypes (Dict[str, Dict[str, str]]): Dictionary mapping column names to their SQL data types.
         table_name (str): Name of the table to create.
 
     Returns:

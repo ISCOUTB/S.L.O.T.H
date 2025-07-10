@@ -8,8 +8,13 @@ service SQLBuilder {
 }
 
 message BuildSQLRequest {
+    message ColumnInfo {
+        string type = 1; // Data type of the column (e.g., "INTEGER", "TEXT")
+        string extra = 2; // Additional SQL constraints (e.g., "NOT NULL", "PRIMARY KEY")
+    }
+
     map<string, ddl_generator.DDLResponse> cols = 1;
-    map<string, string> dtypes = 2;
+    map<string, ColumnInfo> dtypes = 2;
     string table_name = 3;
 }
 
