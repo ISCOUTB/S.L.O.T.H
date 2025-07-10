@@ -89,7 +89,7 @@ services:
       MONGO_HOST: mongodb
       REDIS_HOST: redisdb
       POSTGRES_HOST: postgresdb
-      command: bash scripts/prestart.sh
+    command: bash scripts/prestart_backend.sh
 
   api:
     build:
