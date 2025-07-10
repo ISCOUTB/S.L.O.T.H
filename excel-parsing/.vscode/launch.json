@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: SQL Builder Server",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/sql-builder",
+            "program": "./src/server.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python Debugger: Excel Reader",
+            "type": "debugpy",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/excel-reader",
+            "program": "./src/main.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python Debugger: DDLGenerator Server",
             "type": "debugpy",
             "request": "launch",
