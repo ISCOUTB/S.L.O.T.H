@@ -1,9 +1,13 @@
 import grpc
 from clients.dtypes import utils
 from services.get_data import get_data_from_spreadsheet
+
 from clients.dtypes import dtypes_pb2
 from clients.ddl_generator import ddl_generator_pb2, ddl_generator_pb2_grpc
 from clients.formula_parser import formula_parser_pb2, formula_parser_pb2_grpc
+
+from clients.sql_builder import utils as sql_builder_utils
+from clients.sql_builder import sql_builder_pb2, sql_builder_pb2_grpc
 
 from services import dtypes
 from typing import Generator, Dict
@@ -15,6 +19,9 @@ FORMULA_PARSER_STUB = formula_parser_pb2_grpc.FormulaParserStub(FORMULA_PARSER_C
 
 DDL_GENERATOR_CHANNEL = grpc.insecure_channel(settings.DDL_GENERATOR_CHANNEL)
 DDL_GENERATOR_STUB = ddl_generator_pb2_grpc.DDLGeneratorStub(DDL_GENERATOR_CHANNEL)
+
+SQL_BUILDER_CHANNEL = grpc.insecure_channel(settings.SQL_BUILDER_CHANNEL)
+SQL_BUILDER_STUB = sql_builder_pb2_grpc.SQLBuilderStub(SQL_BUILDER_CHANNEL)
 
 
 def parse_formula(
@@ -29,13 +36,33 @@ def generate_ddl(
     stub: ddl_generator_pb2_grpc.DDLGeneratorStub,
     ast: dtypes_pb2.AST,
     columns: Dict[str, str],
-) -> str:
-    print(ast)
-    print(columns)
+    raw: bool = False,
+) -> ddl_generator_pb2.DDLResponse | str:
     request = ddl_generator_pb2.DDLRequest(ast=ast)
     request.columns.update(columns)
     response: ddl_generator_pb2.DDLResponse = stub.GenerateDDL(request)
-    return response.sql
+    return response if raw else response.ddl
+
+
+def generate_sql(
+    stub: sql_builder_pb2_grpc.SQLBuilderStub,
+    cols: Dict[str, ddl_generator_pb2.DDLResponse],
+    dtypes: Dict[str, Dict[str, str]],
+    table_name: str,
+) -> str:
+    request = sql_builder_pb2.BuildSQLRequest(
+        cols=cols,
+        dtypes={dtype: sql_builder_pb2.BuildSQLRequest.ColumnInfo(type=dtypes[dtype]["type"], extra=dtypes[dtype].get("extra", "")) for dtype in dtypes},
+        table_name=table_name,
+    )
+    response: sql_builder_pb2.BuildSQLResponse = stub.BuildSQL(request)
+    sql_expressions = sql_builder_utils.parse_sql_builder_response(response)["content"]
+    sql_expression = ""
+    for level in sorted(sql_expressions.keys()):
+        for expr in sql_expressions[level]:
+            sql_expression += f"\n{expr}"
+
+    return sql_expression
 
 
 def generate_data(
@@ -76,7 +103,9 @@ def parse_formulas(
     return {"result": result, "columns": content["columns"]}
 
 
-def main(filename: str, file_bytes: bytes) -> dtypes.DataInfo:
+def main(
+    filename: str, file_bytes: bytes
+) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
     content = parse_formulas(filename, file_bytes)
     result = content["result"]
     columns = content["columns"]
@@ -84,22 +113,46 @@ def main(filename: str, file_bytes: bytes) -> dtypes.DataInfo:
         for col, cells in cols.items():
             for i, cell in enumerate(cells):
                 result[sheet][col][i]["sql"] = generate_ddl(
-                    DDL_GENERATOR_STUB, cell["ast"], columns[sheet]
+                    DDL_GENERATOR_STUB, cell["ast"], columns[sheet], raw=True
                 )
                 result[sheet][col][i]["ast"] = utils.parse_ast(cell["ast"])
 
-    return result
+    return {"result": result, "columns": columns}
 
 
 if __name__ == "__main__":
-    import json
     import os.path
+    from pprint import pprint
 
     file_example = "../../typechecking/backend/static/acme__users__sample1.xlsx"
-
+    print(os.path.abspath(file_example), os.path.exists(file_example))
     with open(file_example, "rb") as file:
         file_bytes = file.read()
 
     filename = os.path.basename(file_example)
-    result = main(filename, file_bytes)
-    print(json.dumps(result, indent=4, ensure_ascii=False))
+    content = main(filename, file_bytes)
+    result = content["result"]
+    columns = content["columns"]
+    pprint(columns)
+
+    ddls = {
+        sheet: {
+            col_name: result[sheet][letter][0]["sql"]
+            for letter, col_name in columns[sheet].items()
+        }
+        for sheet in columns.keys()
+    }
+
+    print(
+        generate_sql(
+            SQL_BUILDER_STUB,
+            ddls["Sheet1"],
+            {
+                "id": {"type": "INTEGER", "extra": "PRIMARY KEY"},
+                "name": {"type": "TEXT"},
+                "age": {"type": "INTEGER"},
+                "is_adult": {"type": "TEXT"},
+            },
+            table_name="test_table",
+        )
+    )

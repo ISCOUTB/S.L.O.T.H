@@ -237,3 +237,19 @@ DDLResponse = Union[
     TextMapsOutput,
 ]
 """Union type representing all possible output types from AST processing functions."""
+
+
+class SQLExpressions(TypedDict):
+    """
+    SQl expressions for creating and altering tables.
+
+    Attributes:
+        content (Optional[Dict[int, list[str]]]): A dictionary mapping levels to SQL expressions.
+            The keys are integers representing the level of the expression, and the values
+            are strings containing the SQL expression for that level.
+        error (Optional[str]): An error message if there was an issue generating the SQL expressions,
+            otherwise None.
+    """
+
+    content: Optional[Dict[int, list[str]]] = {}
+    error: Optional[str] = None
