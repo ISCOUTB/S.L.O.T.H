@@ -4,9 +4,14 @@ from core.config import settings
 from main import main, generate_sql, SQL_BUILDER_STUB
 
 import json
+import logging
 from typing import Dict
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, Form
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ExcelReader")
+
 
 app = FastAPI()
 
@@ -42,6 +47,7 @@ async def read_excel(
             status_code=400, detail=f"Invalid dtypes JSON: {str(e)}"
         )
 
+    logger.info(f"Processing file: {filename}")
     content = main(filename, file_content)
     result = content["result"]
     columns = content["columns"]

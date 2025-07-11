@@ -9,9 +9,13 @@ from clients.formula_parser import formula_parser_pb2, formula_parser_pb2_grpc
 from clients.sql_builder import utils as sql_builder_utils
 from clients.sql_builder import sql_builder_pb2, sql_builder_pb2_grpc
 
+import logging
 from services import dtypes
 from typing import Generator, Dict
 from core.config import settings
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 FORMULA_PARSER_CHANNEL = grpc.insecure_channel(settings.FORMULA_PARSER_CHANNEL)
@@ -41,7 +45,7 @@ def generate_ddl(
     request = ddl_generator_pb2.DDLRequest(ast=ast)
     request.columns.update(columns)
     response: ddl_generator_pb2.DDLResponse = stub.GenerateDDL(request)
-    return response if raw else response.ddl
+    return response if raw else response.sql
 
 
 def generate_sql(
@@ -115,13 +119,29 @@ def main(
     content = parse_formulas(filename, file_bytes)
     result = content["result"]
     columns = content["columns"]
+    if settings.EXCEL_READER_DEBUG:
+        logger.info(f"Parsed formulas for file: {filename}")
+        logger.info(f"Columns: {columns}")
+
+    result = content["result"]
+    columns = content["columns"]
     for sheet, cols in result.items():
         for col, cells in cols.items():
             for i, cell in enumerate(cells):
+                if settings.EXCEL_READER_DEBUG:
+                    logger.info(
+                        f"Processing cell: {cell['cell']}={cell['value']} in {sheet}.{col}"
+                    )
+                    logger.info(f"AST Type: {result[sheet][col][i]['ast'].type}")
+
                 result[sheet][col][i]["sql"] = generate_ddl(
                     DDL_GENERATOR_STUB, cell["ast"], columns[sheet], raw=True
                 )
                 result[sheet][col][i]["ast"] = utils.parse_ast(cell["ast"])
+
+                if settings.EXCEL_READER_DEBUG:
+                    logger.info(f"AST Type: {result[sheet][col][i]['ast']['type']}")
+                    logger.info(f"Generated SQL: {result[sheet][col][i]['sql'].sql}")
 
     return {"result": result, "columns": columns}
 
