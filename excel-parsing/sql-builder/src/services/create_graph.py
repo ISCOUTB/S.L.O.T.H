@@ -1,5 +1,5 @@
 from services import dtypes
-from typing import Dict, Callable
+from typing import Dict, Callable, Iterable
 from igraph import Graph
 
 
@@ -17,6 +17,28 @@ MAPS_DTYPES: Dict[
 }
 
 
+def is_constant(col_refs: dtypes.ColReferences, cols: Iterable[str]) -> bool:
+    """
+    Check if the column references are constants.
+
+    Args:
+        col_refs (dtypes.ColReferences): The column references to check.
+        cols (Iterable[str]): The set of column names to check against.
+
+    Returns:
+        bool: True if the column references are constants, False otherwise.
+    """
+    return (
+        col_refs["error"]
+        or col_refs["constants"]
+        or not col_refs["columns"]
+        or (
+            len(col_refs["columns"]) == 1
+            and col_refs["columns"][0] not in cols
+        )
+    )
+
+
 def create_dependency_graph(cols: Dict[str, dtypes.AllOutputs]) -> Graph:
     """
     Create a dependency graph from the provided columns.
@@ -29,12 +51,13 @@ def create_dependency_graph(cols: Dict[str, dtypes.AllOutputs]) -> Graph:
         Graph: An igraph Graph object representing the dependencies.
     """
     g = Graph(directed=True)
-    g.add_vertices(list(cols.keys()))
+    cols_name = set(cols.keys())
+    g.add_vertices(cols_name)
 
     for col_name, col in cols.items():
         col_type = col["type"]
         cols_refs = MAPS_DTYPES[col_type](col)
-        if cols_refs["error"] or cols_refs["constants"]:
+        if is_constant(cols_refs, cols_name):
             continue
 
         for col_ref in cols_refs["columns"]:

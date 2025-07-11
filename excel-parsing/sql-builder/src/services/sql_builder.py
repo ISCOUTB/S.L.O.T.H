@@ -30,10 +30,10 @@ def sql_builder(
     sql_expressions = build_sql(cols, graph, dtypes, table_name)
 
     # Just in case
-    sql_expressions = {
-        level: [transpile(expr, read="postgres")[0] for expr in expressions]
-        for level, expressions in sql_expressions.items()
-    }
+    # sql_expressions = {
+    #     level: [transpile(expr, read="postgres")[0] for expr in expressions]
+    #     for level, expressions in sql_expressions.items()
+    # }
     return {"content": sql_expressions, "error": None}
 
 
