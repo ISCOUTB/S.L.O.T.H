@@ -6,6 +6,7 @@ converting between column letters and indices, and generating column ranges.
 """
 
 from typing import List
+from functools import lru_cache
 
 
 def get_row_from_cell(cell: str) -> int:
@@ -93,30 +94,16 @@ def excel_col_to_index(col: str) -> int:
     return index
 
 
+@lru_cache(maxsize=2048)
 def index_to_excel_col(index: int) -> str:
     """
-    Convert a 1-based index to Excel column letters.
-
-    Args:
-        index (int): The 1-based column index (1=A, 2=B, ..., 26=Z, 27=AA).
-
-    Returns:
-        str: The corresponding Excel column letters.
-
-    Examples:
-        >>> index_to_excel_col(1)
-        'A'
-        >>> index_to_excel_col(26)
-        'Z'
-        >>> index_to_excel_col(27)
-        'AA'
+    Convert a 1-based index to Excel column letters (optimized with caching).
     """
-    col = ""
-    while index > 0:
-        index -= 1  # ajuste porque A = 1, no 0
-        col = chr(index % 26 + ord("A")) + col
-        index //= 26
-    return col
+    if index <= 26:
+        return chr(ord('A') + index - 1)
+    
+    quotient, remainder = divmod(index - 1, 26)
+    return index_to_excel_col(quotient) + chr(ord('A') + remainder)
 
 
 def get_column_range(start: str, end: str) -> List[str]:
