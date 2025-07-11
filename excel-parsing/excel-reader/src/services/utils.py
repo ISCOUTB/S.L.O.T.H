@@ -3,9 +3,69 @@ import openpyxl
 from io import BytesIO
 
 import services.dtypes as dtypes
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Callable, TypeVar
+
+import asyncio
+import time
+import logging
+from functools import wraps
+
+F = TypeVar("F", bound=Callable[..., Any])
 
 
+def monitor_performance(operation_name: str):
+    def decorator(func: F) -> F:
+        if asyncio.iscoroutinefunction(func):
+
+            @wraps(func)
+            async def async_wrapper(*args, **kwargs):
+                start_time = time.perf_counter()
+
+                try:
+                    result = await func(*args, **kwargs)
+                    status = "success"
+                    return result
+                except Exception as e:
+                    status = "error"
+                    raise e
+                finally:
+                    end_time = time.perf_counter()
+                    duration = end_time - start_time
+
+                    # Log detallado
+                    logging.info(
+                        f"{operation_name} - Duration: {duration:.4f}s - Status: {status}"
+                    )
+
+            return async_wrapper
+        else:
+
+            @wraps(func)
+            def sync_wrapper(*args, **kwargs):
+                start_time = time.perf_counter()
+
+                try:
+                    result = func(*args, **kwargs)
+                    status = "success"
+                    return result
+                except Exception as e:
+                    status = "error"
+                    raise e
+                finally:
+                    end_time = time.perf_counter()
+                    duration = end_time - start_time
+
+                    # Log detallado
+                    logging.info(
+                        f"{operation_name} - Duration: {duration:.4f}s - Status: {status}"
+                    )
+
+            return sync_wrapper
+
+    return decorator
+
+
+@monitor_performance("open_file_from_bytes")
 def open_file_from_bytes(file_bytes: bytes, **kwargs: Any) -> openpyxl.Workbook:
     """
     Open an Excel file from bytes.
@@ -22,13 +82,14 @@ def open_file_from_bytes(file_bytes: bytes, **kwargs: Any) -> openpyxl.Workbook:
 
 
 def extract_formulas(
-    workbook: openpyxl.Workbook,
+    workbook: openpyxl.Workbook, limit: int = 50
 ) -> Dict[str, Dict[str, List[dtypes.CellData]]]:
     """
     Extract formulas and cell data from an Excel workbook.
 
     Args:
         workbook (openpyxl.Workbook): The workbook object containing the Excel data.
+        limit (int): The maximum number of cells to extract per column.
 
     Returns:
         List[dtypes.CellData]: A list of dictionaries containing cell data, including sheet name,
@@ -38,7 +99,8 @@ def extract_formulas(
 
     for sheet in workbook.worksheets:
         sheets[sheet.title] = {}
-        for column in sheet.columns:
+        max_rows = sheet.max_column if limit <= 0 else min(limit, sheet.max_column)
+        for column, _ in zip(sheet.columns, range(max_rows)):
             column_letter = column[0].column_letter
             result: List[dtypes.CellData] = []
             for cell in column:

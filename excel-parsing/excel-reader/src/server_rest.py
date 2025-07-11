@@ -1,6 +1,7 @@
 # Temporal REST server to communicate with typechecking service
 
 from core.config import settings
+from services.utils import monitor_performance
 from main import main, generate_sql, SQL_BUILDER_STUB
 
 import json
@@ -25,11 +26,14 @@ app.add_middleware(
 
 
 @app.post("/excel-parser")
+@monitor_performance("read_excel")
 async def read_excel(
-    spreadsheet: UploadFile, dtypes_str: str = Form(...), table_name: str = Form(...)
+    spreadsheet: UploadFile,
+    dtypes_str: str = Form(...),
+    table_name: str = Form(...),
+    limit: int = 50,
 ) -> Dict[str, str]:
     if settings.EXCEL_READER_DEBUG:
-        print(f"Received dtypes: {dtypes_str}")
         print(f"Received file: {spreadsheet.filename}")
 
     file_content = await spreadsheet.read()
@@ -49,15 +53,12 @@ async def read_excel(
         table_name = ""
 
     logger.info(f"Processing file: {filename}")
-    content = main(filename, file_content)
+    content = main(filename, file_content, limit=limit)
     result = content["result"]
     columns = content["columns"]
 
     ddls = {
-        sheet: {
-            col_name: result[sheet][letter][0]["sql"]
-            for letter, col_name in columns[sheet].items()
-        }
+        sheet: dict(map(lambda x: (x[1], result[sheet][x[0]][0]["sql"]), columns[sheet].items()))
         for sheet in columns.keys()
     }
 

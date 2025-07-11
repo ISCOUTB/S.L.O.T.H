@@ -1,6 +1,7 @@
 import grpc
 from clients.dtypes import utils
 from services.get_data import get_data_from_spreadsheet
+from services.utils import monitor_performance
 
 from clients.dtypes import dtypes_pb2
 from clients.ddl_generator import ddl_generator_pb2, ddl_generator_pb2_grpc
@@ -48,6 +49,7 @@ def generate_ddl(
     return response if raw else response.sql
 
 
+@monitor_performance("generate_sql")
 def generate_sql(
     stub: sql_builder_pb2_grpc.SQLBuilderStub,
     cols: Dict[str, ddl_generator_pb2.DDLResponse],
@@ -89,10 +91,11 @@ def generate_data(
                 }
 
 
+@monitor_performance("parse_formulas")
 def parse_formulas(
-    filename: str, file_bytes: bytes
+    filename: str, file_bytes: bytes, limit: int = 50
 ) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
-    content = get_data_from_spreadsheet(filename, file_bytes)
+    content = get_data_from_spreadsheet(filename, file_bytes, limit=limit)
     data = content["data"]
     result = {}
     for cell_data in generate_data(data):
@@ -113,35 +116,23 @@ def parse_formulas(
     return {"result": result, "columns": content["columns"]}
 
 
+@monitor_performance("main")
 def main(
-    filename: str, file_bytes: bytes
+    filename: str, file_bytes: bytes, limit: int = 50
 ) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
-    content = parse_formulas(filename, file_bytes)
+    content = parse_formulas(filename, file_bytes, limit)
     result = content["result"]
     columns = content["columns"]
-    if settings.EXCEL_READER_DEBUG:
-        logger.info(f"Parsed formulas for file: {filename}")
-        logger.info(f"Columns: {columns}")
 
     result = content["result"]
     columns = content["columns"]
     for sheet, cols in result.items():
         for col, cells in cols.items():
             for i, cell in enumerate(cells):
-                if settings.EXCEL_READER_DEBUG:
-                    logger.info(
-                        f"Processing cell: {cell['cell']}={cell['value']} in {sheet}.{col}"
-                    )
-                    logger.info(f"AST Type: {result[sheet][col][i]['ast'].type}")
-
                 result[sheet][col][i]["sql"] = generate_ddl(
                     DDL_GENERATOR_STUB, cell["ast"], columns[sheet], raw=True
                 )
                 result[sheet][col][i]["ast"] = utils.parse_ast(cell["ast"])
-
-                if settings.EXCEL_READER_DEBUG:
-                    logger.info(f"AST Type: {result[sheet][col][i]['ast']['type']}")
-                    logger.info(f"Generated SQL: {result[sheet][col][i]['sql'].sql}")
 
     return {"result": result, "columns": columns}
 
