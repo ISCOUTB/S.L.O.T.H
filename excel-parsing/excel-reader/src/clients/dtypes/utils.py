@@ -11,6 +11,7 @@ MAPS: Dict[dtypes.AstTypes, Callable[[dtypes_pb2.AST], dtypes.AST]] = {
     "number": lambda ast: parse_number(ast),
     "logical": lambda ast: parse_logical(ast),
     "text": lambda ast: parse_text(ast),
+    "unary-expression": lambda ast: parse_unary(ast),
 }
 
 
@@ -33,6 +34,7 @@ def parse_ast_type(
         dtypes_pb2.AstType.AST_NUMBER: "number",
         dtypes_pb2.AstType.AST_LOGICAL: "logical",
         dtypes_pb2.AstType.AST_TEXT: "text",
+        dtypes_pb2.AstType.AST_UNARY_EXPRESSION: "unary-expression",
     }
 
     return ast_types_mapping.get(ast_type, "unknown")
@@ -99,4 +101,12 @@ def parse_text(ast: dtypes_pb2.AST) -> dtypes.AST:
     return dtypes.AST(
         type="text",
         value=ast.text_value,
+    )
+
+
+def parse_unary(ast: dtypes_pb2.AST) -> dtypes.AST:
+    return dtypes.AST(
+        type="unary-expression",
+        operator=ast.operator,
+        operand=parse_ast(ast.operand),
     )

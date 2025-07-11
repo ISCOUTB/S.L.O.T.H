@@ -23,7 +23,7 @@ class DDLRequest(_message.Message):
     def __init__(self, ast: _Optional[_Union[_dtypes_pb2.AST, _Mapping]] = ..., columns: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class DDLResponse(_message.Message):
-    __slots__ = ("type", "sql", "number_value", "text_value", "logical_value", "cell", "refType", "column", "eror", "start", "end", "cells", "columns", "error", "operator", "left", "right", "name", "arguments")
+    __slots__ = ("type", "sql", "number_value", "text_value", "logical_value", "cell", "refType", "column", "eror", "start", "end", "cells", "columns", "error", "operator", "left", "right", "name", "arguments", "operand")
     TYPE_FIELD_NUMBER: _ClassVar[int]
     SQL_FIELD_NUMBER: _ClassVar[int]
     NUMBER_VALUE_FIELD_NUMBER: _ClassVar[int]
@@ -43,6 +43,7 @@ class DDLResponse(_message.Message):
     RIGHT_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     ARGUMENTS_FIELD_NUMBER: _ClassVar[int]
+    OPERAND_FIELD_NUMBER: _ClassVar[int]
     type: _dtypes_pb2.AstType
     sql: str
     number_value: float
@@ -62,4 +63,5 @@ class DDLResponse(_message.Message):
     right: DDLResponse
     name: str
     arguments: _containers.RepeatedCompositeFieldContainer[DDLResponse]
-    def __init__(self, type: _Optional[_Union[_dtypes_pb2.AstType, str]] = ..., sql: _Optional[str] = ..., number_value: _Optional[float] = ..., text_value: _Optional[str] = ..., logical_value: bool = ..., cell: _Optional[str] = ..., refType: _Optional[_Union[_dtypes_pb2.RefType, str]] = ..., column: _Optional[str] = ..., eror: _Optional[str] = ..., start: _Optional[str] = ..., end: _Optional[str] = ..., cells: _Optional[_Iterable[str]] = ..., columns: _Optional[_Iterable[str]] = ..., error: _Optional[str] = ..., operator: _Optional[str] = ..., left: _Optional[_Union[DDLResponse, _Mapping]] = ..., right: _Optional[_Union[DDLResponse, _Mapping]] = ..., name: _Optional[str] = ..., arguments: _Optional[_Iterable[_Union[DDLResponse, _Mapping]]] = ...) -> None: ...
+    operand: DDLResponse
+    def __init__(self, type: _Optional[_Union[_dtypes_pb2.AstType, str]] = ..., sql: _Optional[str] = ..., number_value: _Optional[float] = ..., text_value: _Optional[str] = ..., logical_value: bool = ..., cell: _Optional[str] = ..., refType: _Optional[_Union[_dtypes_pb2.RefType, str]] = ..., column: _Optional[str] = ..., eror: _Optional[str] = ..., start: _Optional[str] = ..., end: _Optional[str] = ..., cells: _Optional[_Iterable[str]] = ..., columns: _Optional[_Iterable[str]] = ..., error: _Optional[str] = ..., operator: _Optional[str] = ..., left: _Optional[_Union[DDLResponse, _Mapping]] = ..., right: _Optional[_Union[DDLResponse, _Mapping]] = ..., name: _Optional[str] = ..., arguments: _Optional[_Iterable[_Union[DDLResponse, _Mapping]]] = ..., operand: _Optional[_Union[DDLResponse, _Mapping]] = ...) -> None: ...

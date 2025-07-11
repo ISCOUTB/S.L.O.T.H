@@ -44,4 +44,7 @@ message DDLResponse {
     // Function
     optional string name = 18;
     repeated DDLResponse arguments = 19;
+
+    // Unary Expression
+    optional DDLResponse operand = 20;  // operator and type as well
 }

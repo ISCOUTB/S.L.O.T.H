@@ -39,10 +39,11 @@ message AST {
     optional string name = 6;        // Nombre de función o celda
     optional RefType refType = 7;    // Tipo de referencia para celdas
     optional string key = 8;         // Clave identificadora
+    optional AST operand = 9;        // Operando para expresiones unarias
     oneof value {
-        float number_value = 9;      // Valor numérico para literales
-        string text_value = 10;      // Valor de texto para literales
-        bool logical_value = 11;     // Valor lógico (TRUE/FALSE) para literales
+        float number_value = 10;      // Valor numérico para literales
+        string text_value = 11;       // Valor de texto para literales
+        bool logical_value = 12;      // Valor lógico (TRUE/FALSE) para literales
     }
 }
 

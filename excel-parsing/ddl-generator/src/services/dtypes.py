@@ -24,6 +24,7 @@ AstTypes = Literal[
     "number",  # e.g., 42
     "logical",  # e.g., true
     "text",  # e.g., "Hello, World!"
+    "unary-expression",  # e.g., "-a" or "NOT a"
 ]
 
 RefTypes = Literal[
@@ -61,6 +62,7 @@ class AST(TypedDict):
             "C3:D5". Only used for cell reference type nodes.
         value (Optional[float | str | bool]): The numeric value for nodes representing numbers. Only used
             for number type nodes.
+        operand (Optional[str]): The operator for unary expressions, such as "-" for negation.
     """
 
     type: AstTypes
@@ -72,6 +74,7 @@ class AST(TypedDict):
     refType: Optional[RefTypes]
     key: Optional[str]
     value: Optional[float | str | bool]
+    operand: Optional[str]
 
 
 class InputData(TypedDict):
@@ -214,6 +217,24 @@ class TextMapsOutput(TypedDict):
     sql: str
 
 
+class UnaryExpressionMapsOutput(TypedDict):
+    """
+    Represents the output of unary expression mapping.
+
+    Attributes:
+        type (Literal["unary-expression"]): The type of the mapping, always "unary-expression".
+        operator (str): The operator used in the unary expression (e.g., "-").
+        operand (Any): The operand of the unary expression.
+        sql (str): The SQL representation of the unary expression, typically applying the operator
+            to the left operand.
+    """
+
+    type: Literal["unary-expression"]
+    operator: str
+    operand: Any
+    sql: str
+
+
 AllOutputs = Union[
     CellMapsOutput,
     CellRangeMapsOutput,
@@ -222,6 +243,7 @@ AllOutputs = Union[
     FunctionMapsOutput,
     LogicalMapsOutput,
     TextMapsOutput,
+    UnaryExpressionMapsOutput
 ]
 """Union type representing all possible output types from AST processing functions."""
 
@@ -230,5 +252,5 @@ SingleOutput = Union[
 ]
 """Union type for simple, single-value outputs (cells, numbers, logical values and text)."""
 
-ComplexOutput = Union[FunctionMapsOutput, BinaryExpressionMapsOutput]
+ComplexOutput = Union[FunctionMapsOutput, BinaryExpressionMapsOutput, UnaryExpressionMapsOutput]
 """Union type for complex outputs that contain nested structures (functions, expressions)."""

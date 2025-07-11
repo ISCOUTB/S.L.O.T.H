@@ -93,6 +93,10 @@ function convertAstToProto(ast) {
         astProto.setKey(ast.key);
     }
 
+    if (ast.operand) {
+        astProto.setOperand(convertAstToProto(ast.operand));
+    }
+
     if (ast.value !== undefined && ast.value !== null) {
         if (typeof ast.value === 'number') {
             astProto.setNumberValue(ast.value);

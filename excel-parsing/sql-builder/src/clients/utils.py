@@ -11,6 +11,7 @@ AST_TYPES_MAPPING: Dict[dtypes_pb2.AstType, dtypes.AstTypes] = {
     dtypes_pb2.AstType.AST_NUMBER: "number",
     dtypes_pb2.AstType.AST_LOGICAL: "logical",
     dtypes_pb2.AstType.AST_TEXT: "text",
+    dtypes_pb2.AstType.AST_UNARY_EXPRESSION: "unary-expression",
 }
 
 REFTYPES_MAPPING: Dict[dtypes_pb2.RefType, dtypes.RefTypes] = {
@@ -40,7 +41,7 @@ def parse_ddlresponse(response: ddl_generator_pb2.DDLResponse) -> dtypes.AllOutp
             "operator": response.operator,
             "sql": response.sql,
         }
-    
+
     if ast_type_str == "cell-range":
         return {
             "type": ast_type_str,
@@ -51,17 +52,15 @@ def parse_ddlresponse(response: ddl_generator_pb2.DDLResponse) -> dtypes.AllOutp
             "error": response.error,
             "sql": response.sql,
         }
-    
+
     if ast_type_str == "function":
         return {
             "type": ast_type_str,
             "name": response.name,
-            "arguments": [
-                parse_ddlresponse(arg) for arg in response.arguments
-            ],
+            "arguments": [parse_ddlresponse(arg) for arg in response.arguments],
             "sql": response.sql,
         }
-    
+
     if ast_type_str == "cell":
         return {
             "type": ast_type_str,
@@ -71,7 +70,15 @@ def parse_ddlresponse(response: ddl_generator_pb2.DDLResponse) -> dtypes.AllOutp
             "error": response.error,
             "sql": response.sql,
         }
-    
+
+    if ast_type_str == "unary-expression":
+        return {
+            "type": ast_type_str,
+            "operand": parse_ddlresponse(response.operand),
+            "operator": response.operator,
+            "sql": response.sql,
+        }
+
     if ast_type_str == "number":
         value = response.number_value
     elif ast_type_str == "text":

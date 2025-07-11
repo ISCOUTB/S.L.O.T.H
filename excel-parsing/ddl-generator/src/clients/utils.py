@@ -11,6 +11,7 @@ MAPS: Dict[dtypes.AstTypes, Callable[[dtypes_pb2.AST], dtypes.AST]] = {
     "number": lambda ast: parse_number(ast),
     "logical": lambda ast: parse_logical(ast),
     "text": lambda ast: parse_text(ast),
+    "unary-expression": lambda ast: parse_unary(ast)
 }
 
 
@@ -22,6 +23,7 @@ AST_TYPES_MAPPING: Dict[dtypes_pb2.AstType, dtypes.AstTypes] = {
     dtypes_pb2.AstType.AST_NUMBER: "number",
     dtypes_pb2.AstType.AST_LOGICAL: "logical",
     dtypes_pb2.AstType.AST_TEXT: "text",
+    dtypes_pb2.AstType.AST_UNARY_EXPRESSION: "unary-expression"
 }
 
 AST_TYPES_TO_PROTO: Dict[dtypes.AstTypes, dtypes_pb2.AstType] = {
@@ -32,6 +34,7 @@ AST_TYPES_TO_PROTO: Dict[dtypes.AstTypes, dtypes_pb2.AstType] = {
     "number": dtypes_pb2.AstType.AST_NUMBER,
     "logical": dtypes_pb2.AstType.AST_LOGICAL,
     "text": dtypes_pb2.AstType.AST_TEXT,
+    "unary-expression": dtypes_pb2.AstType.AST_UNARY_EXPRESSION,
 }
 
 REFTYPES_TO_PROTO: Dict[dtypes.RefTypes, dtypes_pb2.RefType] = {
@@ -119,6 +122,14 @@ def parse_text(ast: dtypes_pb2.AST) -> dtypes.AST:
     )
 
 
+def parse_unary(ast: dtypes_pb2.AST) -> dtypes.AST:
+    return dtypes.AST(
+        type="unary-expression",
+        operator=ast.operator,
+        operand=parse_ast(ast.operand)
+    )
+
+
 def parse_output_to_proto(output: dtypes.AllOutputs) -> ddl_generator_pb2.DDLResponse:
     ast_type: dtypes_pb2.AstType = AST_TYPES_TO_PROTO.get(
         output["type"], dtypes_pb2.AstType.AST_UNKNOWN
@@ -177,6 +188,14 @@ def parse_output_to_proto(output: dtypes.AllOutputs) -> ddl_generator_pb2.DDLRes
             name=output["name"],
             arguments=[parse_output_to_proto(arg) for arg in output["arguments"]],
             sql=sql,
+        )
+
+    if ast_type == dtypes_pb2.AstType.AST_UNARY_EXPRESSION:
+        return ddl_generator_pb2.DDLResponse(
+            type=ast_type,
+            operator=output["operator"],
+            operand=parse_output_to_proto(output["operand"]),
+            sql=sql
         )
 
     return ddl_generator_pb2.DDLResponse(

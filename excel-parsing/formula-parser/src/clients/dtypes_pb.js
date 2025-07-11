@@ -106,16 +106,16 @@ proto.dtypes.AST.repeatedFields_ = [5];
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.dtypes.AST.oneofGroups_ = [[9,10,11]];
+proto.dtypes.AST.oneofGroups_ = [[10,11,12]];
 
 /**
  * @enum {number}
  */
 proto.dtypes.AST.ValueCase = {
   VALUE_NOT_SET: 0,
-  NUMBER_VALUE: 9,
-  TEXT_VALUE: 10,
-  LOGICAL_VALUE: 11
+  NUMBER_VALUE: 10,
+  TEXT_VALUE: 11,
+  LOGICAL_VALUE: 12
 };
 
 /**
@@ -165,9 +165,10 @@ proto.dtypes.AST.toObject = function(includeInstance, msg) {
     name: jspb.Message.getFieldWithDefault(msg, 6, ""),
     reftype: jspb.Message.getFieldWithDefault(msg, 7, 0),
     key: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    numberValue: jspb.Message.getFloatingPointFieldWithDefault(msg, 9, 0.0),
-    textValue: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    logicalValue: jspb.Message.getBooleanFieldWithDefault(msg, 11, false)
+    operand: (f = msg.getOperand()) && proto.dtypes.AST.toObject(includeInstance, f),
+    numberValue: jspb.Message.getFloatingPointFieldWithDefault(msg, 10, 0.0),
+    textValue: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    logicalValue: jspb.Message.getBooleanFieldWithDefault(msg, 12, false)
   };
 
   if (includeInstance) {
@@ -240,14 +241,19 @@ proto.dtypes.AST.deserializeBinaryFromReader = function(msg, reader) {
       msg.setKey(value);
       break;
     case 9:
+      var value = new proto.dtypes.AST;
+      reader.readMessage(value,proto.dtypes.AST.deserializeBinaryFromReader);
+      msg.setOperand(value);
+      break;
+    case 10:
       var value = /** @type {number} */ (reader.readFloat());
       msg.setNumberValue(value);
       break;
-    case 10:
+    case 11:
       var value = /** @type {string} */ (reader.readString());
       msg.setTextValue(value);
       break;
-    case 11:
+    case 12:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setLogicalValue(value);
       break;
@@ -339,24 +345,32 @@ proto.dtypes.AST.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = /** @type {number} */ (jspb.Message.getField(message, 9));
+  f = message.getOperand();
   if (f != null) {
-    writer.writeFloat(
+    writer.writeMessage(
       9,
-      f
+      f,
+      proto.dtypes.AST.serializeBinaryToWriter
     );
   }
-  f = /** @type {string} */ (jspb.Message.getField(message, 10));
+  f = /** @type {number} */ (jspb.Message.getField(message, 10));
   if (f != null) {
-    writer.writeString(
+    writer.writeFloat(
       10,
       f
     );
   }
-  f = /** @type {boolean} */ (jspb.Message.getField(message, 11));
+  f = /** @type {string} */ (jspb.Message.getField(message, 11));
+  if (f != null) {
+    writer.writeString(
+      11,
+      f
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 12));
   if (f != null) {
     writer.writeBool(
-      11,
+      12,
       f
     );
   }
@@ -638,11 +652,48 @@ proto.dtypes.AST.prototype.hasKey = function() {
 
 
 /**
- * optional float number_value = 9;
+ * optional AST operand = 9;
+ * @return {?proto.dtypes.AST}
+ */
+proto.dtypes.AST.prototype.getOperand = function() {
+  return /** @type{?proto.dtypes.AST} */ (
+    jspb.Message.getWrapperField(this, proto.dtypes.AST, 9));
+};
+
+
+/**
+ * @param {?proto.dtypes.AST|undefined} value
+ * @return {!proto.dtypes.AST} returns this
+*/
+proto.dtypes.AST.prototype.setOperand = function(value) {
+  return jspb.Message.setWrapperField(this, 9, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.dtypes.AST} returns this
+ */
+proto.dtypes.AST.prototype.clearOperand = function() {
+  return this.setOperand(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.dtypes.AST.prototype.hasOperand = function() {
+  return jspb.Message.getField(this, 9) != null;
+};
+
+
+/**
+ * optional float number_value = 10;
  * @return {number}
  */
 proto.dtypes.AST.prototype.getNumberValue = function() {
-  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 9, 0.0));
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 10, 0.0));
 };
 
 
@@ -651,42 +702,6 @@ proto.dtypes.AST.prototype.getNumberValue = function() {
  * @return {!proto.dtypes.AST} returns this
  */
 proto.dtypes.AST.prototype.setNumberValue = function(value) {
-  return jspb.Message.setOneofField(this, 9, proto.dtypes.AST.oneofGroups_[0], value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.dtypes.AST} returns this
- */
-proto.dtypes.AST.prototype.clearNumberValue = function() {
-  return jspb.Message.setOneofField(this, 9, proto.dtypes.AST.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.dtypes.AST.prototype.hasNumberValue = function() {
-  return jspb.Message.getField(this, 9) != null;
-};
-
-
-/**
- * optional string text_value = 10;
- * @return {string}
- */
-proto.dtypes.AST.prototype.getTextValue = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.dtypes.AST} returns this
- */
-proto.dtypes.AST.prototype.setTextValue = function(value) {
   return jspb.Message.setOneofField(this, 10, proto.dtypes.AST.oneofGroups_[0], value);
 };
 
@@ -695,7 +710,7 @@ proto.dtypes.AST.prototype.setTextValue = function(value) {
  * Clears the field making it undefined.
  * @return {!proto.dtypes.AST} returns this
  */
-proto.dtypes.AST.prototype.clearTextValue = function() {
+proto.dtypes.AST.prototype.clearNumberValue = function() {
   return jspb.Message.setOneofField(this, 10, proto.dtypes.AST.oneofGroups_[0], undefined);
 };
 
@@ -704,25 +719,25 @@ proto.dtypes.AST.prototype.clearTextValue = function() {
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.dtypes.AST.prototype.hasTextValue = function() {
+proto.dtypes.AST.prototype.hasNumberValue = function() {
   return jspb.Message.getField(this, 10) != null;
 };
 
 
 /**
- * optional bool logical_value = 11;
- * @return {boolean}
+ * optional string text_value = 11;
+ * @return {string}
  */
-proto.dtypes.AST.prototype.getLogicalValue = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 11, false));
+proto.dtypes.AST.prototype.getTextValue = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
 
 /**
- * @param {boolean} value
+ * @param {string} value
  * @return {!proto.dtypes.AST} returns this
  */
-proto.dtypes.AST.prototype.setLogicalValue = function(value) {
+proto.dtypes.AST.prototype.setTextValue = function(value) {
   return jspb.Message.setOneofField(this, 11, proto.dtypes.AST.oneofGroups_[0], value);
 };
 
@@ -731,7 +746,7 @@ proto.dtypes.AST.prototype.setLogicalValue = function(value) {
  * Clears the field making it undefined.
  * @return {!proto.dtypes.AST} returns this
  */
-proto.dtypes.AST.prototype.clearLogicalValue = function() {
+proto.dtypes.AST.prototype.clearTextValue = function() {
   return jspb.Message.setOneofField(this, 11, proto.dtypes.AST.oneofGroups_[0], undefined);
 };
 
@@ -740,8 +755,44 @@ proto.dtypes.AST.prototype.clearLogicalValue = function() {
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.dtypes.AST.prototype.hasLogicalValue = function() {
+proto.dtypes.AST.prototype.hasTextValue = function() {
   return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional bool logical_value = 12;
+ * @return {boolean}
+ */
+proto.dtypes.AST.prototype.getLogicalValue = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 12, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.dtypes.AST} returns this
+ */
+proto.dtypes.AST.prototype.setLogicalValue = function(value) {
+  return jspb.Message.setOneofField(this, 12, proto.dtypes.AST.oneofGroups_[0], value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.dtypes.AST} returns this
+ */
+proto.dtypes.AST.prototype.clearLogicalValue = function() {
+  return jspb.Message.setOneofField(this, 12, proto.dtypes.AST.oneofGroups_[0], undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.dtypes.AST.prototype.hasLogicalValue = function() {
+  return jspb.Message.getField(this, 12) != null;
 };
 
 
@@ -1106,7 +1157,8 @@ proto.dtypes.AstType = {
   AST_CELL: 4,
   AST_NUMBER: 5,
   AST_LOGICAL: 6,
-  AST_TEXT: 7
+  AST_TEXT: 7,
+  AST_UNARY_EXPRESSION: 8
 };
 
 /**

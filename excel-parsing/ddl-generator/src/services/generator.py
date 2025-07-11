@@ -34,6 +34,7 @@ MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
     "number": lambda ast, columns: number_maps(ast, columns),
     "logical": lambda ast, columns: logical_maps(ast, columns),
     "text": lambda ast, columns: text_maps(ast, columns),
+    "unary-expression": lambda ast, columns: unary_maps(ast["operand"], columns),
 }
 
 
@@ -312,4 +313,39 @@ def text_maps(ast: AST, _) -> TextMapsOutput:
         "type": "text",
         "value": ast["value"],
         "sql": f"'{ast['value'].replace('"', "'")}'",  # From "" to ''
+    }
+
+
+def unary_maps(ast: AST, columns: Dict[str, str]) -> AllOutputs:
+    """
+    Process unary expression AST nodes into SQL equivalents.
+
+    Converts unary operations (like negation) into their SQL representation,
+    handling the operand and ensuring proper SQL syntax.
+
+    Args:
+        ast (AST): AST node of type 'unary-expression' containing the operand.
+        columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
+
+    Returns:
+        AllOutputs: Processed unary expression with SQL representation.
+
+    Raises:
+        ValueError: If the AST type is not 'unary-expression'.
+
+    Examples:
+        >>> ast = {"type": "unary-expression", "operand": {"type": "number", "value": 5}}
+        >>> result = unary_maps(ast, {})
+        >>> result["sql"]
+        '-(5)'
+    """
+    if ast["type"] != "unary-expression":
+        raise ValueError("AST must be of type 'unary-expression'")
+
+    operand = MAPS[ast["operand"]["type"]](ast["operand"], columns)
+
+    return {
+        "type": "unary-expression",
+        "operand": operand,
+        "sql": f"-({operand['sql']})",
     }
