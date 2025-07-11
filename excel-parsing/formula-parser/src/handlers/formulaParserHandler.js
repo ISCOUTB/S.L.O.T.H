@@ -120,7 +120,8 @@ function getAstTypeEnum(type) {
         'cell': dtypesEnum.AST_CELL,
         'number': dtypesEnum.AST_NUMBER,
         'logical': dtypesEnum.AST_LOGICAL,
-        'text': dtypesEnum.AST_TEXT
+        'text': dtypesEnum.AST_TEXT,
+        'unary-expression': dtypesEnum.AST_UNARY_EXPRESSION,
     };
     return typeMap[type] || dtypesEnum.AST_UNKNOWN;
 }

@@ -34,7 +34,7 @@ MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
     "number": lambda ast, columns: number_maps(ast, columns),
     "logical": lambda ast, columns: logical_maps(ast, columns),
     "text": lambda ast, columns: text_maps(ast, columns),
-    "unary-expression": lambda ast, columns: unary_maps(ast["operand"], columns),
+    "unary-expression": lambda ast, columns: unary_maps(ast, columns),
 }
 
 
@@ -346,6 +346,7 @@ def unary_maps(ast: AST, columns: Dict[str, str]) -> AllOutputs:
 
     return {
         "type": "unary-expression",
+        "operator": ast["operator"],
         "operand": operand,
         "sql": f"-({operand['sql']})",
     }

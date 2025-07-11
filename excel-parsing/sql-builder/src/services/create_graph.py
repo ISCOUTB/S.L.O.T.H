@@ -13,6 +13,7 @@ MAPS_DTYPES: Dict[
     "number": lambda x: search_columns_constants(x),
     "function": lambda x: search_columns_function(x),
     "binary-expression": lambda x: search_columns_binary_expression(x),
+    "unary-expression": lambda x: search_columns_unary_expression(x),
 }
 
 
@@ -154,3 +155,26 @@ def search_columns_binary_expression(
         "error": None,
         "constants": False,
     }
+
+
+def search_columns_unary_expression(
+    source_col: dtypes.UnaryExpressionMapsOutput,
+) -> dtypes.ColReferences:
+    """
+    Search for the columns in a unary expression mapping output.
+
+    Args:
+        source_col (dtypes.UnaryExpressionMapsOutput): The unary expression mapping output containing the expression.
+
+    Returns:
+        dtypes.ColReferences: A list of column names referenced by the unary expression.
+    """
+    if source_col["type"] != "unary-expression":
+        return {
+            "columns": [],
+            "error": "Invalid unary expression mapping type",
+            "constants": False,
+        }
+
+    cols = MAPS_DTYPES[source_col["operand"]["type"]](source_col["operand"])
+    return {"columns": cols["columns"], "error": None, "constants": False}
