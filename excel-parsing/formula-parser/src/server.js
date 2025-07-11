@@ -1,12 +1,13 @@
-require('dotenv').config({ path: '../.env' });
-
 var grpc = require('@grpc/grpc-js');
+const { settings } = require('./core/config');
 var services = require('./clients/formula_parser_grpc_pb');
 var { parseFormulaHandler } = require('./handlers/formulaParserHandler');
+
 
 function parseFormula(call, callback) {
     callback(null, parseFormulaHandler(call.request.getFormula()));
 }
+
 
 function getServer() {
     var server = new grpc.Server();
@@ -19,13 +20,13 @@ function getServer() {
 
 if (require.main === module) {
     var routeServer = getServer();
-    const host = process.env.FORMULA_PARSER_HOST || 'localhost';
-    const port = process.env.FORMULA_PARSER_PORT || '50052';
-    try {
-        process.env.DEBUG_FORMULA_PARSER = process.env.DEBUG_FORMULA_PARSER.toLowerCase() === 'true';
-    } catch (e) {
-        process.env.DEBUG_FORMULA_PARSER = false;
-    }
-    console.log(`Starting Formula Parser Server on ${host}:${port} -- DEBUG: ${process.env.DEBUG_FORMULA_PARSER}`);
-    routeServer.bindAsync(`${host}:${port}`, grpc.ServerCredentials.createInsecure(), () => { });
+    const { host, port, debug } = settings;
+
+    routeServer.bindAsync(`${host}:${port}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
+        if (err) {
+            console.error('Failed to bind server:', err);
+            return;
+        }
+        console.log(`Formula Parser Server on ${host}:${port} -- DEBUG: ${debug}`);
+    });
 }

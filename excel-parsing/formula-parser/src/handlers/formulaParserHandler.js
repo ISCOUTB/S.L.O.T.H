@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+const { settings } = require('../core/config');
 
 var { parseFormula } = require('../services/formulaParser');
 var messages = require('../clients/formula_parser_pb');
@@ -8,11 +8,9 @@ function parseFormulaHandler(formula) {
     var response = new messages.FormulaParserResponse();
     const { tokens, ast, error } = parseFormula(formula);
 
-    if (process.env.DEBUG_FORMULA_PARSER) {
-        console.log(`Parsing formula: ${formula}`);
-        console.log(`Tokens: ${JSON.stringify(tokens, null, 2)}`);
-        console.log(`AST: ${JSON.stringify(ast, null, 2)}`);
-        console.log(`Error: ${error}`);
+    if (settings.debug) {
+        console.log(`Received formula: ${formula}`);
+        console.log(`AST: ${JSON.stringify(ast, null, 2)}\n`);
     }
 
     response.setFormula(formula);
