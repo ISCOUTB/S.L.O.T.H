@@ -65,7 +65,8 @@ def generate_sql(
     sql_expression = ""
     for level in sorted(sql_expressions.keys()):
         for expr in sql_expressions[level]:
-            sql_expression += f"\n{expr}"
+            prefix = "" if level == 0 else "\n"
+            sql_expression += f"{prefix}{expr}"
 
     return sql_expression
 

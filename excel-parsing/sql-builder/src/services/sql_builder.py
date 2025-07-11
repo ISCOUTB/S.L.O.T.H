@@ -1,5 +1,6 @@
-from services import dtypes
 from typing import Dict
+from services import dtypes
+from sqlglot import transpile
 
 from services.builder import build_sql
 from services.utils import has_cyclic_dependencies
@@ -27,6 +28,12 @@ def sql_builder(
         return {"content": {}, "error": "The AST contains cyclic dependencies."}
 
     sql_expressions = build_sql(cols, graph, dtypes, table_name)
+
+    # Just in case
+    sql_expressions = {
+        level: [transpile(expr, read="postgres")[0] for expr in expressions]
+        for level, expressions in sql_expressions.items()
+    }
     return {"content": sql_expressions, "error": None}
 
 
