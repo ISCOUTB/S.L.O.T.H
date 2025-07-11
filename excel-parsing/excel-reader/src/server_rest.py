@@ -16,17 +16,17 @@ logger = logging.getLogger("ExcelReader")
 app = FastAPI()
 
 app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post("/excel-parser")
 async def read_excel(
-    spreadsheet: UploadFile, dtypes_str: str = Form(...)
+    spreadsheet: UploadFile, dtypes_str: str = Form(...), table_name: str = Form(...)
 ) -> Dict[str, str]:
     if settings.EXCEL_READER_DEBUG:
         print(f"Received dtypes: {dtypes_str}")
@@ -43,9 +43,10 @@ async def read_excel(
     try:
         dtypes = json.loads(dtypes_str)
     except json.JSONDecodeError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid dtypes JSON: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid dtypes JSON: {str(e)}")
+
+    if not table_name:
+        table_name = ""
 
     logger.info(f"Processing file: {filename}")
     content = main(filename, file_content)
@@ -61,10 +62,11 @@ async def read_excel(
     }
 
     return {
-        sheet: generate_sql(SQL_BUILDER_STUB, ddls[sheet], dtypes[sheet], sheet)
+        sheet: generate_sql(
+            SQL_BUILDER_STUB, ddls[sheet], dtypes[sheet], f"{table_name}_{sheet}"
+        )
         for sheet in ddls.keys()
     }
-
 
 
 if __name__ == "__main__":
