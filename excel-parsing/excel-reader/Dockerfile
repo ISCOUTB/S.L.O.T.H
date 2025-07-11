@@ -38,4 +38,4 @@ COPY ./src /app/src
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
-CMD ["python3", "src/server.py"]
+CMD ["python3", "src/server_rest.py"]

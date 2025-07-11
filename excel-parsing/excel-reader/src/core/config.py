@@ -1,5 +1,8 @@
+from dotenv import load_dotenv
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -32,6 +35,10 @@ class Settings(BaseSettings):
     @property
     def SQL_BUILDER_CHANNEL(self) -> str:
         return f"{self.SQL_BUILDER_HOST}:{self.SQL_BUILDER_PORT}"
+    
+    EXCEL_READER_HOST: str = "localhost"
+    EXCEL_READER_PORT: int = 8001
+    EXCEL_READER_DEBUG: bool = False
 
 
 settings = Settings()
