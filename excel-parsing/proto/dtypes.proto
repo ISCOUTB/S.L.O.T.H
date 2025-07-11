@@ -13,6 +13,7 @@ enum AstType {
     AST_NUMBER = 5;             // Valores numéricos literales
     AST_LOGICAL = 6;            // Valores booleanos (TRUE/FALSE)
     AST_TEXT = 7;               // Cadenas de texto literales
+    AST_UNARY_EXPRESSION = 8;  // Expresiones unarias como -1 (negación)
 }
 
 /**
