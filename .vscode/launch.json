@@ -8,7 +8,7 @@
             "name": "Python Debugger: SQL Builder Server",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}/sql-builder",
+            "cwd": "${workspaceFolder}/excel-parsing/sql-builder",
             "program": "./src/server.py",
             "console": "integratedTerminal"
         },
@@ -16,7 +16,7 @@
             "name": "Python Debugger: Excel Reader",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}/excel-reader",
+            "cwd": "${workspaceFolder}/excel-parsing/excel-reader",
             "program": "./src/main.py",
             "console": "integratedTerminal"
         },
@@ -24,7 +24,7 @@
             "name": "Python Debugger: DDLGenerator Server",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/ddl-generator/src/server.py",
+            "program": "${workspaceFolder}/excel-parsing/ddl-generator/src/server.py",
             "console": "integratedTerminal"
         },
         {
@@ -34,7 +34,26 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/formula-parser/node_modules/@grpc/grpc-js/build/src/server-interceptors.js"
+            "program": "${workspaceFolder}/excel-parsing/formula-parser/node_modules/@grpc/grpc-js/build/src/server-interceptors.js"
+        },
+        {
+            "name": "Python Debugger: Workers",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.workers.worker_manager",
+            "cwd": "${workspaceFolder}/typechecking/backend"
+        },
+        {
+            "name": "Python Debugger: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "app.main:app",
+                "--reload"
+            ],
+            "jinja": true,
+            "cwd": "${workspaceFolder}/typechecking/backend"
         }
     ]
 }
