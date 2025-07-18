@@ -100,10 +100,10 @@ def extract_formulas(
     for sheet in workbook.worksheets:
         sheets[sheet.title] = {}
         max_rows = sheet.max_column if limit <= 0 else min(limit, sheet.max_column)
-        for column, _ in zip(sheet.columns, range(max_rows)):
+        for column in sheet.columns:
             column_letter = column[0].column_letter
             result: List[dtypes.CellData] = []
-            for cell in column:
+            for cell, _ in zip(column, range(max_rows)):
                 # print(cell.coordinate, cell.column, cell.row, cell.col_idx, cell.column_letter)
                 cell_data: dtypes.CellData = {
                     "cell": cell.coordinate,
