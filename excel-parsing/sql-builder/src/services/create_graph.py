@@ -51,7 +51,7 @@ def create_dependency_graph(cols: Dict[str, dtypes.AllOutputs]) -> Graph:
         Graph: An igraph Graph object representing the dependencies.
     """
     g = Graph(directed=True)
-    cols_name = set(cols.keys())
+    cols_name = list(cols.keys())
     g.add_vertices(cols_name)
 
     for col_name, col in cols.items():

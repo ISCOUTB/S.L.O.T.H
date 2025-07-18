@@ -66,8 +66,8 @@ def build_sql(
     )
 
     for col, level in other_levels:
-        sql_expression = f"ALTER TABLE {table_name} ADD COLUMN {col} {dtypes[col]['type']}{dtypes[col].get('extra', '')} "
-        sql_expression += f"GENERATED ALWAYS AS {cols[col]['sql']} STORED;"
+        sql_expression = f"ALTER TABLE {table_name} ADD COLUMN {col} {dtypes[col]['type']} "
+        sql_expression += f"GENERATED ALWAYS AS ({cols[col]['sql']}) STORED {dtypes[col].get('extra', '')};"
         sql_expressions[level].append(sql_expression)
 
     return sql_expressions
