@@ -21,9 +21,7 @@ def sql_builder_handler(
     table_name = request.table_name
 
     if settings.SQL_BUILDER_DEBUG:
-        logger.info(
-            f"Received SQL building request for table '{table_name}' with columns: {columns}"
-        )
+        logger.info(f"Received SQL building request for table '{table_name}'")
 
     output = sql_builder.sql_builder(
         cols=columns, dtypes=dtypes_map, table_name=table_name
