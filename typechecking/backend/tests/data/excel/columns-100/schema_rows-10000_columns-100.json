@@ -316,134 +316,152 @@
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_70-Int8": {
+    "Formula 1": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_71-Boolean": {
-      "type": "boolean"
-    },
-    "col_72-Int8": {
+    "Formula 2": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_73-Int16": {
+    "Formula 3": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_74-Int8": {
+    "Formula 4": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_75-Boolean": {
-      "type": "boolean"
-    },
-    "col_76-UInt32": {
+    "Formula 5": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_77-UInt8": {
+    "Formula 6": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_78-String": {
-      "type": "string"
-    },
-    "col_79-String": {
-      "type": "string"
-    },
-    "col_80-Int32": {
+    "Formula 7": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_81-UInt32": {
+    "Formula 8": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_82-UInt32": {
+    "Formula 9": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_83-String": {
-      "type": "string"
-    },
-    "col_84-UInt32": {
+    "Formula 10": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_85-String": {
-      "type": "string"
-    },
-    "col_86-UInt8": {
+    "Formula 11": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_87-UInt16": {
+    "Formula 12": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_88-Int32": {
+    "Formula 13": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_89-UInt16": {
+    "Formula 14": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_90-Boolean": {
-      "type": "boolean"
-    },
-    "col_91-String": {
-      "type": "string"
-    },
-    "col_92-UInt32": {
+    "Formula 15": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_93-UInt32": {
+    "Formula 16": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_94-UInt32": {
+    "Formula 17": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_95-UInt32": {
+    "Formula 18": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_96-UInt8": {
+    "Formula 19": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_97-String": {
-      "type": "string"
-    },
-    "col_98-Int8": {
+    "Formula 20": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
     },
-    "col_99-Int32": {
+    "Formula 21": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 22": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 23": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 24": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 25": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 26": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 27": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 28": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 29": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "Formula 30": {
       "type": "integer",
       "minimum": -9223372036854775808,
       "maximum": 9223372036854775807
@@ -520,36 +538,36 @@
     "col_67-UInt32",
     "col_68-Int8",
     "col_69-UInt32",
-    "col_70-Int8",
-    "col_71-Boolean",
-    "col_72-Int8",
-    "col_73-Int16",
-    "col_74-Int8",
-    "col_75-Boolean",
-    "col_76-UInt32",
-    "col_77-UInt8",
-    "col_78-String",
-    "col_79-String",
-    "col_80-Int32",
-    "col_81-UInt32",
-    "col_82-UInt32",
-    "col_83-String",
-    "col_84-UInt32",
-    "col_85-String",
-    "col_86-UInt8",
-    "col_87-UInt16",
-    "col_88-Int32",
-    "col_89-UInt16",
-    "col_90-Boolean",
-    "col_91-String",
-    "col_92-UInt32",
-    "col_93-UInt32",
-    "col_94-UInt32",
-    "col_95-UInt32",
-    "col_96-UInt8",
-    "col_97-String",
-    "col_98-Int8",
-    "col_99-Int32"
+    "Formula 1",
+    "Formula 2",
+    "Formula 3",
+    "Formula 4",
+    "Formula 5",
+    "Formula 6",
+    "Formula 7",
+    "Formula 8",
+    "Formula 9",
+    "Formula 10",
+    "Formula 11",
+    "Formula 12",
+    "Formula 13",
+    "Formula 14",
+    "Formula 15",
+    "Formula 16",
+    "Formula 17",
+    "Formula 18",
+    "Formula 19",
+    "Formula 20",
+    "Formula 21",
+    "Formula 22",
+    "Formula 23",
+    "Formula 24",
+    "Formula 25",
+    "Formula 26",
+    "Formula 27",
+    "Formula 28",
+    "Formula 29",
+    "Formula 30"
   ],
   "additionalProperties": false
 }
