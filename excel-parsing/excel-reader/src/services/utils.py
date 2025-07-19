@@ -101,6 +101,9 @@ def extract_formulas(
         sheets[sheet.title] = {}
         max_rows = sheet.max_column if limit <= 0 else min(limit, sheet.max_column)
         for column in sheet.columns:
+            if column[0].value is None:
+                continue
+
             column_letter = column[0].column_letter
             result: List[dtypes.CellData] = []
             for cell, _ in zip(column, range(max_rows)):

@@ -43,8 +43,7 @@ def generate_ddl(
     columns: Dict[str, str],
     raw: bool = False,
 ) -> ddl_generator_pb2.DDLResponse | str:
-    request = ddl_generator_pb2.DDLRequest(ast=ast)
-    request.columns.update(columns)
+    request = ddl_generator_pb2.DDLRequest(ast=ast, columns=columns)
     response: ddl_generator_pb2.DDLResponse = stub.GenerateDDL(request)
     return response if raw else response.sql
 
