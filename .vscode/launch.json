@@ -13,11 +13,11 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python Debugger: Excel Reader",
+            "name": "Python Debugger: Excel Reader Server",
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}/excel-parsing/excel-reader",
-            "program": "./src/main.py",
+            "program": "./src/server_rest.py",
             "console": "integratedTerminal"
         },
         {
