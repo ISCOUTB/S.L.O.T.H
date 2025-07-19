@@ -18,7 +18,10 @@ def parse_sql_builder_response(
         raise ValueError(f"SQL Builder Error: {response.error}")
 
     sql_expressions = {
-        level: [expr for expr in response.content[level].sql]
+        level: [
+            {"sql": expr.sql, "columns": list(expr.columns)}
+            for expr in response.content[level].sql_content
+        ]
         for level in response.content
     }
     return {"content": sql_expressions, "error": response.error or None}

@@ -70,9 +70,9 @@ def generate_sql(
     sql_expressions = sql_builder_utils.parse_sql_builder_response(response)["content"]
     sql_expression = ""
     for level in sorted(sql_expressions.keys()):
-        for expr in sql_expressions[level]:
+        for content in sql_expressions[level]:
             prefix = "" if level == 0 else "\n"
-            sql_expression += f"{prefix}{expr}"
+            sql_expression += f"{prefix}{content['sql']}"
 
     return sql_expression
 

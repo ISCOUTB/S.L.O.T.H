@@ -93,6 +93,6 @@ if __name__ == "__main__":
     sql_expression = ""
     for level, expressions in priorities.items():
         for expr in expressions:
-            sql_expression += f"\n{expr}"
+            sql_expression += f"\n{expr['sql']}"
 
     print(sql_expression)

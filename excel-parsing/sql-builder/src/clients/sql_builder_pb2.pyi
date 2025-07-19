@@ -40,20 +40,27 @@ class BuildSQLRequest(_message.Message):
 
 class BuildSQLResponse(_message.Message):
     __slots__ = ("content", "error")
-    class Sentence(_message.Message):
-        __slots__ = ("sql",)
+    class SQLContent(_message.Message):
+        __slots__ = ("sql", "columns")
         SQL_FIELD_NUMBER: _ClassVar[int]
-        sql: _containers.RepeatedScalarFieldContainer[str]
-        def __init__(self, sql: _Optional[_Iterable[str]] = ...) -> None: ...
+        COLUMNS_FIELD_NUMBER: _ClassVar[int]
+        sql: str
+        columns: _containers.RepeatedScalarFieldContainer[str]
+        def __init__(self, sql: _Optional[str] = ..., columns: _Optional[_Iterable[str]] = ...) -> None: ...
+    class Content(_message.Message):
+        __slots__ = ("sql_content",)
+        SQL_CONTENT_FIELD_NUMBER: _ClassVar[int]
+        sql_content: _containers.RepeatedCompositeFieldContainer[BuildSQLResponse.SQLContent]
+        def __init__(self, sql_content: _Optional[_Iterable[_Union[BuildSQLResponse.SQLContent, _Mapping]]] = ...) -> None: ...
     class ContentEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: int
-        value: BuildSQLResponse.Sentence
-        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[BuildSQLResponse.Sentence, _Mapping]] = ...) -> None: ...
+        value: BuildSQLResponse.Content
+        def __init__(self, key: _Optional[int] = ..., value: _Optional[_Union[BuildSQLResponse.Content, _Mapping]] = ...) -> None: ...
     CONTENT_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
-    content: _containers.MessageMap[int, BuildSQLResponse.Sentence]
+    content: _containers.MessageMap[int, BuildSQLResponse.Content]
     error: str
-    def __init__(self, content: _Optional[_Mapping[int, BuildSQLResponse.Sentence]] = ..., error: _Optional[str] = ...) -> None: ...
+    def __init__(self, content: _Optional[_Mapping[int, BuildSQLResponse.Content]] = ..., error: _Optional[str] = ...) -> None: ...

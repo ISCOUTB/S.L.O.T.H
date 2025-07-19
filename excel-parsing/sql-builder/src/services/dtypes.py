@@ -253,17 +253,30 @@ ConstantsOutputs = Union[TextMapsOutput, NumberMapsOutput, LogicalMapsOutput]
 """Union type representing outputs that are constants values."""
 
 
+class SQLContent(TypedDict):
+    """
+    Represents the content of SQL expressions.
+
+    Attributes:
+        sql (str): The SQL expression as a string.
+        columns (list[str]): A list of column names referenced in the SQL expression.
+    """
+
+    sql: str
+    columns: list[str]
+
+
 class SQLExpressions(TypedDict):
     """
     SQl expressions for creating and altering tables.
 
     Attributes:
-        content (Optional[Dict[int, list[str]]]): A dictionary mapping levels to SQL expressions.
+        content (Optional[Dict[int, list[SQLContent]]]): A dictionary mapping levels to SQL expressions.
             The keys are integers representing the level of the expression, and the values
             are strings containing the SQL expression for that level.
         error (Optional[str]): An error message if there was an issue generating the SQL expressions,
             otherwise None.
     """
 
-    content: Optional[Dict[int, list[str]]] = {}
+    content: Optional[Dict[int, list[SQLContent]]] = {}
     error: Optional[str] = None

@@ -113,8 +113,16 @@ def parse_to_sql_response(
 
     return sql_builder_pb2.BuildSQLResponse(
         content={
-            level: sql_builder_pb2.BuildSQLResponse.Sentence(sql=expr)
-            for level, expr in sql_expressions["content"].items()
+            level: sql_builder_pb2.BuildSQLResponse.Content(
+                sql_content=[
+                    sql_builder_pb2.BuildSQLResponse.SQLContent(
+                        sql=expr["sql"],
+                        columns=expr["columns"],
+                    )
+                    for expr in exprs
+                ]
+            )
+            for level, exprs in sql_expressions["content"].items()
         },
         error=None,
     )
