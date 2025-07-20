@@ -92,9 +92,11 @@ def generate_data(
 
 @monitor_performance("parse_formulas")
 def parse_formulas(
-    filename: str, file_bytes: bytes, limit: int = 50
+    filename: str, file_bytes: bytes, limit: int = 50, fill_spaces: str = "_"
 ) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
-    content = get_data_from_spreadsheet(filename, file_bytes, limit=limit)
+    content = get_data_from_spreadsheet(
+        filename, file_bytes, limit=limit, fill_spaces=fill_spaces
+    )
     data = content["data"]
     result = {}
     for cell_data in generate_data(data):
@@ -117,9 +119,9 @@ def parse_formulas(
 
 @monitor_performance("main")
 def main(
-    filename: str, file_bytes: bytes, limit: int = 50
+    filename: str, file_bytes: bytes, limit: int = 50, fill_spaces: str = " "
 ) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
-    content = parse_formulas(filename, file_bytes, limit)
+    content = parse_formulas(filename, file_bytes, limit, fill_spaces=fill_spaces)
     result = content["result"]
     columns = content["columns"]
 

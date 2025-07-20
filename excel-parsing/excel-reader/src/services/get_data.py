@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 @monitor_performance("get_data_from_spreadsheet")
 def get_data_from_spreadsheet(
-    filename: str, file_bytes: bytes, limit: int = 50
+    filename: str, file_bytes: bytes, limit: int = 50, fill_spaces: str = " "
 ) -> dtypes.SpreadsheetContent:
     """
     Main function to read an Excel file and extract formulas.
@@ -21,6 +21,7 @@ def get_data_from_spreadsheet(
         filename (str): The name of the spreadsheet file.
         file_bytes (bytes): The bytes of the Excel file.
         limit (int): The maximum number of cells to extract per column.
+        fill_spaces (str): The character to replace spaces in column names.
 
     Returns:
         dtypes.SpreadsheetContent: A dictionary containing raw data, columns, and structured data
@@ -36,9 +37,21 @@ def get_data_from_spreadsheet(
             "Unsupported file format. Only .xlsx, .xls, and .csv are supported."
         )
 
+    if not fill_spaces:
+        fill_spaces = " "
+
     cells = extract_formulas(workbook, limit)
     columns = {
-        sheet: dict(map(lambda x: (x[0], x[1][0]["value"]), sheet_data.items()))
+        sheet: dict(
+            map(
+                # Use first cell as column name, and, MAYBE, replace spaces with underscores
+                # to avoid issues with column names in SQL, but this validation maybe
+                # have to be done in the client side, not here, because of dtypes_str
+                # parameter received in the server, there could be a conflict with the column names
+                lambda x: (x[0], x[1][0]["value"].replace(" ", fill_spaces)),
+                sheet_data.items(),
+            )
+        )
         for sheet, sheet_data in cells.items()
     }
     return {

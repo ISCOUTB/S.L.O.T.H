@@ -32,6 +32,7 @@ async def read_excel(
     dtypes_str: str = Form(...),
     table_name: str = Form(...),
     limit: int = 50,
+    fill_spaces: str = " ",
 ) -> Dict[str, str]:
     if settings.EXCEL_READER_DEBUG:
         print(f"Received file: {spreadsheet.filename}")
@@ -53,12 +54,14 @@ async def read_excel(
         table_name = ""
 
     logger.info(f"Processing file: {filename}")
-    content = main(filename, file_content, limit=limit)
+    content = main(filename, file_content, limit=limit, fill_spaces=fill_spaces)
     result = content["result"]
     columns = content["columns"]
 
     ddls = {
-        sheet: dict(map(lambda x: (x[1], result[sheet][x[0]][0]["sql"]), columns[sheet].items()))
+        sheet: dict(
+            map(lambda x: (x[1], result[sheet][x[0]][0]["sql"]), columns[sheet].items())
+        )
         for sheet in columns.keys()
     }
 
