@@ -29,13 +29,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PYTHONPATH=/app
 
-COPY ./scripts /app/scripts
-COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
-COPY ./app /app/app
+COPY ./src /app/src
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# TODO: Change the command to run the appropriate worker manager
+CMD ["python", "src/main.py"]

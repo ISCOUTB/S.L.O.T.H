@@ -1,1 +1,9 @@
+# Secrets
 .env
+
+# Virtual environments
+.venv
+
+# Python cache files
+**/__pycache__
+.ruff_cache
