@@ -1,0 +1,14 @@
+project:
+  name: ddl-generator
+  description: ddl-generator service
+
+type: application
+
+language: python
+
+toolchain:
+  python:
+
+tasks:
+  test:
+    command: echo "No tests defined"

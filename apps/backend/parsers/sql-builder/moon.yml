@@ -1,0 +1,14 @@
+project:
+  name: sql-builder
+  description: sql-builder service
+
+type: application
+
+language: python
+
+toolchain:
+  python:
+
+tasks:
+  test:
+    command: echo "No tests defined"

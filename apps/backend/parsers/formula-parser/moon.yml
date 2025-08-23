@@ -1,0 +1,15 @@
+project:
+  name: formula-parser
+  description: formula-parser service
+
+type: application
+
+# TODO: migrate the app to typescript
+language: typescript
+
+toolchain:
+  node:
+
+tasks:
+  test:
+    command: echo "No tests defined"
