@@ -8,8 +8,9 @@ language: python
 
 toolchain:
   python:
+    version: "3.12.10"
 
 tasks:
-  test:
-    command: echo "No tests defined"
-
+  uv:
+    command: uv
+    toolchain: python

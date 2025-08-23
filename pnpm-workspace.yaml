@@ -1,0 +1,6 @@
+preferSymlinkedExecutables: true
+linkWorkspacePackages: true
+
+packages:
+  - apps/**/**
+  - packages/**/**

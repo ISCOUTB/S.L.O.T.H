@@ -1,0 +1,33 @@
+{
+    "folders": [
+        {
+            "name": "ROOT",
+            "path": "../"
+        },
+        {
+            "name": "Excel-Reader",
+            "path": "../apps/backend/parsers/excel-reader"
+        },
+        {
+            "name": "Formula-Parser",
+            "path": "../apps/backend/parsers/formula-parser"
+        },
+        {
+            "name": "DDL-Generator",
+            "path": "../apps/backend/parsers/ddl-generator"
+        },
+        {
+            "name": "SQL-Builder",
+            "path": "../apps/backend/parsers/sql-builder"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true,
+        }
+    }
+}
