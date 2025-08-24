@@ -1,16 +1,20 @@
 project:
-  name: excel-reader
-  description: excel-reader service
+    name: Excel-Reader
+    description: A FastAPI-based REST service that serves as the main entry point for the Excel Parsing system. This service processes Excel files, extracts formulas and data, and orchestrates communication with other microservices to generate SQL statements.
 
 type: application
 
 language: python
 
 toolchain:
-  python:
-    version: "3.12.10"
+    python:
+        version: "3.12.10"
 
 tasks:
-  uv:
-    command: uv
-    toolchain: python
+    uv:
+        command: uv
+        toolchain: python
+
+    pdm:
+        command: pdm
+        toolchain: python
