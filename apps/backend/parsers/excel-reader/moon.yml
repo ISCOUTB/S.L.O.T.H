@@ -17,6 +17,6 @@ tasks:
         command: uv
         toolchain: python
 
-    pdm:
-        command: pdm
+    test:
+        command: pytest -v -n auto
         toolchain: python

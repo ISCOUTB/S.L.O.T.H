@@ -16,15 +16,12 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pdm>=2.25.9",
     "pytest>=8.4.1",
     "pytest-xdist>=3.8.0",
+    "ruff>=0.12.10",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = [
     "src"
 ]
-
-[tool.pdm.scripts]
-test = "pytest -v -n auto"

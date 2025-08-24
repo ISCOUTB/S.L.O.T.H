@@ -1,7 +1,7 @@
 import grpc
 from clients.dtypes import utils
 from services.get_data import get_data_from_spreadsheet
-from services.utils import monitor_performance
+from services.utils import monitor_performance 
 
 from clients.dtypes import dtypes_pb2
 from clients.ddl_generator import ddl_generator_pb2, ddl_generator_pb2_grpc
@@ -139,38 +139,4 @@ def main(
 
 
 if __name__ == "__main__":
-    import os.path
-    from pprint import pprint
-
-    file_example = "../../typechecking/backend/static/acme__users__sample1.xlsx"
-    print(os.path.abspath(file_example), os.path.exists(file_example))
-    with open(file_example, "rb") as file:
-        file_bytes = file.read()
-
-    filename = os.path.basename(file_example)
-    content = main(filename, file_bytes)
-    result = content["result"]
-    columns = content["columns"]
-    pprint(columns)
-
-    ddls = {
-        sheet: {
-            col_name: result[sheet][letter][0]["sql"]
-            for letter, col_name in columns[sheet].items()
-        }
-        for sheet in columns.keys()
-    }
-
-    print(
-        generate_sql(
-            SQL_BUILDER_STUB,
-            ddls["Sheet1"],
-            {
-                "id": {"type": "INTEGER", "extra": "PRIMARY KEY"},
-                "name": {"type": "TEXT"},
-                "age": {"type": "INTEGER"},
-                "is_adult": {"type": "TEXT"},
-            },
-            table_name="test_table",
-        )
-    )
+    pass
