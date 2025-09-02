@@ -1,0 +1,14 @@
+project:
+  name: api
+  description: api layer service
+
+type: application
+
+language: python
+
+toolchain:
+  python:
+
+tasks:
+  test:
+    command: echo "No tests defined"
