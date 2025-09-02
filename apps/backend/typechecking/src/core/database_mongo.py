@@ -11,6 +11,11 @@ class MongoConnection:
         self.__database: pymongo.database.Database = self.__client[database]
         self.__collection: pymongo.collection.Collection = self.__database[collection]
 
+    # ==================== General Purporse ====================
+    # To be honest, these functions are a little bit useless, but maybe in a future
+    # we would want to make something better, and with this could be easier, than
+    # using directly MongoClient. Who knows
+
     @property
     def client(self) -> pymongo.MongoClient:
         return self.__client
@@ -51,5 +56,5 @@ class MongoConnection:
 
 
 mongo_connection = MongoConnection(
-    str(settings.MONGO_URI), settings.MONGO_DB, settings.MONGO_COLLECTION
+    str(settings.MONGO_URI), settings.MONGO_DB, settings.MONGO_TASKS_COLLECTION
 )

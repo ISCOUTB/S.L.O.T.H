@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     MONGO_INITDB_ROOT_USERNAME: str | None = None
     MONGO_INITDB_ROOT_PASSWORD: str | None = None
     MONGO_DB: str
-    MONGO_COLLECTION: str
+    MONGO_TASKS_COLLECTION: str
 
     @computed_field
     @property
