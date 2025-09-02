@@ -9,8 +9,7 @@ The schemas define the contract between message publishers and consumers,
 ensuring reliable message processing and proper data serialization.
 """
 
-from pydantic import BaseModel
-from typing import TypedDict, Literal
+from typing import TypedDict, Literal, Dict, Any, Optional
 
 
 ValidationTasks = Literal["sample_validation"]
@@ -107,7 +106,7 @@ class SchemaMessage(TypedDict):
     date: str  # Optional date field for additional context
 
 
-class ApiResponse(BaseModel):
+class ApiResponse(TypedDict):
     """
     Base model for API responses.
 
@@ -115,10 +114,10 @@ class ApiResponse(BaseModel):
         status (str): The status of the response, e.g., "success" or "error".
         code (int): The HTTP status code associated with the response.
         message (str): A message providing additional information about the response.
-        data (dict, optional): The data returned in the response, if any. Defaults to None.
+        data (Optional[Dict[str, Any]]): The data returned in the response, if any. Defaults to None.
     """
 
     status: str
     code: int
     message: str
-    data: dict = None
+    data: Optional[Dict[str, Any]] = None

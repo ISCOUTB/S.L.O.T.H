@@ -128,7 +128,7 @@ class RedisConnection:
         task_id: str,
         field: str,
         value: Any,
-        endpoint: str,
+        task: str,
         *,
         message: str = "",
         data: dict | None = None,
@@ -140,7 +140,7 @@ class RedisConnection:
             task_id: Unique identifier for the task.
             field: The field to update in the task data.
             value: The new value to set for the specified field.
-            endpoint: The endpoint or context under which the task is stored.
+            task: The task or context under which the task is stored.
             message: Optional message to log or store with the update.
             data: Optional additional data to merge with existing task data.
             reset_data: If True, reset the existing data before merging new data.
@@ -148,7 +148,7 @@ class RedisConnection:
         Returns:
             None
         """
-        task_key = f"{endpoint}:task:{task_id}"
+        task_key = f"{task}:task:{task_id}"
         if isinstance(value, dict):
             value = json.dumps(value)
         self.redis_client.hset(task_key, field, value)
@@ -158,12 +158,12 @@ class RedisConnection:
 
         if data:
             cached_data = (
-                self.get_task_id(task_id, endpoint).data if not reset_data else {}
+                self.get_task_id(task_id, task).data if not reset_data else {}
             )
             cached_data = {**cached_data, **data}
             self.redis_client.hset(task_key, "data", json.dumps(cached_data))
 
-    def set_task_id(self, task_id: str, value: ApiResponse, endpoint: str) -> None:
+    def set_task_id(self, task_id: str, value: ApiResponse, task: str) -> None:
         """Set a task ID with associated data in the Redis cache.
 
         Stores the task data as a hash and adds the task ID to the import name's
@@ -172,31 +172,30 @@ class RedisConnection:
         Args:
             task_id: Unique identifier for the task.
             value: ApiResponse object containing task data.
-            endpoint: The endpoint or context under which the task is being stored.
+            task: The task or context under which the task is being stored.
 
         Returns:
             None
         """
-        import_name = value.data.get("import_name", "default")
-        value = value.model_dump()
-        value["data"] = json.dumps(value["data"])
+        import_name = value["data"].get("import_name", "default")
+        value["data"] = json.dumps(value["data"])  # Just in case
 
-        task_key = f"{endpoint}:task:{task_id}"
-        import_key = f"{endpoint}:import:{import_name}:tasks"
+        task_key = f"{task}:task:{task_id}"
+        import_key = f"{task}:import:{import_name}:tasks"
         self.redis_client.hmset(task_key, value)
         self.redis_client.sadd(import_key, task_id)
 
-    def get_task_id(self, task_id: str, endpoint: str) -> ApiResponse | None:
+    def get_task_id(self, task_id: str, task: str) -> ApiResponse | None:
         """Retrieve a task by its ID from the Redis cache.
 
         Args:
             task_id: Unique identifier for the task.
-            endpoint: The endpoint or context under which the task is stored.
+            task: The task or context under which the task is stored.
 
         Returns:
             ApiResponse object if task exists, None otherwise.
         """
-        task_data = self.redis_client.hgetall(f"{endpoint}:task:{task_id}")
+        task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
         task_data["data"] = json.loads(task_data["data"]) if "data" in task_data else {}
         try:
             return ApiResponse(**task_data)
@@ -204,22 +203,22 @@ class RedisConnection:
             return None
 
     def get_tasks_by_import_name(
-        self, import_name: str, endpoint: str
+        self, import_name: str, task: str
     ) -> list[ApiResponse]:
         """Retrieve all tasks associated with a specific import name.
 
         Args:
             import_name: The import name to filter tasks by.
-            endpoint: The endpoint or context under which the tasks are stored.
+            task: The task or context under which the tasks are stored.
 
         Returns:
             List of ApiResponse objects for all tasks with the given import name.
             Returns empty list if no tasks found.
         """
-        task_ids = self.redis_client.smembers(f"{endpoint}:import:{import_name}:tasks")
+        task_ids = self.redis_client.smembers(f"{task}:import:{import_name}:tasks")
         tasks = []
         for task_id in task_ids:
-            task_data = self.redis_client.hgetall(f"{endpoint}:task:{task_id}")
+            task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
             if not task_data:
                 continue
             task_data["data"] = (
