@@ -18,4 +18,10 @@ El servicio de API utiliza otra base de datos, diferente a las antes mencionadas
 
 ## 2
 
+Relacionado al primer punto, algo así pasa con RabbitMQ. Pues, en este software también se hace uso del modelo Pub/Sub (Publisher/Subscriber), en este caso, la capa de la API es la encargada de publicar las tareas en RabbitMQ, y el subscriber o consumer (el servicio typechecking) es el encargado de escuchar constantemente la cola de mensajes y actuar cada que se publiquen tareas a la cola. ¿Cómo se manejaría en este caso?
+
+Se haría lo mismo, un servicio de mensajería, pero deberían ser diferentes por buenas prácticas de programación. Así que sí, se debe implementar gRPC aquí también, para comunicar RabbitMQ a la capa de la API y el servicio de Typechecking.
+
+## 3
+
 Pruebas unitarias a todos los microservicios jejeje
