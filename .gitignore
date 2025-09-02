@@ -1,3 +1,5 @@
+# Environment files
+.env
 
 # moon
 .moon/cache
