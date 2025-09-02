@@ -10,7 +10,7 @@ associated tasks.
 """
 
 import json
-from typing import Any
+from typing import Any, List, Optional, Dict
 
 from redis import Redis
 import redis.exceptions
@@ -20,7 +20,7 @@ from src.schemas.messaging import ApiResponse
 
 class RedisConnection:
     def __init__(
-        self, host: str, port: int, db: int, password: str | None = None
+        self, host: str, port: int, db: int, password: Optional[str] = None
     ) -> None:
         self.__host = host
         self.__port = port
@@ -56,7 +56,7 @@ class RedisConnection:
         return self.__db
 
     @property
-    def password(self) -> str | None:
+    def password(self) -> Optional[str]:
         """Get the Redis password."""
         return self.__password
 
@@ -67,38 +67,38 @@ class RedisConnection:
 
     # =================== General Purpose ===================
 
-    def keys(self, pattern: str) -> list[str]:
+    def keys(self, pattern: str) -> List[str]:
         """Retrieve keys matching the given patterns from Redis.
 
         Args:
-            pattern: Variable number of patterns to match keys.
+            pattern (str): Variable number of patterns to match keys.
 
         Returns:
-            List of keys matching the specified patterns.
+            List[str]: List of keys matching the specified patterns.
         """
         return self.redis_client.keys(pattern)
 
-    def set(self, key: str, value: str, ex_secs: int | None = None) -> None:
+    def set(self, key: str, value: str, ex_secs: Optional[int] = None) -> None:
         """Set a key-value pair in Redis cache.
 
         Args:
             key (str): The Redis key to set.
             value (str): The value to store.
-            ex_secs (int): Optional expiration time in seconds.
+            ex_secs (Optional[int]): Optional expiration time in seconds.
 
         Returns:
-            None
+            None:
         """
         self.redis_client.set(key, value, ex=ex_secs)
 
-    def get(self, key: str) -> Any | None:
+    def get(self, key: str) -> Optional[Any]:
         """Retrieve a value from the Redis cache by key.
 
         Args:
-            key: The Redis key to retrieve.
+            key (str): The Redis key to retrieve.
 
         Returns:
-            The value associated with the key, or None if key doesn't exist.
+            Optional[Any]: The value associated with the key, or None if key doesn't exist.
         """
         return self.redis_client.get(key)
 
@@ -106,10 +106,10 @@ class RedisConnection:
         """Delete one or more keys from the Redis cache.
 
         Args:
-            *keys: Variable number of Redis keys to delete.
+            *keys (str): Variable number of Redis keys to delete.
 
         Returns:
-            The number of keys that were successfully deleted.
+            int: The number of keys that were successfully deleted.
         """
         return self.redis_client.delete(*keys)
 
@@ -117,7 +117,7 @@ class RedisConnection:
         """Check if the Redis server is reachable.
 
         Returns:
-            True if the server is reachable, False otherwise.
+            bool: True if the server is reachable, False otherwise.
         """
         return self.redis_client.ping()
 
@@ -131,22 +131,22 @@ class RedisConnection:
         task: str,
         *,
         message: str = "",
-        data: dict | None = None,
+        data: Optional[Dict[str, Any]] = None,
         reset_data: bool = False,
     ) -> None:
         """Update a specific field in a task ID's data in the Redis cache.
 
         Args:
-            task_id: Unique identifier for the task.
-            field: The field to update in the task data.
-            value: The new value to set for the specified field.
-            task: The task or context under which the task is stored.
-            message: Optional message to log or store with the update.
-            data: Optional additional data to merge with existing task data.
-            reset_data: If True, reset the existing data before merging new data.
+            task_id (str): Unique identifier for the task.
+            field (str): The field to update in the task data.
+            value (Any): The new value to set for the specified field.
+            task (str): The task or context under which the task is stored.
+            message (str): Optional message to log or store with the update.
+            data (Optional[Dict[str, Any]]): Optional additional data to merge with existing task data.
+            reset_data (bool): If True, reset the existing data before merging new data.
 
         Returns:
-            None
+            None:
         """
         task_key = f"{task}:task:{task_id}"
         if isinstance(value, dict):
@@ -157,9 +157,7 @@ class RedisConnection:
             self.redis_client.hset(task_key, "message", message)
 
         if data:
-            cached_data = (
-                self.get_task_id(task_id, task).data if not reset_data else {}
-            )
+            cached_data = self.get_task_id(task_id, task).data if not reset_data else {}
             cached_data = {**cached_data, **data}
             self.redis_client.hset(task_key, "data", json.dumps(cached_data))
 
@@ -170,12 +168,12 @@ class RedisConnection:
         task set for efficient querying by import name.
 
         Args:
-            task_id: Unique identifier for the task.
-            value: ApiResponse object containing task data.
-            task: The task or context under which the task is being stored.
+            task_id (str): Unique identifier for the task.
+            value (ApiResponse): ApiResponse object containing task data.
+            task (str): The task or context under which the task is being stored.
 
         Returns:
-            None
+            None:
         """
         import_name = value["data"].get("import_name", "default")
         value["data"] = json.dumps(value["data"])  # Just in case
@@ -185,15 +183,15 @@ class RedisConnection:
         self.redis_client.hmset(task_key, value)
         self.redis_client.sadd(import_key, task_id)
 
-    def get_task_id(self, task_id: str, task: str) -> ApiResponse | None:
+    def get_task_id(self, task_id: str, task: str) -> Optional[ApiResponse]:
         """Retrieve a task by its ID from the Redis cache.
 
         Args:
-            task_id: Unique identifier for the task.
-            task: The task or context under which the task is stored.
+            task_id (str): Unique identifier for the task.
+            task (str): The task or context under which the task is stored.
 
         Returns:
-            ApiResponse object if task exists, None otherwise.
+            Optional[ApiResponse]: ApiResponse object if task exists, None otherwise.
         """
         task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
         task_data["data"] = json.loads(task_data["data"]) if "data" in task_data else {}
@@ -204,15 +202,15 @@ class RedisConnection:
 
     def get_tasks_by_import_name(
         self, import_name: str, task: str
-    ) -> list[ApiResponse]:
+    ) -> List[ApiResponse]:
         """Retrieve all tasks associated with a specific import name.
 
         Args:
-            import_name: The import name to filter tasks by.
-            task: The task or context under which the tasks are stored.
+            import_name (str): The import name to filter tasks by.
+            task (str): The task or context under which the tasks are stored.
 
         Returns:
-            List of ApiResponse objects for all tasks with the given import name.
+            List[ApiResponse]: List of ApiResponse objects for all tasks with the given import name.
             Returns empty list if no tasks found.
         """
         task_ids = self.redis_client.smembers(f"{task}:import:{import_name}:tasks")
@@ -229,14 +227,14 @@ class RedisConnection:
 
     # =================== Manage all cache ===================
 
-    def get_cache(self) -> dict[str, Any]:
+    def get_cache(self) -> Dict[str, Any]:
         """Retrieve all keys and their values from the Redis cache.
 
         Warning: This operation can be expensive on large datasets as it
         retrieves all keys and values from the Redis instance.
 
         Returns:
-            Dictionary mapping all Redis keys to their corresponding values.
+            Dict[str, Any]: Dictionary mapping all Redis keys to their corresponding values.
         """
         keys = self.redis_client.keys("*")
         cache_data = {}
@@ -275,7 +273,7 @@ class RedisConnection:
         current Redis database. Use with caution.
 
         Returns:
-            Redis response confirming the flush operation.
+            bool: Redis response confirming the flush operation.
         """
         try:
             return self.redis_client.flushdb()
