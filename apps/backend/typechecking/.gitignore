@@ -5,5 +5,9 @@
 .venv
 
 # Python cache files
-**/__pycache__
+**/__pycache__/
+*.pyc
 .ruff_cache
+
+# Temporal changes
+src/tests/
