@@ -42,10 +42,6 @@ class MongoConnection:
         """Count the number of documents in the collection."""
         return self.__collection.count_documents(filter)
 
-    def find(self, filter: dict = {}, projection: dict = None):
-        """Find documents in the collection."""
-        return self.__collection.find(filter, projection)
-
     def find_one(self, filter: dict = {}, projection: dict = None):
         """Find a single document in the collection."""
         return self.__collection.find_one(filter, projection)
