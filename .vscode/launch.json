@@ -8,7 +8,7 @@
             "name": "Python Debugger: SQL Builder Server",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}/excel-parsing/sql-builder",
+            "cwd": "${workspaceFolder}/apps/backend/parsers/sql-builder",
             "program": "./src/server.py",
             "console": "integratedTerminal"
         },
@@ -16,7 +16,7 @@
             "name": "Python Debugger: Excel Reader Server",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}/excel-parsing/excel-reader",
+            "cwd": "${workspaceFolder}/apps/backend/parsers/excel-reader",
             "program": "./src/server_rest.py",
             "console": "integratedTerminal"
         },
@@ -24,7 +24,7 @@
             "name": "Python Debugger: DDLGenerator Server",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/excel-parsing/ddl-generator/src/server.py",
+            "program": "${workspaceFolder}/apps/backend/parsers/ddl-generator/src/server.py",
             "console": "integratedTerminal"
         },
         {
@@ -34,14 +34,14 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/excel-parsing/formula-parser/node_modules/@grpc/grpc-js/build/src/server-interceptors.js"
+            "program": "${workspaceFolder}/apps/backend/parsers/formula-parser/node_modules/@grpc/grpc-js/build/src/server-interceptors.js"
         },
         {
             "name": "Python Debugger: Workers",
             "type": "debugpy",
             "request": "launch",
             "module": "app.workers.worker_manager",
-            "cwd": "${workspaceFolder}/typechecking/backend"
+            "cwd": "${workspaceFolder}/apps/backend/typechecking"
         },
         {
             "name": "Python Debugger: FastAPI",
@@ -49,11 +49,11 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "app.main:app",
+                "src.main:app",
                 "--reload"
             ],
             "jinja": true,
-            "cwd": "${workspaceFolder}/typechecking/backend"
+            "cwd": "${workspaceFolder}/apps/backend/api"
         }
     ]
 }
