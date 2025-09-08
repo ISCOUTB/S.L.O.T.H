@@ -1,0 +1,7 @@
+[project]
+name = "proto-utils"
+version = "0.1.0"
+description = "Protobuf utilities for Python"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []

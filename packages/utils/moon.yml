@@ -1,0 +1,8 @@
+$schema: "../../.moon/cache/schemas/project.json"
+
+type: "library"
+language: "other"
+
+project:
+  name: "Proto Utils"
+  description: "Shared protobuf utilities and generated code"
