@@ -54,7 +54,7 @@ async def upload_schema(
             data={"task_id": task_id, "import_name": import_name},
         )
 
-    redis_db.set_task_id(task_id, response, task=TASK)
+    redis_db.set_task_id(task_id, response.copy(), task=TASK)
     return response
 
 
@@ -110,5 +110,5 @@ async def remove_schema(
             message=f"Failed to remove schema: {str(e)}",
         )
 
-    redis_db.set_task_id(task_id, response, task=TASK)
+    redis_db.set_task_id(task_id, response.copy(), task=TASK)
     return response

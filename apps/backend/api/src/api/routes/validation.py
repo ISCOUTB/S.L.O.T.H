@@ -59,7 +59,7 @@ async def validate(
             message=f"Failed to submit validation request: {str(e)}",
         )
 
-    redis_db.set_task_id(task_id, response, task=TASK)
+    redis_db.set_task_id(task_id, response.copy(), task=TASK)
     return response
 
 
