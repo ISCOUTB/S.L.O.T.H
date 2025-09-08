@@ -1,19 +1,31 @@
 syntax = "proto3";
-import "dtypes.proto";
+import "parsers/dtypes.proto";
 
 package formula_parser;
 
+// Formula Parser Service
+// This service parses Excel formulas into structured data representations.
+// It converts Excel formula strings into tokens and Abstract Syntax Trees (AST)
+// for further processing and analysis by other services in the ETL pipeline.
+
+// Service definition for parsing Excel formulas
 service FormulaParser {
+    // Parses an Excel formula string into tokens and AST
+    // Takes a raw Excel formula and returns structured representations
     rpc ParseFormula(FormulaParserRequest) returns (FormulaParserResponse) {}
 }
 
+// Request message for formula parsing
+// Contains the Excel formula string to be parsed
 message FormulaParserRequest {
-    string formula = 1;  // La fórmula de Excel a parsear
+    string formula = 1;  // The Excel formula to parse (e.g., "=SUM(A1:A5)", "=IF(B1>0,B1*2,0)")
 }
 
+// Response message containing the parsing results
+// Provides the original formula, generated tokens, AST, and any error information
 message FormulaParserResponse {
-    string formula = 1;                  // La fórmula original
-    optional dtypes.Tokens tokens = 2;   // Tokens generados durante el parseo
-    optional dtypes.AST ast = 3;         // El Árbol de Sintaxis Abstracta resultante
-    string error = 4;                    // Mensaje de error si hubo un problema al parsear
+    string formula = 1;                  // The original Excel formula that was parsed
+    optional dtypes.Tokens tokens = 2;   // Tokens generated during the parsing process
+    optional dtypes.AST ast = 3;         // The resulting Abstract Syntax Tree structure
+    string error = 4;                    // Error message if there was a problem during parsing
 }

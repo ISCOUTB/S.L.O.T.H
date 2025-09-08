@@ -1,33 +1,51 @@
 syntax = "proto3";
-import "ddl_generator.proto";
+import "parsers/ddl_generator.proto";
 
 package sql_builder;
 
+// SQL Builder Service
+// This service constructs complete SQL statements from DDL generator responses.
+// It takes processed Excel formula data and combines it with column type information
+// to create executable SQL queries for database operations and schema generation.
+
+// Service definition for building SQL statements
 service SQLBuilder {
+    // Builds complete SQL statements from DDL responses and column information
+    // Takes processed formula data and generates ready-to-execute SQL
     rpc BuildSQL(BuildSQLRequest) returns (BuildSQLResponse);
 }
 
+// Request message for SQL building operations
+// Contains all necessary information to construct SQL statements
 message BuildSQLRequest {
+    // Column information message containing data type and constraints
+    // Defines the structure and properties of database columns
     message ColumnInfo {
-        string type = 1; // Data type of the column (e.g., "INTEGER", "TEXT")
-        string extra = 2; // Additional SQL constraints (e.g., "NOT NULL", "PRIMARY KEY")
+        string type = 1; // Data type of the column (e.g., "INTEGER", "VARCHAR(255)", "DECIMAL(10,2)")
+        string extra = 2; // Additional SQL constraints and modifiers (e.g., "NOT NULL", "PRIMARY KEY", "UNIQUE")
     }
 
-    map<string, ddl_generator.DDLResponse> cols = 1;
-    map<string, ColumnInfo> dtypes = 2;
-    string table_name = 3;
+    map<string, ddl_generator.DDLResponse> cols = 1; // Map of column names to their DDL responses from formula processing
+    map<string, ColumnInfo> dtypes = 2;              // Map of column names to their data type information
+    string table_name = 3;                           // Name of the target database table
 }
 
+// Response message containing the constructed SQL statements
+// Provides organized SQL content and any error information
 message BuildSQLResponse {
+    // SQL content message containing a statement and its affected columns
+    // Represents a single SQL operation with its metadata
     message SQLContent {
-        string sql = 1;
-        repeated string columns = 2;
+        string sql = 1;                // The complete SQL statement (e.g., CREATE TABLE, INSERT, SELECT)
+        repeated string columns = 2;   // List of column names involved in this SQL statement
     }
 
+    // Content container message for grouping related SQL statements
+    // Allows for organizing multiple related SQL operations together
     message Content {
-        repeated SQLContent sql_content = 1;
+        repeated SQLContent sql_content = 1; // List of SQL statements that belong together logically
     }
 
-    map<int32, Content> content = 1;
-    optional string error = 2;
+    map<int32, Content> content = 1; // Map of operation IDs to their SQL content groups
+    optional string error = 2;       // Error message if there was a problem building the SQL
 }

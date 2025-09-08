@@ -1,50 +1,68 @@
 syntax = "proto3";
-import "dtypes.proto";
+import "parsers/dtypes.proto";
 
 package ddl_generator;
 
+// DDL Generator Service
+// This service generates Data Definition Language (DDL) SQL statements from Excel formula ASTs.
+// It transforms parsed Excel formulas into SQL expressions that can be used for database
+// schema generation and data manipulation operations.
+
+// Service definition for generating DDL statements from Abstract Syntax Trees
 service DDLGenerator {
+    // Generates DDL SQL statements from an Excel formula AST
+    // Takes parsed formula data and column mappings to produce executable SQL
     rpc GenerateDDL(DDLRequest) returns (DDLResponse) {}
 }
 
+// Request message for DDL generation
+// Contains the parsed Excel formula AST and column mapping information
 message DDLRequest {
-    dtypes.AST ast = 1;
-    map<string, string> columns = 2;
+    dtypes.AST ast = 1; // The Abstract Syntax Tree representing the parsed Excel formula
+    map<string, string> columns = 2; // Mapping of Excel column letters to database column names (e.g., "A" -> "user_id")
 }
 
+// Response message containing the generated DDL and associated metadata
+// Provides comprehensive information about the generated SQL and its structure
 message DDLResponse {
-    dtypes.AstType type = 1;
-    string sql = 2;
+    dtypes.AstType type = 1; // Type of the AST node this response represents
+    string sql = 2; // Generated SQL statement or expression
 
-    // Numeric, Logical, and Text Values
+    // Literal Values
+    // These fields store the actual values when the AST node represents literals
     oneof value {
-        float number_value = 3;
-        string text_value = 4;
-        bool logical_value = 5;
+        float number_value = 3;  // Numeric literal value (e.g., 42, 3.14)
+        string text_value = 4;   // Text literal value (e.g., "Hello World")
+        bool logical_value = 5;  // Boolean literal value (TRUE/FALSE)
     }
 
-    // Cell Reference
-    optional string cell = 6;
-    optional dtypes.RefType refType = 7;
-    optional string column = 8;
-    optional string eror = 9;
+    // Cell Reference Information
+    // Fields used when the AST node represents a single cell reference
+    optional string cell = 6;            // Original cell reference (e.g., "A1", "$B$2")
+    optional dtypes.RefType refType = 7;  // Type of cell reference (relative, absolute, mixed)
+    optional string column = 8;           // Mapped database column name for this cell
+    optional string eror = 9;             // Error message if cell reference is invalid (typo: should be "error")
 
-    // Cell Range
-    optional string start = 10;
-    optional string end = 11;
-    repeated string cells = 12;
-    repeated string columns = 13;
-    optional string error = 14;
+    // Cell Range Information
+    // Fields used when the AST node represents a range of cells
+    optional string start = 10;        // Starting cell of the range (e.g., "A1")
+    optional string end = 11;          // Ending cell of the range (e.g., "B5")
+    repeated string cells = 12;        // List of all individual cells in the range
+    repeated string columns = 13;      // List of all database columns affected by this range
+    optional string error = 14;        // Error message if range is invalid
 
-    // Binary Expression
-    optional string operator = 15;
-    optional DDLResponse left = 16;
-    optional DDLResponse right = 17;
+    // Binary Expression Information
+    // Fields used when the AST node represents a binary operation (e.g., A1 + B1)
+    optional string operator = 15;       // The binary operator (+, -, *, /, etc.)
+    optional DDLResponse left = 16;      // Left operand of the binary expression
+    optional DDLResponse right = 17;     // Right operand of the binary expression
 
-    // Function
-    optional string name = 18;
-    repeated DDLResponse arguments = 19;
+    // Function Information
+    // Fields used when the AST node represents a function call (e.g., SUM(A1:A5))
+    optional string name = 18;             // Function name (e.g., "SUM", "AVERAGE", "COUNT")
+    repeated DDLResponse arguments = 19;   // List of function arguments, each as a DDLResponse
 
-    // Unary Expression
-    optional DDLResponse operand = 20;  // operator and type as well
+    // Unary Expression Information
+    // Fields used when the AST node represents a unary operation (e.g., -A1)
+    optional DDLResponse operand = 20;  // The operand of the unary expression (operator and type also apply)
 }
