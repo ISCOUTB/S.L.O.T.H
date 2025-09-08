@@ -1,5 +1,11 @@
 # TODOs
 
+## Both
+
+### Unit Testing Typechecking and API Layer
+
+Pruebas unitarias a todos los microservicios jejeje
+
 ## Typechecking
 
 ### Database Connection
@@ -24,10 +30,10 @@ Relacionado al primer punto, algo así pasa con RabbitMQ. Pues, en este software
 
 Se haría lo mismo, un servicio de mensajería, pero deberían ser diferentes por buenas prácticas de programación. Así que sí, se debe implementar gRPC aquí también, para comunicar RabbitMQ a la capa de la API y el servicio de Typechecking.
 
-### Unit Testing Typechecking and API Layer
-
-Pruebas unitarias a todos los microservicios jejeje
-
 ### API Layer Errors
 
 Después de empezar con el desarrollo de la capa de la API, con el código duplicado que toca solucionar, aparentemente los controladores para los usuarios no están funcionando como deberían, por lo que, la autenticación tampoco lo está haciendo, así que, hay errores que es necesario verificar. En realidad, esto no es prioridad todavía, es primordial lo mencionado en [Database Connection](#database-connection) y [Messaging Connection](#messaging-connection).
+
+### MongoDB Usage for Task Tracking
+
+En [Database Connection](#database-connection) se menciona brevemente acerca del uso de MongoDB para poder rastrear el estado de las tareas de RabbitMQ. Actualmente, eso no está implementado todavía (solamente se utiliza Redis para esa tarea), pero, nuevamente, una vez hecho lo mencionado en [Database Connection](#database-connection) y [Messaging Connection](#messaging-connection), se hará esta implementación. Cuando esté hecho lo mencionado con anterioridad, se deberá manejar una de forma más apropiada las políticas de TTLs, personalmente considero que, un tiempo fijo de duración de todas las llaves en Redis no es exactamente lo mejor, pero esto se verá cuando se llegue al momento. Tiempo al tiempo.
