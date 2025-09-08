@@ -28,6 +28,6 @@ Se haría lo mismo, un servicio de mensajería, pero deberían ser diferentes po
 
 Pruebas unitarias a todos los microservicios jejeje
 
-### 4
+### API Layer Errors
 
 Después de empezar con el desarrollo de la capa de la API, con el código duplicado que toca solucionar, aparentemente los controladores para los usuarios no están funcionando como deberían, por lo que, la autenticación tampoco lo está haciendo, así que, hay errores que es necesario verificar. En realidad, esto no es prioridad todavía, es primordial lo mencionado en [Database Connection](#database-connection) y [Messaging Connection](#messaging-connection).
