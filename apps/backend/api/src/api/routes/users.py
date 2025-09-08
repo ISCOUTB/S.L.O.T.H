@@ -132,7 +132,7 @@ def create_user(
     user: schemas.users.CreateUser,
     db: SessionDep,
     admin: Admin,
-) -> schemas.api.ApiResponse:
+) -> schemas.messaging.ApiResponse:
     """
     Create a new user.
 
@@ -153,7 +153,7 @@ def create_user(
         )
 
     invalidate_user_cache(invalidate_lists=True)
-    return schemas.api.ApiResponse(
+    return schemas.messaging.ApiResponse(
         status="success",
         code=response["status"],
         message=response["message"],
@@ -168,7 +168,7 @@ def update_user(
     rol: schemas.users.Roles,
     db: SessionDep,
     admin: Admin,
-) -> schemas.api.ApiResponse:
+) -> schemas.messaging.ApiResponse:
     """
     Update user information.
 
@@ -197,7 +197,7 @@ def update_user(
         )
 
     invalidate_user_cache(username=username, invalidate_lists=True)
-    return schemas.api.ApiResponse(
+    return schemas.messaging.ApiResponse(
         status="success",
         code=response["status"],
         message=response["message"],
@@ -212,7 +212,7 @@ def delete_user(
     db: SessionDep,
     admin: Admin,
     complete: bool = False,
-) -> schemas.api.ApiResponse:
+) -> schemas.messaging.ApiResponse:
     """
     Delete a user by username.
 
@@ -243,7 +243,7 @@ def delete_user(
         )
 
     invalidate_user_cache(username=username, invalidate_lists=True)
-    return schemas.api.ApiResponse(
+    return schemas.messaging.ApiResponse(
         status="success",
         code=response["status"],
         message=response["message"],

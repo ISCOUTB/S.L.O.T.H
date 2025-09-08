@@ -1,14 +1,8 @@
-from src.schemas import api
-from src.schemas import controllers
-from src.schemas import messaging
-from src.schemas import models
-from src.schemas import token
-from src.schemas import users
+from src.schemas import api, messaging, models, token, users
 
 
 __all__ = [
     "api",
-    "controllers",
     "messaging",
     "models",
     "token",

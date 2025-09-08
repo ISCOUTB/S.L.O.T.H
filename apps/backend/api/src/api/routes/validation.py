@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, HTTPException
 from src.messaging.publishers import ValidationPublisher
-from src.schemas.api import ApiResponse
+from src.schemas.messaging import ApiResponse
 from src.core.database_redis import redis_db
 
 TASK = "validation"
