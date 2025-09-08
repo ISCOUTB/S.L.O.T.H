@@ -77,5 +77,11 @@
         "scss",
         "pcss",
         "postcss"
+    ],
+    "cSpell.words": [
+        "levelname",
+        "NOTSET",
+        "poolclass",
+        "qualname"
     ]
 }
