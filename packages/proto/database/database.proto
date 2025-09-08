@@ -1,0 +1,114 @@
+// Database Service Protocol Buffer Definition
+// 
+// This file defines the main database service interface that provides a unified
+// API for interacting with multiple database systems within the ETL (Extract,
+// Transform, Load) design system. The service integrates:
+//
+// 1. Redis operations - for caching, key-value storage, and fast data retrieval
+// 2. MongoDB operations - for document storage and JSON schema management  
+// 3. Task management - for tracking asynchronous operations across both systems
+
+syntax = "proto3";
+
+import "database/utils.proto";
+import "database/redis.proto";
+import "database/mongo.proto";
+
+package database_service;
+
+// Database Service Definition
+// This service provides a unified interface for interacting with multiple database systems
+// including Redis (for caching and key-value storage) and MongoDB (for document storage).
+// It also includes task management functionality for tracking asynchronous operations.
+service DatabaseService {
+    // =================== Redis - General Purpose ===================
+    // Basic Redis operations for key-value storage and retrieval
+
+    rpc RedisGetKeys(redis.RedisGetKeysRequest) returns (redis.RedisGetKeysResponse) {}
+    rpc RedisSet(redis.RedisSetRequest) returns (redis.RedisSetResponse) {}
+    rpc RedisGet(redis.RedisGetRequest) returns (redis.RedisGetResponse) {}
+    rpc RedisDelete(redis.RedisDeleteRequest) returns (redis.RedisDeleteResponse) {}
+    rpc RedisPing(redis.RedisPingRequest) returns (redis.RedisPingResponse) {}
+
+    // =================== Redis - Manage all cache ===================
+    // Operations for managing the entire Redis cache
+
+    rpc RedisGetCache(redis.RedisGetCacheRequest) returns (redis.RedisGetCacheResponse) {}
+    rpc RedisClearCache(redis.RedisClearCacheRequest) returns (redis.RedisClearCacheResponse) {}
+
+    // ================== Mongo - Related to schemas ==================
+    // MongoDB operations specifically for JSON schema management
+
+    rpc MongoInsertOneSchema(mongo.MongoInsertOneSchemaRequest) returns (mongo.MongoInsertOneSchemaResponse) {}
+    rpc MongoCountAllDocuments(mongo.MongoCountAllDocumentsRequest) returns (mongo.MongoCountAllDocumentsResponse) {}
+    rpc MongoFindJsonSchema(mongo.MongoFindJsonSchemaRequest) returns (mongo.MongoFindJsonSchemaResponse) {}
+    rpc MongoUpdateOneJsonSchema(mongo.MongoUpdateOneJsonSchemaRequest) returns (mongo.MongoUpdateOneJsonSchemaResponse) {}
+
+    // ================== Both - Related to task IDs ==================
+    // Task management operations for tracking asynchronous processes
+    // These operations work with both Redis and MongoDB for task state management
+
+    rpc UpdateTaskId(UpdateTaskIdRequest) returns (UpdateTaskIdResponse) {}
+    rpc SetTaskId(SetTaskIdRequest) returns (SetTaskIdResponse) {}
+    rpc GetTaskId(GetTaskIdRequest) returns (GetTaskIdResponse) {}
+    rpc GetTasksByImportName(GetTasksByImportNameRequest) returns (GetTasksByImportNameResponse) {}
+}
+
+// ================== Both - Related to task IDs ==================
+// Task Management Messages
+// These messages handle the lifecycle of asynchronous tasks, allowing for
+// task creation, updates, retrieval, and querying by various criteria.
+
+// Request message for updating an existing task's information
+message UpdateTaskIdRequest {
+    string task_id = 1; // Unique identifier of the task to update
+    string field = 2;  // Specific field to update (e.g., "status", "progress", "error_message")
+    string value = 3;  // New value for the specified field
+    string task = 4;  // Task type/category identifier (e.g., "data_import", "schema_validation")
+    optional string message = 5;  // Optional descriptive message to log with the update
+    map<string, string> data = 6;  // Additional data to merge with existing task data
+    optional bool reset_data = 7; // If true, replace all existing data instead of merging (default: false)
+}
+
+// Response message for task update operations
+message UpdateTaskIdResponse {
+    bool success = 1;  // Indicates if the update operation was successful
+    string message = 2; // Descriptive message about the operation result or any errors
+}
+
+// Request message for creating or setting a new task entry
+message SetTaskIdRequest {
+    string task_id = 1; // Unique identifier for the new task
+    utils.ApiResponse value = 2;  // Complete task data encapsulated in ApiResponse format
+    string task = 3;  // Task type/category under which the task is stored
+}
+
+// Response message for task creation operations
+message SetTaskIdResponse {
+    bool success = 1;  // Indicates if the task was successfully created/set
+    string message = 2; // Descriptive message about the operation result or any errors
+}
+
+// Request message for retrieving a specific task by its ID
+message GetTaskIdRequest {
+    string task_id = 1;  // Unique identifier of the task to retrieve
+    string task = 2;  // Task type/category to search within
+}
+
+// Response message containing the requested task information
+message GetTaskIdResponse {
+    optional utils.ApiResponse value = 1;  // Task data if found (null if not found)
+    bool found = 2;  // Indicates whether the task was found in the database
+}
+
+// Request message for finding all tasks associated with a specific import name
+// Useful for tracking all tasks related to a particular data import or schema
+message GetTasksByImportNameRequest {
+    string import_name = 1;  // The import identifier to filter tasks by
+    string task = 2;  // Task type/category to search within
+}
+
+// Response message containing all tasks matching the import name criteria
+message GetTasksByImportNameResponse {
+    repeated utils.ApiResponse tasks = 1;  // List of all matching tasks
+}
