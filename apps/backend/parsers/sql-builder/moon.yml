@@ -1,14 +1,41 @@
 project:
-  name: sql-builder
-  description: sql-builder service
+    name: sql-builder
+    description: sql-builder service
 
 type: application
 
 language: python
 
 toolchain:
-  python:
+    python:
+        version: "3.12.10"
 
 tasks:
-  test:
-    command: echo "No tests defined"
+    test:
+        command: uv
+        args:
+            - run
+            - pytest
+            - -v
+            - -n
+            - auto
+            - --cov=src
+            - --cov-report=term-missing
+        toolchain: python
+
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
+    run:
+        command: uv
+        args:
+            - run
+            - src/server.py
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            persistent: true
