@@ -13,10 +13,31 @@ toolchain:
         version: "3.12.10"
 
 tasks:
+    test:
+        command: uv
+        args:
+            - run
+            - pytest
+            - -v
+            - -n
+            - auto
+            - --cov=src
+            - --cov-report=term-missing
+        toolchain: python
+
     uv:
         command: uv
         toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
 
-    test:
-        command: pytest -v -n auto
+    run:
+        command: uv
+        args:
+            - run
+            - src/server_rest.py
         toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            persistent: true

@@ -1,7 +1,7 @@
 [project]
 name = "ddl-generator"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Python gRPC service that converts Excel formula Abstract Syntax Trees (AST) into SQL expressions. This service is responsible for translating the hierarchical structure of Excel formulas into equivalent SQL statements that can be used in database queries."
 readme = "README.md"
 requires-python = ">=3.12.10"
 dependencies = [
@@ -17,6 +17,7 @@ dev = [
     "pytest-cov>=7.0.0",
     "pytest-sugar>=1.1.1",
     "pytest-xdist>=3.8.0",
+    "ruff>=0.13.0",
 ]
 
 [tool.pytest.ini_options]

@@ -1,6 +1,8 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
 project:
     name: sql-builder
-    description: sql-builder service
+    description: A Python gRPC service that constructs complete SQL statements from individual DDL expressions and column metadata. This service is responsible for assembling final CREATE TABLE and INSERT statements by managing dependencies and execution order of SQL expressions.
 
 type: application
 
