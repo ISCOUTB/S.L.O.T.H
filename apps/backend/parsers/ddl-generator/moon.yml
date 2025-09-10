@@ -1,14 +1,37 @@
 project:
-  name: ddl-generator
-  description: ddl-generator service
+    name: ddl-generator
+    description: ddl-generator service
 
 type: application
 
 language: python
 
 toolchain:
-  python:
+    python:
+        version: "3.12.10"
 
 tasks:
-  test:
-    command: echo "No tests defined"
+    test:
+        command: uv
+        args:
+            - run
+            - pytest
+            - -v
+            - -n
+            - auto
+
+    uv:
+        command: uv
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
+    run:
+        command: uv
+        args:
+            - run
+            - src/server.py
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            persistent: true
