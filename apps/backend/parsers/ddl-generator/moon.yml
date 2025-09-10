@@ -19,9 +19,13 @@ tasks:
             - -v
             - -n
             - auto
+            - --cov=src
+            - --cov-report=term-missing
+        toolchain: python
 
     uv:
         command: uv
+        toolchain: python
         options:
             runFromWorkspaceRoot: false
             cache: false
