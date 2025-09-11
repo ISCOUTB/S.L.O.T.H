@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import Dict
 
 from fastapi import FastAPI, Form, HTTPException, UploadFile
@@ -8,9 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from main import SQL_BUILDER_STUB, generate_sql, main
 from services.utils import monitor_performance
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ExcelReader")
+from utils import logger
 
 
 app = FastAPI()
@@ -74,6 +71,10 @@ async def read_excel(
 
 if __name__ == "__main__":
     import uvicorn
+
+    # TODO: uvicorn uses his own logger, wich kinda pisses me off
+    # cuz, the logs from this service have a different format
+    # so..., the custom logger declared in utils has to be used by uvicorn somehow
 
     uvicorn.run(
         "server_rest:app",

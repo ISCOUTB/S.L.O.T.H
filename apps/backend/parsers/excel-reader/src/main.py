@@ -10,13 +10,10 @@ from clients.formula_parser import formula_parser_pb2, formula_parser_pb2_grpc
 from clients.sql_builder import utils as sql_builder_utils
 from clients.sql_builder import sql_builder_pb2, sql_builder_pb2_grpc
 
-import logging
 from services import dtypes
 from typing import Generator, Dict
 from core.config import settings
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from utils import logger
 
 
 FORMULA_PARSER_CHANNEL = grpc.insecure_channel(settings.FORMULA_PARSER_CHANNEL)

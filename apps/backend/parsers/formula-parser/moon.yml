@@ -1,6 +1,6 @@
 project:
     name: formula-parser
-    description: formula-parser service
+    description: A Node.js gRPC service that parses Excel formulas into Abstract Syntax Trees (AST) and token representations. This service is responsible for analyzing Excel formula syntax and providing structured data that can be consumed by other services in the Excel Parsing system.
 
 type: application
 

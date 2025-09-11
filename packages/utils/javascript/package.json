@@ -1,19 +1,6 @@
 {
-  "name": "proto-utils",
-  "version": "1.0.0",
-  "description": "Protobuf utilities for JavaScript",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ISCOUTB/etl-design.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ISCOUTB/etl-design/issues"
-  },
-  "homepage": "https://github.com/ISCOUTB/etl-design#readme"
+    "name": "@etl-design/proto-utils",
+    "version": "1.0.0",
+    "description": "Protobuf utilities for JavaScript",
+    "license": "ISC"
 }
