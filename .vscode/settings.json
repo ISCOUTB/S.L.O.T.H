@@ -79,10 +79,23 @@
         "postcss"
     ],
     "cSpell.words": [
+        "classpath",
+        "dtypes",
+        "eslintcache",
+        "GENCODE",
+        "grpcio",
+        "istanbul",
+        "jscoverage",
+        "jspm",
         "levelname",
+        "MSVC",
         "NOTSET",
+        "pids",
         "poolclass",
-        "qualname"
+        "protobuf",
+        "qualname",
+        "setuptools",
+        "wscript"
     ],
     "cSpell.language": "en,es-ES"
 }
