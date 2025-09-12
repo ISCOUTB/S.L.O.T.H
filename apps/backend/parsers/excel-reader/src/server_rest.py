@@ -7,8 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from main import SQL_BUILDER_STUB, generate_sql, main
 from services.utils import monitor_performance
-from utils import logger
-
+from utils import LOGGING_CONFIG, logger
 
 app = FastAPI()
 
@@ -44,7 +43,9 @@ async def read_excel(
     try:
         dtypes = json.loads(dtypes_str)
     except json.JSONDecodeError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid dtypes JSON: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid dtypes JSON: {str(e)}"
+        )
 
     if not table_name:
         table_name = ""
@@ -56,14 +57,20 @@ async def read_excel(
 
     ddls = {
         sheet: dict(
-            map(lambda x: (x[1], result[sheet][x[0]][0]["sql"]), columns[sheet].items())
+            map(
+                lambda x: (x[1], result[sheet][x[0]][0]["sql"]),
+                columns[sheet].items(),
+            )
         )
         for sheet in columns.keys()
     }
 
     return {
         sheet: generate_sql(
-            SQL_BUILDER_STUB, ddls[sheet], dtypes[sheet], f"{table_name}_{sheet}"
+            SQL_BUILDER_STUB,
+            ddls[sheet],
+            dtypes[sheet],
+            f"{table_name}_{sheet}",
         )
         for sheet in ddls.keys()
     }
@@ -72,13 +79,10 @@ async def read_excel(
 if __name__ == "__main__":
     import uvicorn
 
-    # TODO: uvicorn uses his own logger, wich kinda pisses me off
-    # cuz, the logs from this service have a different format
-    # so..., the custom logger declared in utils has to be used by uvicorn somehow
-
     uvicorn.run(
         "server_rest:app",
         host=settings.EXCEL_READER_HOST,
         port=settings.EXCEL_READER_PORT,
         reload=settings.EXCEL_READER_DEBUG,
+        log_config=LOGGING_CONFIG,
     )

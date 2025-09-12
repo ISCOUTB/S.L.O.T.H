@@ -40,4 +40,4 @@ tasks:
         toolchain: python
         options:
             runFromWorkspaceRoot: false
-            persistent: true
+            cache: false

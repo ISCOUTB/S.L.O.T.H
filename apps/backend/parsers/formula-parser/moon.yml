@@ -20,5 +20,6 @@ tasks:
             - src/server.js
         toolchain: node
         options:
-            runFromWorkspaceRoot: false
+            cache: false
             persistent: true
+            runFromWorkspaceRoot: false
