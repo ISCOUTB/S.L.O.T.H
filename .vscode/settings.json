@@ -94,7 +94,10 @@
         "poolclass",
         "protobuf",
         "qualname",
+        "serde",
+        "Serde",
         "setuptools",
+        "VARCHAR",
         "wscript"
     ],
     "cSpell.language": "en,es-ES"
