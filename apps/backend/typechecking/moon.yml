@@ -1,15 +1,31 @@
 project:
-  name: typechecking
-  description: typechecking service
+    name: typechecking
+    description: A high-performance, enterprise-grade data validation system designed for ETL processes that validates spreadsheet files (CSV, XLSX, XLS) against JSON schemas using parallel processing, message queuing, and modern distributed architecture patterns.
 
 type: application
 
 language: python
 
 toolchain:
-  python:
+    python:
+        version: 3.12.10
 
 tasks:
-  test:
-    command: echo "No tests defined"
+    test:
+        command: uv
+        args:
+            - run
+            - pytest
+            - -v
+            - -n
+            - auto
+            - --cov=src
+            - --cov-report=term-missing
+        toolchain: python
 
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false

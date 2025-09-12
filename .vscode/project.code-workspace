@@ -19,7 +19,11 @@
         {
             "name": "SQL-Builder",
             "path": "../apps/backend/parsers/sql-builder"
-        }
+        },
+        {
+            "name": "Typechecking",
+            "path": "../apps/backend/typechecking"
+        },
     ],
     "settings": {
         "files.exclude": {

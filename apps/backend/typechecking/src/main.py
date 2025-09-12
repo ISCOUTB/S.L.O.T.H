@@ -29,13 +29,10 @@ import asyncio
 import signal
 import sys
 import threading
-import logging
 
 from src.workers.schema import SchemaWorker
 from src.workers.validation import ValidationWorker
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from utils import logger
 
 
 class WorkerManager:
@@ -88,7 +85,9 @@ class WorkerManager:
         try:
             # Start validation worker in a separate thread
             validation_thread = threading.Thread(
-                target=self._run_validation_worker, name="ValidationWorker", daemon=True
+                target=self._run_validation_worker,
+                name="ValidationWorker",
+                daemon=True,
             )
             validation_thread.start()
 
