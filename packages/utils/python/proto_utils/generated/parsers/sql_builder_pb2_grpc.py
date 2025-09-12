@@ -26,7 +26,13 @@ if _version_not_supported:
 
 
 class SQLBuilderStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """SQL Builder Service
+    This service constructs complete SQL statements from DDL generator responses.
+    It takes processed Excel formula data and combines it with column type information
+    to create executable SQL queries for database operations and schema generation.
+
+    Service definition for building SQL statements
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -42,10 +48,18 @@ class SQLBuilderStub(object):
 
 
 class SQLBuilderServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """SQL Builder Service
+    This service constructs complete SQL statements from DDL generator responses.
+    It takes processed Excel formula data and combines it with column type information
+    to create executable SQL queries for database operations and schema generation.
+
+    Service definition for building SQL statements
+    """
 
     def BuildSQL(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Builds complete SQL statements from DDL responses and column information
+        Takes processed formula data and generates ready-to-execute SQL
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -67,7 +81,13 @@ def add_SQLBuilderServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class SQLBuilder(object):
-    """Missing associated documentation comment in .proto file."""
+    """SQL Builder Service
+    This service constructs complete SQL statements from DDL generator responses.
+    It takes processed Excel formula data and combines it with column type information
+    to create executable SQL queries for database operations and schema generation.
+
+    Service definition for building SQL statements
+    """
 
     @staticmethod
     def BuildSQL(request,

@@ -41,7 +41,7 @@ message DDLResponse {
     optional string cell = 6;            // Original cell reference (e.g., "A1", "$B$2")
     optional dtypes.RefType refType = 7;  // Type of cell reference (relative, absolute, mixed)
     optional string column = 8;           // Mapped database column name for this cell
-    optional string eror = 9;             // Error message if cell reference is invalid (typo: should be "error")
+    optional string error_cell = 9;             // Error message if cell reference is invalid
 
     // Cell Range Information
     // Fields used when the AST node represents a range of cells
@@ -49,7 +49,7 @@ message DDLResponse {
     optional string end = 11;          // Ending cell of the range (e.g., "B5")
     repeated string cells = 12;        // List of all individual cells in the range
     repeated string columns = 13;      // List of all database columns affected by this range
-    optional string error = 14;        // Error message if range is invalid
+    optional string error_cell_range = 14;        // Error message if range is invalid
 
     // Binary Expression Information
     // Fields used when the AST node represents a binary operation (e.g., A1 + B1)

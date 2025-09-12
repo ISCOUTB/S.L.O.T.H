@@ -26,7 +26,13 @@ if _version_not_supported:
 
 
 class DDLGeneratorStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """DDL Generator Service
+    This service generates Data Definition Language (DDL) SQL statements from Excel formula ASTs.
+    It transforms parsed Excel formulas into SQL expressions that can be used for database
+    schema generation and data manipulation operations.
+
+    Service definition for generating DDL statements from Abstract Syntax Trees
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -42,10 +48,18 @@ class DDLGeneratorStub(object):
 
 
 class DDLGeneratorServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """DDL Generator Service
+    This service generates Data Definition Language (DDL) SQL statements from Excel formula ASTs.
+    It transforms parsed Excel formulas into SQL expressions that can be used for database
+    schema generation and data manipulation operations.
+
+    Service definition for generating DDL statements from Abstract Syntax Trees
+    """
 
     def GenerateDDL(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Generates DDL SQL statements from an Excel formula AST
+        Takes parsed formula data and column mappings to produce executable SQL
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -67,7 +81,13 @@ def add_DDLGeneratorServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class DDLGenerator(object):
-    """Missing associated documentation comment in .proto file."""
+    """DDL Generator Service
+    This service generates Data Definition Language (DDL) SQL statements from Excel formula ASTs.
+    It transforms parsed Excel formulas into SQL expressions that can be used for database
+    schema generation and data manipulation operations.
+
+    Service definition for generating DDL statements from Abstract Syntax Trees
+    """
 
     @staticmethod
     def GenerateDDL(request,

@@ -26,7 +26,13 @@ if _version_not_supported:
 
 
 class FormulaParserStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """Formula Parser Service
+    This service parses Excel formulas into structured data representations.
+    It converts Excel formula strings into tokens and Abstract Syntax Trees (AST)
+    for further processing and analysis by other services in the ETL pipeline.
+
+    Service definition for parsing Excel formulas
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -42,10 +48,18 @@ class FormulaParserStub(object):
 
 
 class FormulaParserServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """Formula Parser Service
+    This service parses Excel formulas into structured data representations.
+    It converts Excel formula strings into tokens and Abstract Syntax Trees (AST)
+    for further processing and analysis by other services in the ETL pipeline.
+
+    Service definition for parsing Excel formulas
+    """
 
     def ParseFormula(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Parses an Excel formula string into tokens and AST
+        Takes a raw Excel formula and returns structured representations
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -67,7 +81,13 @@ def add_FormulaParserServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class FormulaParser(object):
-    """Missing associated documentation comment in .proto file."""
+    """Formula Parser Service
+    This service parses Excel formulas into structured data representations.
+    It converts Excel formula strings into tokens and Abstract Syntax Trees (AST)
+    for further processing and analysis by other services in the ETL pipeline.
+
+    Service definition for parsing Excel formulas
+    """
 
     @staticmethod
     def ParseFormula(request,
