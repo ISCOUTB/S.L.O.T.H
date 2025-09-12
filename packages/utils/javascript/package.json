@@ -1,6 +1,26 @@
 {
-    "name": "@etl-design/proto-utils",
+    "name": "@etl-design/proto-utils-js",
     "version": "1.0.0",
     "description": "Protobuf utilities for JavaScript",
-    "license": "ISC"
+    "license": "ISC",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.mts",
+            "import": "./dist/index.mjs"
+        }
+    },
+    "dependencies": {
+        "@grpc/grpc-js": "^1.13.4",
+        "google-protobuf": "^3.21.4",
+        "protoc": "^32.1.0",
+        "protoc-gen-ts": "^0.8.7",
+        "tsup": "^8.5.0"
+    },
+    "devDependencies": {
+        "@antfu/eslint-config": "^5.3.0",
+        "@types/google-protobuf": "^3.15.12",
+        "@types/node": "^24.3.2",
+        "eslint": "^9.35.0",
+        "typescript": "^5.9.2"
+    }
 }

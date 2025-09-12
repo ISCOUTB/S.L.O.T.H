@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "license": "ISC",
     "dependencies": {
+        "@etl-design/proto-utils-js": "workspace:*",
         "@grpc/grpc-js": "^1.13.4",
         "@grpc/proto-loader": "^0.7.15",
         "excel-formula-ast": "^1.1.1",
