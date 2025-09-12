@@ -38,6 +38,4 @@ tasks:
             - run
             - src/server_rest.py
         toolchain: python
-        options:
-            runFromWorkspaceRoot: false
-            cache: false
+        local: true

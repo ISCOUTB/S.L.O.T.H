@@ -19,7 +19,4 @@ tasks:
             - --env-file=.env
             - src/server.js
         toolchain: node
-        options:
-            cache: false
-            persistent: true
-            runFromWorkspaceRoot: false
+        local: true

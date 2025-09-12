@@ -1,0 +1,16 @@
+project:
+    name: etl-design
+    description: project root
+
+toolchain:
+    defaults:
+
+tasks:
+    parsers:
+        command: "noop"
+        deps:
+            - formula-parser:run
+            - ddl-generator:run
+            - sql-builder:run
+            - excel-reader:run
+        local: true

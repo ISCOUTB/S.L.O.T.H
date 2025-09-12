@@ -38,7 +38,4 @@ tasks:
             - run
             - src/server.py
         toolchain: python
-        options:
-            cache: false
-            persistent: true
-            runFromWorkspaceRoot: false
+        local: true
