@@ -21,10 +21,6 @@ tasks:
 
   python-build:
     command: "bash ./scripts/python-build.sh"
-    outputs:
-      - "./python/dist/"
-      - "./python/build/"
-      - "./python/proto_utils.egg-info/"
     options:
       runFromWorkspaceRoot: false
 
