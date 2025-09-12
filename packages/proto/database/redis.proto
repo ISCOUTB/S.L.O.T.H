@@ -22,7 +22,7 @@ message RedisGetKeysResponse {
 message RedisSetRequest {
     string key = 1; // Key to set (must be non-empty)
     string value = 2; // Value to associate with the key
-    optional int32 expiration = 3; // Expiration time in seconds (0 for no expiration, optional)
+    optional int32 expiration = 3; // Expiration time in seconds. Optional
 }
 
 // Response message indicating the success of a SET operation
