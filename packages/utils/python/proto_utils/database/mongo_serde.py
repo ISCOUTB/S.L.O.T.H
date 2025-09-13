@@ -197,7 +197,9 @@ class MongoSerde:
             The serialized Protocol Buffer MongoFindJsonSchemaResponse message.
         """
         return mongo_pb2.MongoFindJsonSchemaResponse(
-            status=response["status"], extra=response["extra"]
+            status=response["status"],
+            extra=response["extra"],
+            schema=DatabaseUtilsSerde.serialize_jsonschema(response["schema"]),
         )
 
     @staticmethod
@@ -212,7 +214,11 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB find JSON schema response dictionary.
         """
-        return {"status": proto.status, "extra": dict(proto.extra)}
+        return {
+            "status": proto.status,
+            "extra": dict(proto.extra),
+            "schema": DatabaseUtilsSerde.deserialize_jsonschema(proto.schema),
+        }
 
     @staticmethod
     def serialize_update_one_jsonschema_request(

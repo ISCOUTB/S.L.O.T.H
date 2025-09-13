@@ -277,10 +277,12 @@ class MongoFindJsonSchemaResponse(TypedDict):
     Attributes:
         status: Status of the find operation ("found", "not_found", "error")
         extra: Additional metadata or error information
+        schema: The found schema definition (None if not found)
     """
 
     status: str
     extra: Dict[str, str]
+    schema: Optional[JsonSchema]
 
 
 class MongoUpdateOneJsonSchemaRequest(TypedDict):

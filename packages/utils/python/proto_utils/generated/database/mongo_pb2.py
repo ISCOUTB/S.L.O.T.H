@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from proto_utils.generated.database import utils_pb2 as database_dot_utils__pb2  # noqa: E402, F401
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x64\x61tabase/mongo.proto\x12\x05mongo\x1a\x14\x64\x61tabase/utils.proto\"\x9d\x01\n\x1bMongoInsertOneSchemaRequest\x12\x13\n\x0bimport_name\x18\x01 \x01(\t\x12\x12\n\ncreated_at\x18\x02 \x01(\t\x12(\n\ractive_schema\x18\x03 \x01(\x0b\x32\x11.utils.JsonSchema\x12+\n\x10schemas_releases\x18\x04 \x03(\x0b\x32\x11.utils.JsonSchema\"\x8e\x01\n\x1cMongoInsertOneSchemaResponse\x12?\n\x06result\x18\x01 \x03(\x0b\x32/.mongo.MongoInsertOneSchemaResponse.ResultEntry\x1a-\n\x0bResultEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1f\n\x1dMongoCountAllDocumentsRequest\"0\n\x1eMongoCountAllDocumentsResponse\x12\x0e\n\x06\x61mount\x18\x01 \x01(\x05\"1\n\x1aMongoFindJsonSchemaRequest\x12\x13\n\x0bimport_name\x18\x01 \x01(\t\"\x99\x01\n\x1bMongoFindJsonSchemaResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12<\n\x05\x65xtra\x18\x02 \x03(\x0b\x32-.mongo.MongoFindJsonSchemaResponse.ExtraEntry\x1a,\n\nExtraEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"m\n\x1fMongoUpdateOneJsonSchemaRequest\x12\x13\n\x0bimport_name\x18\x01 \x01(\t\x12!\n\x06schema\x18\x02 \x01(\x0b\x32\x11.utils.JsonSchema\x12\x12\n\ncreated_at\x18\x03 \x01(\t\"\x96\x01\n MongoUpdateOneJsonSchemaResponse\x12\x43\n\x06result\x18\x01 \x03(\x0b\x32\x33.mongo.MongoUpdateOneJsonSchemaResponse.ResultEntry\x1a-\n\x0bResultEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x64\x61tabase/mongo.proto\x12\x05mongo\x1a\x14\x64\x61tabase/utils.proto\"\x9d\x01\n\x1bMongoInsertOneSchemaRequest\x12\x13\n\x0bimport_name\x18\x01 \x01(\t\x12\x12\n\ncreated_at\x18\x02 \x01(\t\x12(\n\ractive_schema\x18\x03 \x01(\x0b\x32\x11.utils.JsonSchema\x12+\n\x10schemas_releases\x18\x04 \x03(\x0b\x32\x11.utils.JsonSchema\"\x8e\x01\n\x1cMongoInsertOneSchemaResponse\x12?\n\x06result\x18\x01 \x03(\x0b\x32/.mongo.MongoInsertOneSchemaResponse.ResultEntry\x1a-\n\x0bResultEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1f\n\x1dMongoCountAllDocumentsRequest\"0\n\x1eMongoCountAllDocumentsResponse\x12\x0e\n\x06\x61mount\x18\x01 \x01(\x05\"1\n\x1aMongoFindJsonSchemaRequest\x12\x13\n\x0bimport_name\x18\x01 \x01(\t\"\xcc\x01\n\x1bMongoFindJsonSchemaResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\x12<\n\x05\x65xtra\x18\x02 \x03(\x0b\x32-.mongo.MongoFindJsonSchemaResponse.ExtraEntry\x12&\n\x06schema\x18\x03 \x01(\x0b\x32\x11.utils.JsonSchemaH\x00\x88\x01\x01\x1a,\n\nExtraEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x42\t\n\x07_schema\"m\n\x1fMongoUpdateOneJsonSchemaRequest\x12\x13\n\x0bimport_name\x18\x01 \x01(\t\x12!\n\x06schema\x18\x02 \x01(\x0b\x32\x11.utils.JsonSchema\x12\x12\n\ncreated_at\x18\x03 \x01(\t\"\x96\x01\n MongoUpdateOneJsonSchemaResponse\x12\x43\n\x06result\x18\x01 \x03(\x0b\x32\x33.mongo.MongoUpdateOneJsonSchemaResponse.ResultEntry\x1a-\n\x0bResultEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -51,13 +51,13 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_MONGOFINDJSONSCHEMAREQUEST']._serialized_start=441
   _globals['_MONGOFINDJSONSCHEMAREQUEST']._serialized_end=490
   _globals['_MONGOFINDJSONSCHEMARESPONSE']._serialized_start=493
-  _globals['_MONGOFINDJSONSCHEMARESPONSE']._serialized_end=646
-  _globals['_MONGOFINDJSONSCHEMARESPONSE_EXTRAENTRY']._serialized_start=602
-  _globals['_MONGOFINDJSONSCHEMARESPONSE_EXTRAENTRY']._serialized_end=646
-  _globals['_MONGOUPDATEONEJSONSCHEMAREQUEST']._serialized_start=648
-  _globals['_MONGOUPDATEONEJSONSCHEMAREQUEST']._serialized_end=757
-  _globals['_MONGOUPDATEONEJSONSCHEMARESPONSE']._serialized_start=760
-  _globals['_MONGOUPDATEONEJSONSCHEMARESPONSE']._serialized_end=910
+  _globals['_MONGOFINDJSONSCHEMARESPONSE']._serialized_end=697
+  _globals['_MONGOFINDJSONSCHEMARESPONSE_EXTRAENTRY']._serialized_start=642
+  _globals['_MONGOFINDJSONSCHEMARESPONSE_EXTRAENTRY']._serialized_end=686
+  _globals['_MONGOUPDATEONEJSONSCHEMAREQUEST']._serialized_start=699
+  _globals['_MONGOUPDATEONEJSONSCHEMAREQUEST']._serialized_end=808
+  _globals['_MONGOUPDATEONEJSONSCHEMARESPONSE']._serialized_start=811
+  _globals['_MONGOUPDATEONEJSONSCHEMARESPONSE']._serialized_end=961
   _globals['_MONGOUPDATEONEJSONSCHEMARESPONSE_RESULTENTRY']._serialized_start=311
   _globals['_MONGOUPDATEONEJSONSCHEMARESPONSE_RESULTENTRY']._serialized_end=356
 # @@protoc_insertion_point(module_scope)

@@ -49,7 +49,7 @@ class MongoFindJsonSchemaRequest(_message.Message):
     def __init__(self, import_name: _Optional[str] = ...) -> None: ...
 
 class MongoFindJsonSchemaResponse(_message.Message):
-    __slots__ = ("status", "extra")
+    __slots__ = ("status", "extra", "schema")
     class ExtraEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -59,9 +59,11 @@ class MongoFindJsonSchemaResponse(_message.Message):
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     STATUS_FIELD_NUMBER: _ClassVar[int]
     EXTRA_FIELD_NUMBER: _ClassVar[int]
+    SCHEMA_FIELD_NUMBER: _ClassVar[int]
     status: str
     extra: _containers.ScalarMap[str, str]
-    def __init__(self, status: _Optional[str] = ..., extra: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    schema: _utils_pb2.JsonSchema
+    def __init__(self, status: _Optional[str] = ..., extra: _Optional[_Mapping[str, str]] = ..., schema: _Optional[_Union[_utils_pb2.JsonSchema, _Mapping]] = ...) -> None: ...
 
 class MongoUpdateOneJsonSchemaRequest(_message.Message):
     __slots__ = ("import_name", "schema", "created_at")

@@ -43,6 +43,7 @@ message MongoFindJsonSchemaRequest {
 message MongoFindJsonSchemaResponse {
     string status = 1; // Status of the find operation ("found", "not_found", "error")
     map<string, string> extra = 2; // Additional metadata or error information
+    optional utils.JsonSchema schema = 3; // The found schema definition (null if not found)
 }
 
 // Request message for updating an existing JSON schema
