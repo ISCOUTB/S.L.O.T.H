@@ -28,7 +28,7 @@ class MongoConnection:
 
     @property
     def collection(self) -> pymongo.collection.Collection:
-        if not self.__database:
+        if self.__database is None:
             raise ValueError(
                 "Database not set. Please set a database before accessing collections."
             )

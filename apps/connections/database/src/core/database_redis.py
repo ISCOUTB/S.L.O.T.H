@@ -152,7 +152,9 @@ class RedisConnection:
             self.redis_client.hset(task_key, "message", message)
 
         if data:
-            cached_data = self.get_task_id(task_id, task).data if not reset_data else {}
+            cached_data = (
+                self.get_task_id(task_id, task)["data"] if not reset_data else {}
+            )
             cached_data = {**cached_data, **data}
             self.redis_client.hset(task_key, "data", json.dumps(cached_data))
 
@@ -175,7 +177,7 @@ class RedisConnection:
 
         task_key = f"{task}:task:{task_id}"
         import_key = f"{task}:import:{import_name}:tasks"
-        self.redis_client.hmset(task_key, value)
+        self.redis_client.hset(task_key, mapping=value)
         self.redis_client.sadd(import_key, task_id)
 
     def get_task_id(self, task_id: str, task: str) -> Optional[ApiResponse]:
@@ -189,7 +191,13 @@ class RedisConnection:
             Optional[ApiResponse]: ApiResponse object if task exists, None otherwise.
         """
         task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
-        task_data["data"] = json.loads(task_data["data"]) if "data" in task_data else {}
+
+        if "data" in task_data:
+            task_data["data"] = json.loads(task_data["data"])
+
+        if "code" in task_data:
+            task_data["code"] = int(task_data["code"])
+
         try:
             return ApiResponse(**task_data)
         except Exception:
