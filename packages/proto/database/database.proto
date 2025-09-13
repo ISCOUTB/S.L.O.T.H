@@ -43,6 +43,8 @@ service DatabaseService {
     rpc MongoCountAllDocuments(mongo.MongoCountAllDocumentsRequest) returns (mongo.MongoCountAllDocumentsResponse) {}
     rpc MongoFindJsonSchema(mongo.MongoFindJsonSchemaRequest) returns (mongo.MongoFindJsonSchemaResponse) {}
     rpc MongoUpdateOneJsonSchema(mongo.MongoUpdateOneJsonSchemaRequest) returns (mongo.MongoUpdateOneJsonSchemaResponse) {}
+    rpc MongoDeleteOneJsonSchema(mongo.MongoDeleteOneJsonSchemaRequest) returns (mongo.MongoDeleteOneJsonSchemaResponse) {}
+    rpc MongoDeleteImportName(mongo.MongoDeleteImportNameRequest) returns (mongo.MongoDeleteImportNameResponse) {}
 
     // ================== Both - Related to task IDs ==================
     // Task management operations for tracking asynchronous processes

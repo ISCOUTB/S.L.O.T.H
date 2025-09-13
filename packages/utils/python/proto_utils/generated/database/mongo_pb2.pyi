@@ -87,3 +87,31 @@ class MongoUpdateOneJsonSchemaResponse(_message.Message):
     RESULT_FIELD_NUMBER: _ClassVar[int]
     result: _containers.ScalarMap[str, str]
     def __init__(self, result: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class MongoDeleteOneJsonSchemaRequest(_message.Message):
+    __slots__ = ("import_name",)
+    IMPORT_NAME_FIELD_NUMBER: _ClassVar[int]
+    import_name: str
+    def __init__(self, import_name: _Optional[str] = ...) -> None: ...
+
+class MongoDeleteOneJsonSchemaResponse(_message.Message):
+    __slots__ = ("success", "message")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    message: str
+    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...
+
+class MongoDeleteImportNameRequest(_message.Message):
+    __slots__ = ("import_name",)
+    IMPORT_NAME_FIELD_NUMBER: _ClassVar[int]
+    import_name: str
+    def __init__(self, import_name: _Optional[str] = ...) -> None: ...
+
+class MongoDeleteImportNameResponse(_message.Message):
+    __slots__ = ("success", "message")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    message: str
+    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...

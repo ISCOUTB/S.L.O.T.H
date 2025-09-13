@@ -97,6 +97,16 @@ class DatabaseServiceStub(object):
                 request_serializer=database_dot_mongo__pb2.MongoUpdateOneJsonSchemaRequest.SerializeToString,
                 response_deserializer=database_dot_mongo__pb2.MongoUpdateOneJsonSchemaResponse.FromString,
                 _registered_method=True)
+        self.MongoDeleteOneJsonSchema = channel.unary_unary(
+                '/database_service.DatabaseService/MongoDeleteOneJsonSchema',
+                request_serializer=database_dot_mongo__pb2.MongoDeleteOneJsonSchemaRequest.SerializeToString,
+                response_deserializer=database_dot_mongo__pb2.MongoDeleteOneJsonSchemaResponse.FromString,
+                _registered_method=True)
+        self.MongoDeleteImportName = channel.unary_unary(
+                '/database_service.DatabaseService/MongoDeleteImportName',
+                request_serializer=database_dot_mongo__pb2.MongoDeleteImportNameRequest.SerializeToString,
+                response_deserializer=database_dot_mongo__pb2.MongoDeleteImportNameResponse.FromString,
+                _registered_method=True)
         self.UpdateTaskId = channel.unary_unary(
                 '/database_service.DatabaseService/UpdateTaskId',
                 request_serializer=database_dot_database__pb2.UpdateTaskIdRequest.SerializeToString,
@@ -200,6 +210,18 @@ class DatabaseServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def MongoDeleteOneJsonSchema(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MongoDeleteImportName(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def UpdateTaskId(self, request, context):
         """================== Both - Related to task IDs ==================
         Task management operations for tracking asynchronous processes
@@ -285,6 +307,16 @@ def add_DatabaseServiceServicer_to_server(servicer, server):
                     servicer.MongoUpdateOneJsonSchema,
                     request_deserializer=database_dot_mongo__pb2.MongoUpdateOneJsonSchemaRequest.FromString,
                     response_serializer=database_dot_mongo__pb2.MongoUpdateOneJsonSchemaResponse.SerializeToString,
+            ),
+            'MongoDeleteOneJsonSchema': grpc.unary_unary_rpc_method_handler(
+                    servicer.MongoDeleteOneJsonSchema,
+                    request_deserializer=database_dot_mongo__pb2.MongoDeleteOneJsonSchemaRequest.FromString,
+                    response_serializer=database_dot_mongo__pb2.MongoDeleteOneJsonSchemaResponse.SerializeToString,
+            ),
+            'MongoDeleteImportName': grpc.unary_unary_rpc_method_handler(
+                    servicer.MongoDeleteImportName,
+                    request_deserializer=database_dot_mongo__pb2.MongoDeleteImportNameRequest.FromString,
+                    response_serializer=database_dot_mongo__pb2.MongoDeleteImportNameResponse.SerializeToString,
             ),
             'UpdateTaskId': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateTaskId,
@@ -610,6 +642,60 @@ class DatabaseService(object):
             '/database_service.DatabaseService/MongoUpdateOneJsonSchema',
             database_dot_mongo__pb2.MongoUpdateOneJsonSchemaRequest.SerializeToString,
             database_dot_mongo__pb2.MongoUpdateOneJsonSchemaResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MongoDeleteOneJsonSchema(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/database_service.DatabaseService/MongoDeleteOneJsonSchema',
+            database_dot_mongo__pb2.MongoDeleteOneJsonSchemaRequest.SerializeToString,
+            database_dot_mongo__pb2.MongoDeleteOneJsonSchemaResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MongoDeleteImportName(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/database_service.DatabaseService/MongoDeleteImportName',
+            database_dot_mongo__pb2.MongoDeleteImportNameRequest.SerializeToString,
+            database_dot_mongo__pb2.MongoDeleteImportNameResponse.FromString,
             options,
             channel_credentials,
             insecure,

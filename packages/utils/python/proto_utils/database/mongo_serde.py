@@ -283,3 +283,123 @@ class MongoSerde:
             The deserialized MongoDB update one JSON schema response dictionary.
         """
         return {"result": dict(proto.result)}
+
+    @staticmethod
+    def serialize_delete_one_jsonschema_request(
+        request: dtypes.MongoDeleteOneJsonSchemaRequest,
+    ) -> mongo_pb2.MongoDeleteOneJsonSchemaRequest:
+        """Serialize a MongoDeleteOneJsonSchemaRequest dictionary to Protocol Buffer format.
+
+        Args:
+            request: The MongoDB delete one JSON schema request dictionary to serialize.
+
+        Returns:
+            The serialized Protocol Buffer MongoDeleteOneJsonSchemaRequest message.
+        """
+        return mongo_pb2.MongoDeleteOneJsonSchemaRequest(
+            import_name=request["import_name"]
+        )
+
+    @staticmethod
+    def deserialize_delete_one_jsonschema_request(
+        proto: mongo_pb2.MongoDeleteOneJsonSchemaRequest,
+    ) -> dtypes.MongoDeleteOneJsonSchemaRequest:
+        """Deserialize a Protocol Buffer MongoDeleteOneJsonSchemaRequest to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer MongoDeleteOneJsonSchemaRequest message to deserialize.
+
+        Returns:
+            The deserialized MongoDB delete one JSON schema request dictionary.
+        """
+        return {"import_name": proto.import_name}
+
+    @staticmethod
+    def serialize_delete_one_jsonschema_response(
+        response: dtypes.MongoDeleteOneJsonSchemaResponse,
+    ) -> mongo_pb2.MongoDeleteOneJsonSchemaResponse:
+        """Serialize a MongoDeleteOneJsonSchemaResponse dictionary to Protocol Buffer format.
+
+        Args:
+            response: The MongoDB delete one JSON schema response dictionary to serialize.
+
+        Returns:
+            The serialized Protocol Buffer MongoDeleteOneJsonSchemaResponse message.
+        """
+        return mongo_pb2.MongoDeleteOneJsonSchemaResponse(
+            success=response["success"], message=response["message"]
+        )
+
+    @staticmethod
+    def deserialize_delete_one_jsonschema_response(
+        proto: mongo_pb2.MongoDeleteOneJsonSchemaResponse,
+    ) -> dtypes.MongoDeleteOneJsonSchemaResponse:
+        """Deserialize a Protocol Buffer MongoDeleteOneJsonSchemaResponse to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer MongoDeleteOneJsonSchemaResponse message to deserialize.
+
+        Returns:
+            The deserialized MongoDB delete one JSON schema response dictionary.
+        """
+        return {"success": proto.success, "message": proto.message}
+
+    @staticmethod
+    def serialize_delete_import_name_request(
+        request: dtypes.MongoDeleteImportNameRequest,
+    ) -> mongo_pb2.MongoDeleteImportNameRequest:
+        """Serialize a MongoDeleteImportNameRequest dictionary to Protocol Buffer format.
+
+        Args:
+            request: The MongoDB delete import name request dictionary to serialize.
+
+        Returns:
+            The serialized Protocol Buffer MongoDeleteImportNameRequest message.
+        """
+        return mongo_pb2.MongoDeleteImportNameRequest(
+            import_name=request["import_name"]
+        )
+
+    @staticmethod
+    def deserialize_delete_import_name_request(
+        proto: mongo_pb2.MongoDeleteImportNameRequest,
+    ) -> dtypes.MongoDeleteImportNameRequest:
+        """Deserialize a Protocol Buffer MongoDeleteImportNameRequest to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer MongoDeleteImportNameRequest message to deserialize.
+
+        Returns:
+            The deserialized MongoDB delete import name request dictionary.
+        """
+        return {"import_name": proto.import_name}
+
+    @staticmethod
+    def serialize_delete_import_name_response(
+        response: dtypes.MongoDeleteImportNameResponse,
+    ) -> mongo_pb2.MongoDeleteImportNameResponse:
+        """Serialize a MongoDeleteImportNameResponse dictionary to Protocol Buffer format.
+
+        Args:
+            response: The MongoDB delete import name response dictionary to serialize.
+
+        Returns:
+            The serialized Protocol Buffer MongoDeleteImportNameResponse message.
+        """
+        return mongo_pb2.MongoDeleteImportNameResponse(
+            success=response["success"], message=response["message"]
+        )
+
+    @staticmethod
+    def deserialize_delete_import_name_response(
+        proto: mongo_pb2.MongoDeleteImportNameResponse,
+    ) -> dtypes.MongoDeleteImportNameResponse:
+        """Deserialize a Protocol Buffer MongoDeleteImportNameResponse to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer MongoDeleteImportNameResponse message to deserialize.
+
+        Returns:
+            The deserialized MongoDB delete import name response dictionary.
+        """
+        return {"success": proto.success, "message": proto.message}

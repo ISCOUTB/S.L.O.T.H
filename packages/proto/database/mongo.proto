@@ -59,3 +59,25 @@ message MongoUpdateOneJsonSchemaResponse {
     // TODO: Improve typed results - consider using a proper result type instead of generic map
     map<string, string> result = 1; // Generic result data from the update operation
 }
+
+// Request message for deleting a JSON schema by its import name
+message MongoDeleteOneJsonSchemaRequest {
+    string import_name = 1; // Unique identifier of the schema to delete
+}
+
+// Response message for schema deletion operation
+message MongoDeleteOneJsonSchemaResponse {
+    bool success = 1; // Indicates if the deletion was successful
+    string message = 2; // Descriptive message about the operation result or any errors
+}
+
+// Request message for deleting all schemas associated with a specific import name
+message MongoDeleteImportNameRequest {
+    string import_name = 1; // Unique identifier of the import name to delete associated schemas
+}
+
+// Response message for deleting schemas by import name
+message MongoDeleteImportNameResponse {
+    bool success = 1; // Indicates if the deletion was successful
+    string message = 2; // Descriptive message about the operation result or any errors
+}

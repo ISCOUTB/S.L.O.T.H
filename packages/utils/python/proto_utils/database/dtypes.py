@@ -280,7 +280,7 @@ class MongoFindJsonSchemaResponse(TypedDict):
         schema: The found schema definition (None if not found)
     """
 
-    status: str
+    status: Literal["found", "not_found", "error"]
     extra: Dict[str, str]
     schema: Optional[JsonSchema]
 
@@ -309,6 +309,50 @@ class MongoUpdateOneJsonSchemaResponse(TypedDict):
     """
 
     result: Dict[str, str]
+
+
+class MongoDeleteOneJsonSchemaRequest(TypedDict):
+    """Request message for deleting a JSON schema by its import name.
+
+    Attributes:
+        import_name: The unique identifier of the schema to delete
+    """
+
+    import_name: str
+
+
+class MongoDeleteOneJsonSchemaResponse(TypedDict):
+    """Response message for schema deletion operation.
+
+    Attributes:
+        success: Indicates if the deletion was successful
+        message: Descriptive message about the operation result or any errors
+    """
+
+    success: bool
+    message: str
+
+
+class MongoDeleteImportNameRequest(TypedDict):
+    """Request message for deleting all schemas associated with a specific import name.
+
+    Attributes:
+        import_name: The unique identifier of the import name to delete
+    """
+
+    import_name: str
+
+
+class MongoDeleteImportNameResponse(TypedDict):
+    """Response message for import name deletion operation.
+
+    Attributes:
+        success: Indicates if the deletion was successful
+        message: Descriptive message about the operation result or any errors
+    """
+
+    success: bool
+    message: str
 
 
 class UpdateTaskIdRequest(TypedDict):
