@@ -5,7 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "proto-utils"
+    "proto-utils",
+    "pydantic-settings>=2.10.1",
 ]
 
 [tool.uv.sources]
