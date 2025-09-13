@@ -2,7 +2,7 @@
 
 ## Both
 
-### Unit Testing Typechecking and API Layer
+### Unit Testing
 
 Pruebas unitarias a todos los microservicios jejeje
 
@@ -22,7 +22,13 @@ Por todo lo mencionado, es necesario buscar una manera en la cual se puedan comp
 
 Para ellos, he pensado en crear otro servicio (app) que sirva para centralizar las bases de datos, y **comunicarlas entre los servicios API y Typechecking con gRPC**, así no se perdería la filosofía de los microservicios y no habría problemas con los multilenguajes. Así que, como **TODO**, se debe crear ese microservicio y utilizarlo en Typechecking y API.
 
-El servicio de API utiliza otra base de datos, diferente a las antes mencionadas: Postgres. Esta como es únicamente utilizada en una sola capa, se podría dejar así, pero en todo caso, se podría también colocar dentro del nuevo servicio de base de datos. Sea como sea, no es la prioridad
+El servicio de API utiliza otra base de datos, diferente a las antes mencionadas: Postgres. Esta como es únicamente utilizada en una sola capa, se podría dejar así, pero en todo caso, se podría también colocar dentro del nuevo servicio de base de datos. Sea como sea, no es la prioridad.
+
+#### Estado Actual
+
+Ahora mismo ya está implementado las funciones que proveerá este nuevo microservicio, con sus respectivas pruebas unitarias. Sin embargo, en pleno desarrollo, noté ciertas falencias a la hora de utilizar los type hints, entonces, quedaría por refinar eso. Un último detalle a comentar para que no se pase por alto, es que MongoDB ya guarda el estado de las tareas de Redis, por tanto, también falta implementar unas buenas políticas de TTLs para Redis, y así liberar su carga
+
+Ya con las funciones bien hechas, y probadas con las pruebas unitarias, entonces solo queda crear el servidor gRPC para dejar por terminado este microservicio y la respectiva documentación.
 
 ### Messaging Connection
 
@@ -33,7 +39,3 @@ Se haría lo mismo, un servicio de mensajería, pero deberían ser diferentes po
 ### API Layer Errors
 
 Después de empezar con el desarrollo de la capa de la API, con el código duplicado que toca solucionar, aparentemente los controladores para los usuarios no están funcionando como deberían, por lo que, la autenticación tampoco lo está haciendo, así que, hay errores que es necesario verificar. En realidad, esto no es prioridad todavía, es primordial lo mencionado en [Database Connection](#database-connection) y [Messaging Connection](#messaging-connection).
-
-### MongoDB Usage for Task Tracking
-
-En [Database Connection](#database-connection) se menciona brevemente acerca del uso de MongoDB para poder rastrear el estado de las tareas de RabbitMQ. Actualmente, eso no está implementado todavía (solamente se utiliza Redis para esa tarea), pero, nuevamente, una vez hecho lo mencionado en [Database Connection](#database-connection) y [Messaging Connection](#messaging-connection), se hará esta implementación. Cuando esté hecho lo mencionado con anterioridad, se deberá manejar una de forma más apropiada las políticas de TTLs, personalmente considero que, un tiempo fijo de duración de todas las llaves en Redis no es exactamente lo mejor, pero esto se verá cuando se llegue al momento. Tiempo al tiempo.
