@@ -1,6 +1,8 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
 project:
-  name: api
-  description: api layer service
+  name: Database Connections
+  description: A Python gRPC service that manages database connections and schema versions for various databases (MongoDB and Redis), including MongoDB, Redis, and SQL databases. This service handles the storage, retrieval, and versioning of database schemas, ensuring that applications can interact with databases using the correct schema definitions.
 
 type: application
 
@@ -8,7 +10,25 @@ language: python
 
 toolchain:
   python:
+    version: "3.12.10"
 
 tasks:
+  run:
+    command: uv
+    args:
+      - run
+      - src/server.py
+    toolchain: python
+    local: true
+    options:
+      runFromWorkspaceRoot: false
+
   test:
-    command: echo "No tests defined"
+    command: "bash ./scripts/tests.sh"
+    outputs:
+      - "./.pytest_cache/"
+      - "./.coverage"
+      - "./htmlcov/"
+      - "./coverage.xml"
+    options:
+      runFromWorkspaceRoot: false

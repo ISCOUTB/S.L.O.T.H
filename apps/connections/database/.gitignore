@@ -2,7 +2,8 @@
 **/__pycache__
 **/*.pyc
 
-# Test output
-htmlcov
+# Test and coverage files
 coverage.*
 .coverage
+htmlcov/
+.pytest_cache/
