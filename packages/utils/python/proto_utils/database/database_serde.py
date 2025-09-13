@@ -14,7 +14,7 @@ from proto_utils.generated.database import database_pb2
 
 class DatabaseSerde:
     """Serialization and deserialization utilities for database task operations.
-    
+
     This class provides static methods for converting between Python TypedDict
     objects and their corresponding Protocol Buffer message representations for
     task management operations. These operations work with both Redis and MongoDB
@@ -26,10 +26,10 @@ class DatabaseSerde:
         request: dtypes.UpdateTaskIdRequest,
     ) -> database_pb2.UpdateTaskIdRequest:
         """Serialize an UpdateTaskIdRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The update task ID request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer UpdateTaskIdRequest message.
         """
@@ -48,10 +48,10 @@ class DatabaseSerde:
         proto: database_pb2.UpdateTaskIdRequest,
     ) -> dtypes.UpdateTaskIdRequest:
         """Deserialize a Protocol Buffer UpdateTaskIdRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer UpdateTaskIdRequest message to deserialize.
-            
+
         Returns:
             The deserialized update task ID request dictionary.
         """
@@ -70,10 +70,10 @@ class DatabaseSerde:
         response: dtypes.UpdateTaskIdResponse,
     ) -> database_pb2.UpdateTaskIdResponse:
         """Serialize an UpdateTaskIdResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The update task ID response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer UpdateTaskIdResponse message.
         """
@@ -87,10 +87,10 @@ class DatabaseSerde:
         proto: database_pb2.UpdateTaskIdResponse,
     ) -> dtypes.UpdateTaskIdResponse:
         """Deserialize a Protocol Buffer UpdateTaskIdResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer UpdateTaskIdResponse message to deserialize.
-            
+
         Returns:
             The deserialized update task ID response dictionary.
         """
@@ -104,10 +104,10 @@ class DatabaseSerde:
         request: dtypes.SetTaskIdRequest,
     ) -> database_pb2.SetTaskIdRequest:
         """Serialize a SetTaskIdRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The set task ID request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer SetTaskIdRequest message.
         """
@@ -122,10 +122,10 @@ class DatabaseSerde:
         proto: database_pb2.SetTaskIdRequest,
     ) -> dtypes.SetTaskIdRequest:
         """Deserialize a Protocol Buffer SetTaskIdRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer SetTaskIdRequest message to deserialize.
-            
+
         Returns:
             The deserialized set task ID request dictionary.
         """
@@ -140,10 +140,10 @@ class DatabaseSerde:
         response: dtypes.SetTaskIdResponse,
     ) -> database_pb2.SetTaskIdResponse:
         """Serialize a SetTaskIdResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The set task ID response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer SetTaskIdResponse message.
         """
@@ -157,10 +157,10 @@ class DatabaseSerde:
         proto: database_pb2.SetTaskIdResponse,
     ) -> dtypes.SetTaskIdResponse:
         """Deserialize a Protocol Buffer SetTaskIdResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer SetTaskIdResponse message to deserialize.
-            
+
         Returns:
             The deserialized set task ID response dictionary.
         """
@@ -174,10 +174,10 @@ class DatabaseSerde:
         request: dtypes.GetTaskIdRequest,
     ) -> database_pb2.GetTaskIdRequest:
         """Serialize a GetTaskIdRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The get task ID request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer GetTaskIdRequest message.
         """
@@ -191,10 +191,10 @@ class DatabaseSerde:
         proto: database_pb2.GetTaskIdRequest,
     ) -> dtypes.GetTaskIdRequest:
         """Deserialize a Protocol Buffer GetTaskIdRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer GetTaskIdRequest message to deserialize.
-            
+
         Returns:
             The deserialized get task ID request dictionary.
         """
@@ -208,10 +208,10 @@ class DatabaseSerde:
         response: dtypes.GetTaskIdResponse,
     ) -> database_pb2.GetTaskIdResponse:
         """Serialize a GetTaskIdResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The get task ID response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer GetTaskIdResponse message.
         """
@@ -229,10 +229,10 @@ class DatabaseSerde:
         proto: database_pb2.GetTaskIdResponse,
     ) -> dtypes.GetTaskIdResponse:
         """Deserialize a Protocol Buffer GetTaskIdResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer GetTaskIdResponse message to deserialize.
-            
+
         Returns:
             The deserialized get task ID response dictionary.
         """
@@ -250,10 +250,10 @@ class DatabaseSerde:
         request: dtypes.GetTasksByImportNameRequest,
     ) -> database_pb2.GetTasksByImportNameRequest:
         """Serialize a GetTasksByImportNameRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The get tasks by import name request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer GetTasksByImportNameRequest message.
         """
@@ -267,10 +267,10 @@ class DatabaseSerde:
         proto: database_pb2.GetTasksByImportNameRequest,
     ) -> dtypes.GetTasksByImportNameRequest:
         """Deserialize a Protocol Buffer GetTasksByImportNameRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer GetTasksByImportNameRequest message to deserialize.
-            
+
         Returns:
             The deserialized get tasks by import name request dictionary.
         """
@@ -284,10 +284,10 @@ class DatabaseSerde:
         response: dtypes.GetTasksByImportNameResponse,
     ) -> database_pb2.GetTasksByImportNameResponse:
         """Serialize a GetTasksByImportNameResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The get tasks by import name response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer GetTasksByImportNameResponse message.
         """
@@ -303,10 +303,10 @@ class DatabaseSerde:
         proto: database_pb2.GetTasksByImportNameResponse,
     ) -> dtypes.GetTasksByImportNameResponse:
         """Deserialize a Protocol Buffer GetTasksByImportNameResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer GetTasksByImportNameResponse message to deserialize.
-            
+
         Returns:
             The deserialized get tasks by import name response dictionary.
         """

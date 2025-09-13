@@ -13,7 +13,7 @@ from proto_utils.generated.database import mongo_pb2
 
 class MongoSerde:
     """Serialization and deserialization utilities for MongoDB schema operations.
-    
+
     This class provides static methods for converting between Python TypedDict
     objects and their corresponding Protocol Buffer message representations for
     MongoDB operations. Focuses specifically on JSON schema management including
@@ -25,10 +25,10 @@ class MongoSerde:
         request: dtypes.MongoInsertOneSchemaRequest,
     ) -> mongo_pb2.MongoInsertOneSchemaRequest:
         """Serialize a MongoInsertOneSchemaRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The MongoDB insert one schema request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoInsertOneSchemaRequest message.
         """
@@ -51,10 +51,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoInsertOneSchemaRequest,
     ) -> dtypes.MongoInsertOneSchemaRequest:
         """Deserialize a Protocol Buffer MongoInsertOneSchemaRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoInsertOneSchemaRequest message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB insert one schema request dictionary.
         """
@@ -77,10 +77,10 @@ class MongoSerde:
         response: dtypes.MongoInsertOneSchemaResponse,
     ) -> mongo_pb2.MongoInsertOneSchemaResponse:
         """Serialize a MongoInsertOneSchemaResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The MongoDB insert one schema response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoInsertOneSchemaResponse message.
         """
@@ -91,10 +91,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoInsertOneSchemaResponse,
     ) -> dtypes.MongoInsertOneSchemaResponse:
         """Deserialize a Protocol Buffer MongoInsertOneSchemaResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoInsertOneSchemaResponse message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB insert one schema response dictionary.
         """
@@ -105,10 +105,10 @@ class MongoSerde:
         request: dtypes.MongoCountAllDocumentsRequest = None,
     ) -> mongo_pb2.MongoCountAllDocumentsRequest:
         """Serialize a MongoCountAllDocumentsRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The MongoDB count all documents request dictionary to serialize (optional).
-            
+
         Returns:
             The serialized Protocol Buffer MongoCountAllDocumentsRequest message.
         """
@@ -119,10 +119,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoCountAllDocumentsRequest,
     ) -> dtypes.MongoCountAllDocumentsRequest:
         """Deserialize a Protocol Buffer MongoCountAllDocumentsRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoCountAllDocumentsRequest message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB count all documents request dictionary.
         """
@@ -133,10 +133,10 @@ class MongoSerde:
         response: dtypes.MongoCountAllDocumentsResponse,
     ) -> mongo_pb2.MongoCountAllDocumentsResponse:
         """Serialize a MongoCountAllDocumentsResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The MongoDB count all documents response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoCountAllDocumentsResponse message.
         """
@@ -147,10 +147,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoCountAllDocumentsResponse,
     ) -> dtypes.MongoCountAllDocumentsResponse:
         """Deserialize a Protocol Buffer MongoCountAllDocumentsResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoCountAllDocumentsResponse message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB count all documents response dictionary.
         """
@@ -161,10 +161,10 @@ class MongoSerde:
         request: dtypes.MongoFindJsonSchemaRequest,
     ) -> mongo_pb2.MongoFindJsonSchemaRequest:
         """Serialize a MongoFindJsonSchemaRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The MongoDB find JSON schema request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoFindJsonSchemaRequest message.
         """
@@ -175,10 +175,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoFindJsonSchemaRequest,
     ) -> dtypes.MongoFindJsonSchemaRequest:
         """Deserialize a Protocol Buffer MongoFindJsonSchemaRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoFindJsonSchemaRequest message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB find JSON schema request dictionary.
         """
@@ -189,10 +189,10 @@ class MongoSerde:
         response: dtypes.MongoFindJsonSchemaResponse,
     ) -> mongo_pb2.MongoFindJsonSchemaResponse:
         """Serialize a MongoFindJsonSchemaResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The MongoDB find JSON schema response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoFindJsonSchemaResponse message.
         """
@@ -205,10 +205,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoFindJsonSchemaResponse,
     ) -> dtypes.MongoFindJsonSchemaResponse:
         """Deserialize a Protocol Buffer MongoFindJsonSchemaResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoFindJsonSchemaResponse message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB find JSON schema response dictionary.
         """
@@ -219,10 +219,10 @@ class MongoSerde:
         request: dtypes.MongoUpdateOneJsonSchemaRequest,
     ) -> mongo_pb2.MongoUpdateOneJsonSchemaRequest:
         """Serialize a MongoUpdateOneJsonSchemaRequest dictionary to Protocol Buffer format.
-        
+
         Args:
             request: The MongoDB update one JSON schema request dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoUpdateOneJsonSchemaRequest message.
         """
@@ -237,10 +237,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoUpdateOneJsonSchemaRequest,
     ) -> dtypes.MongoUpdateOneJsonSchemaRequest:
         """Deserialize a Protocol Buffer MongoUpdateOneJsonSchemaRequest to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoUpdateOneJsonSchemaRequest message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB update one JSON schema request dictionary.
         """
@@ -255,10 +255,10 @@ class MongoSerde:
         response: dtypes.MongoUpdateOneJsonSchemaResponse,
     ) -> mongo_pb2.MongoUpdateOneJsonSchemaResponse:
         """Serialize a MongoUpdateOneJsonSchemaResponse dictionary to Protocol Buffer format.
-        
+
         Args:
             response: The MongoDB update one JSON schema response dictionary to serialize.
-            
+
         Returns:
             The serialized Protocol Buffer MongoUpdateOneJsonSchemaResponse message.
         """
@@ -269,10 +269,10 @@ class MongoSerde:
         proto: mongo_pb2.MongoUpdateOneJsonSchemaResponse,
     ) -> dtypes.MongoUpdateOneJsonSchemaResponse:
         """Deserialize a Protocol Buffer MongoUpdateOneJsonSchemaResponse to dictionary format.
-        
+
         Args:
             proto: The Protocol Buffer MongoUpdateOneJsonSchemaResponse message to deserialize.
-            
+
         Returns:
             The deserialized MongoDB update one JSON schema response dictionary.
         """

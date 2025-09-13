@@ -216,15 +216,16 @@ class RedisClearCacheResponse(TypedDict):
 
 class MongoInsertOneSchemaRequest(TypedDict):
     """Request message for inserting a new schema document into MongoDB.
-    
+
     Used to store JSON schema definitions with version history.
-    
+
     Attributes:
         import_name: Unique identifier for the schema (e.g., "user_table", "product_schema")
         created_at: ISO timestamp when the schema was created
         active_schema: The currently active/latest version of the schema
         schemas_releases: Historical versions of the schema for versioning
     """
+
     import_name: str
     created_at: str
     active_schema: JsonSchema
@@ -233,10 +234,11 @@ class MongoInsertOneSchemaRequest(TypedDict):
 
 class MongoInsertOneSchemaResponse(TypedDict):
     """Response message for schema insertion operation.
-    
+
     Attributes:
         result: Generic result data from the insertion operation
     """
+
     result: Dict[str, str]
 
 
@@ -251,43 +253,47 @@ class MongoCountAllDocumentsRequest(TypedDict):
 
 class MongoCountAllDocumentsResponse(TypedDict):
     """Response message containing the total count of schema documents.
-    
+
     Attributes:
         amount: Total number of schema documents in the collection
     """
+
     amount: int
 
 
 class MongoFindJsonSchemaRequest(TypedDict):
     """Request message for finding a JSON schema by its import name.
-    
+
     Attributes:
         import_name: The unique identifier of the schema to find
     """
+
     import_name: str
 
 
 class MongoFindJsonSchemaResponse(TypedDict):
     """Response message containing the found schema information.
-    
+
     Attributes:
         status: Status of the find operation ("found", "not_found", "error")
         extra: Additional metadata or error information
     """
+
     status: str
     extra: Dict[str, str]
 
 
 class MongoUpdateOneJsonSchemaRequest(TypedDict):
     """Request message for updating an existing JSON schema.
-    
+
     Used to modify schema definitions and add new versions.
-    
+
     Attributes:
         import_name: Unique identifier of the schema to update
         schema: The new schema definition to set as active
         created_at: ISO timestamp when this update was created
     """
+
     import_name: str
     schema: JsonSchema
     created_at: str
@@ -295,16 +301,17 @@ class MongoUpdateOneJsonSchemaRequest(TypedDict):
 
 class MongoUpdateOneJsonSchemaResponse(TypedDict):
     """Response message for schema update operation.
-    
+
     Attributes:
         result: Generic result data from the update operation
     """
+
     result: Dict[str, str]
 
 
 class UpdateTaskIdRequest(TypedDict):
     """Request message for updating an existing task's information.
-    
+
     Attributes:
         task_id: Unique identifier of the task to update
         field: Specific field to update (e.g., "status", "progress", "error_message")
@@ -314,6 +321,7 @@ class UpdateTaskIdRequest(TypedDict):
         data: Additional data to merge with existing task data
         reset_data: If true, replace all existing data instead of merging (default: false)
     """
+
     task_id: str
     field: str
     value: str
@@ -325,23 +333,25 @@ class UpdateTaskIdRequest(TypedDict):
 
 class UpdateTaskIdResponse(TypedDict):
     """Response message for task update operations.
-    
+
     Attributes:
         success: Indicates if the update operation was successful
         message: Descriptive message about the operation result or any errors
     """
+
     success: bool
     message: str
 
 
 class SetTaskIdRequest(TypedDict):
     """Request message for creating or setting a new task entry.
-    
+
     Attributes:
         task_id: Unique identifier for the new task
         value: Complete task data encapsulated in ApiResponse format
         task: Task type/category under which the task is stored
     """
+
     task_id: str
     value: ApiResponse
     task: str
@@ -349,54 +359,59 @@ class SetTaskIdRequest(TypedDict):
 
 class SetTaskIdResponse(TypedDict):
     """Response message for task creation operations.
-    
+
     Attributes:
         success: Indicates if the task was successfully created/set
         message: Descriptive message about the operation result or any errors
     """
+
     success: bool
     message: str
 
 
 class GetTaskIdRequest(TypedDict):
     """Request message for retrieving a specific task by its ID.
-    
+
     Attributes:
         task_id: Unique identifier of the task to retrieve
         task: Task type/category to search within
     """
+
     task_id: str
     task: str
 
 
 class GetTaskIdResponse(TypedDict):
     """Response message containing the requested task information.
-    
+
     Attributes:
         value: Task data if found (None if not found)
         found: Indicates whether the task was found in the database
     """
+
     value: Optional[ApiResponse]
     found: bool
 
 
 class GetTasksByImportNameRequest(TypedDict):
     """Request message for finding all tasks associated with a specific import name.
-    
+
     Useful for tracking all tasks related to a particular data import or schema.
-    
+
     Attributes:
         import_name: The import identifier to filter tasks by
         task: Task type/category to search within
     """
+
     import_name: str
     task: str
 
 
 class GetTasksByImportNameResponse(TypedDict):
     """Response message containing all tasks matching the import name criteria.
-    
+
     Attributes:
         tasks: List of all matching tasks
     """
+
     tasks: List[ApiResponse]
