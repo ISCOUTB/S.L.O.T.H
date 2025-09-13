@@ -43,11 +43,6 @@ tasks:
             - "database/mongo.proto"
             - "database/redis.proto"
             - "database/utils.proto"
-            - "parsers/ddl_generator.proto"
-            - "parsers/dtypes.proto"
-            - "parsers/formula_parser.proto"
-            - "parsers/sql_builder.proto"
-            - "messaging/messaging.proto"
         outputs:
             - "./python/proto_utils/generated/database"
         options:
