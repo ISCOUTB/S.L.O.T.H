@@ -51,6 +51,10 @@ class MongoConnection:
     def update_one(self, filter: dict, update: dict) -> pymongo.results.UpdateResult:
         """Update a single document in the collection."""
         return self.__collection.update_one(filter, update)
+    
+    def delete_one(self, filter: dict) -> pymongo.results.DeleteResult:
+        """Delete a single document in the collection."""
+        return self.__collection.delete_one(filter)
 
 
 mongo_tasks_connection = MongoConnection(
