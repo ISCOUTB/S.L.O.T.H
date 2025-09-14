@@ -20,7 +20,7 @@ class MongoSchemasService:
     ) -> dtypes.MongoInsertOneSchemaResponse:
         total_documents = MongoSchemasService.count_all_documents()["amount"]
         schemas_releases = MongoSchemasService.find_one_jsonschema(
-            {"import_name": request["import_name"]}
+            dtypes.MongoInsertOneSchemaRequest(import_name=request["import_name"])
         )
 
         # Try to fetch the existing schema document, and if it's not, then insert a new one.
@@ -30,15 +30,16 @@ class MongoSchemasService:
                     mongo_schemas_connection.insert_one(request)
                 )
                 return dtypes.MongoInsertOneSchemaResponse(
+                    status="inserted",
                     result={
-                        "status": "inserted",
                         "acknowledged": result.acknowledged,
                         "inserted_id": str(result.inserted_id),
-                    }
+                    },
                 )
             except Exception as e:
                 return dtypes.MongoInsertOneSchemaResponse(
-                    result={"status": "error", "error": str(e)}
+                    status="error",
+                    result={"message": str(e)},
                 )
 
         # If the schema already exists, compare it with the new one,
@@ -48,10 +49,8 @@ class MongoSchemasService:
             schemas_releases["schema"]["active_schema"], new_active_schema
         ):
             return dtypes.MongoInsertOneSchemaResponse(
-                result={
-                    "status": "no_change",
-                    "message": "Schema is identical to the existing one.",
-                }
+                status="no_change",
+                result={"message": "Schema is identical to the existing one."},
             )
 
         # If the schema is different, update the existing document.
@@ -65,7 +64,9 @@ class MongoSchemasService:
                     },
                     "$push": {
                         "schemas_releases": {
-                            "schema": schemas_releases["schema"]["active_schema"].copy(),
+                            "schema": (
+                                schemas_releases["schema"]["active_schema"]
+                            ).copy(),
                             "created_at": schemas_releases["schema"]["created_at"],
                         }
                     },
@@ -73,11 +74,17 @@ class MongoSchemasService:
             )
         except Exception as e:
             return dtypes.MongoInsertOneSchemaResponse(
-                result={"status": "error", "error": str(e)}
+                status="error",
+                result={"message": str(e)},
             )
 
         return dtypes.MongoInsertOneSchemaResponse(
-            result={"status": "updated", **result.raw_result}
+            status="updated",
+            result={
+                "message": "Schema successfully updated",
+                "modified_count": str(result.modified_count),
+                "matched_count": str(result.matched_count),
+            },
         )
 
     @staticmethod
@@ -119,18 +126,17 @@ class MongoSchemasService:
         request: dtypes.MongoUpdateOneJsonSchemaRequest,
     ) -> dtypes.MongoUpdateOneJsonSchemaResponse:
         # First, check if the schema document exists
-        find_request = dtypes.MongoFindJsonSchemaRequest(
-            import_name=request["import_name"]
+        existing_schema = MongoSchemasService.find_one_jsonschema(
+            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
         )
-        existing_schema = MongoSchemasService.find_one_jsonschema(find_request)
 
         # If schema doesn't exist, return error
         if existing_schema["status"] != "found" or existing_schema["schema"] is None:
             return dtypes.MongoUpdateOneJsonSchemaResponse(
+                status="error",
                 result={
-                    "status": "error",
                     "message": f"Schema with import_name '{request['import_name']}' not found",
-                }
+                },
             )
 
         current_schema_doc = existing_schema["schema"]
@@ -141,10 +147,10 @@ class MongoSchemasService:
             current_active_schema, request["schema"]
         ):
             return dtypes.MongoUpdateOneJsonSchemaResponse(
+                status="no_change",
                 result={
-                    "status": "no_change",
                     "message": "New schema is identical to the current active schema",
-                }
+                },
             )
 
         # Update the document with the new schema
@@ -162,27 +168,27 @@ class MongoSchemasService:
 
             if result.modified_count > 0:
                 return dtypes.MongoUpdateOneJsonSchemaResponse(
+                    status="updated",
                     result={
-                        "status": "updated",
                         "message": "Schema successfully updated",
                         "modified_count": str(result.modified_count),
                         "matched_count": str(result.matched_count),
-                    }
+                    },
                 )
             else:
                 return dtypes.MongoUpdateOneJsonSchemaResponse(
+                    status="error",
                     result={
-                        "status": "error",
                         "message": "No documents were modified during update operation",
-                    }
+                    },
                 )
 
         except Exception as e:
             return dtypes.MongoUpdateOneJsonSchemaResponse(
+                status="error",
                 result={
-                    "status": "error",
                     "message": f"Failed to update schema: {str(e)}",
-                }
+                },
             )
 
     @staticmethod
@@ -190,15 +196,15 @@ class MongoSchemasService:
         request: dtypes.MongoDeleteOneJsonSchemaRequest,
     ) -> dtypes.MongoDeleteOneJsonSchemaResponse:
         schema_doc = MongoSchemasService.find_one_jsonschema(
-            {"import_name": request["import_name"]}
+            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
         )
 
         if schema_doc["status"] != "found" or schema_doc["schema"] is None:
             return dtypes.MongoDeleteOneJsonSchemaResponse(
-                result={
-                    "status": "error",
-                    "message": f"Schema with import_name '{request['import_name']}' not found",
-                }
+                success=False,
+                message=f"Schema with import_name '{request['import_name']}' not found",
+                status="error",
+                extra={},
             )
 
         releases = schema_doc["schema"].get("schemas_releases", [])
@@ -208,11 +214,10 @@ class MongoSchemasService:
                 {"import_name": request["import_name"]}
             )
             return dtypes.MongoDeleteOneJsonSchemaResponse(
-                result={
-                    "status": "deleted",
-                    "message": f"Schema with import_name '{request['import_name']}' deleted",
-                    **result.raw_result,
-                }
+                success=True,
+                message=f"Schema with import_name '{request['import_name']}' deleted",
+                status="deleted",
+                extra={**result.raw_result},
             )
 
         result: pymongo.results.UpdateResult = mongo_schemas_connection.update_one(
@@ -229,11 +234,10 @@ class MongoSchemasService:
         )
 
         return dtypes.MongoDeleteOneJsonSchemaResponse(
-            result={
-                "status": "reverted",
-                "message": f"Schema with import_name '{request['import_name']}' reverted to previous release",
-                **result.raw_result,
-            }
+            success=True,
+            message=f"Schema with import_name '{request['import_name']}' reverted to previous release",
+            status="reverted",
+            extra={**result.raw_result},
         )
 
     @staticmethod
@@ -246,23 +250,22 @@ class MongoSchemasService:
             )
             if result.deleted_count > 0:
                 return dtypes.MongoDeleteImportNameResponse(
-                    result={
-                        "status": "deleted",
-                        "message": f"All schemas with import_name '{request['import_name']}' deleted",
-                        **result.raw_result,
-                    }
+                    success=True,
+                    message=f"All schemas with import_name '{request['import_name']}' deleted",
+                    status="deleted",
+                    extra={**result.raw_result},
                 )
             else:
                 return dtypes.MongoDeleteImportNameResponse(
-                    result={
-                        "status": "not_found",
-                        "message": f"No schemas found with import_name '{request['import_name']}'",
-                    }
+                    success=False,
+                    message=f"No schemas found with import_name '{request['import_name']}'",
+                    status="error",
+                    extra={},
                 )
         except Exception as e:
             return dtypes.MongoDeleteImportNameResponse(
-                result={
-                    "status": "error",
-                    "message": f"Failed to delete schemas: {str(e)}",
-                }
+                success=False,
+                message=f"Failed to delete schemas: {str(e)}",
+                status="error",
+                extra={},
             )

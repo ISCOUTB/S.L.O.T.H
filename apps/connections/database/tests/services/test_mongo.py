@@ -84,7 +84,7 @@ def test_insert_one_schema() -> None:
         )
     )
 
-    assert response["result"]["status"] == "inserted"
+    assert response["status"] == "inserted"
 
 
 def test_find_one_jsonschema() -> None:
@@ -171,8 +171,8 @@ def test_insert_one_schema_duplicate() -> None:
         )
     )
 
-    assert response1["result"]["status"] == "inserted"
-    assert response2["result"]["status"] == "no_change"
+    assert response1["status"] == "inserted"
+    assert response2["status"] == "no_change"
 
 
 def test_insert_one_schema_update() -> None:
@@ -225,8 +225,8 @@ def test_insert_one_schema_update() -> None:
         )
     )
 
-    assert response1["result"]["status"] == "inserted"
-    assert response2["result"]["status"] == "updated"
+    assert response1["status"] == "inserted"
+    assert response2["status"] == "updated"
 
     # Verify schema releases
     find_response = MongoSchemasService.find_one_jsonschema(
@@ -292,8 +292,8 @@ def test_update_one_schema() -> None:
         )
     )
 
-    assert response1["result"]["status"] == "inserted"
-    assert response2["result"]["status"] == "updated"
+    assert response1["status"] == "inserted"
+    assert response2["status"] == "updated"
 
 
 def test_update_one_schema_not_found() -> None:
@@ -319,7 +319,7 @@ def test_update_one_schema_not_found() -> None:
         )
     )
 
-    assert response["result"]["status"] == "error"
+    assert response["status"] == "error"
 
 
 def test_update_one_schema_no_change() -> None:
@@ -356,8 +356,8 @@ def test_update_one_schema_no_change() -> None:
         )
     )
 
-    assert response1["result"]["status"] == "inserted"
-    assert response2["result"]["status"] == "no_change"
+    assert response1["status"] == "inserted"
+    assert response2["status"] == "no_change"
 
 
 def test_delete_one_schema_with_no_releases() -> None:
@@ -390,7 +390,7 @@ def test_delete_one_schema_with_no_releases() -> None:
         request=dtypes.MongoDeleteOneJsonSchemaRequest(import_name=import_name)
     )
 
-    assert response["result"]["status"] == "deleted"
+    assert response["status"] == "deleted"
 
     # Verify deletion
     find_response = MongoSchemasService.find_one_jsonschema(
@@ -454,7 +454,7 @@ def test_delete_one_schema_with_releases() -> None:
         request=dtypes.MongoDeleteOneJsonSchemaRequest(import_name=import_name)
     )
 
-    assert response["result"]["status"] == "reverted"
+    assert response["status"] == "reverted"
 
     # Verify reversion
     find_response = MongoSchemasService.find_one_jsonschema(
@@ -477,7 +477,7 @@ def test_delete_one_schema_not_found() -> None:
         )
     )
 
-    assert response["result"]["status"] == "error"
+    assert response["status"] == "error"
 
 
 def test_delete_import_name() -> None:
@@ -510,7 +510,7 @@ def test_delete_import_name() -> None:
         request=dtypes.MongoDeleteImportNameRequest(import_name=import_name)
     )
 
-    assert response["result"]["status"] == "deleted"
+    assert response["status"] == "deleted"
 
     # Verify deletion
     find_response = MongoSchemasService.find_one_jsonschema(
@@ -527,4 +527,4 @@ def test_delete_import_name_not_found() -> None:
         )
     )
 
-    assert response["result"]["status"] == "not_found"
+    assert response["status"] == "error"

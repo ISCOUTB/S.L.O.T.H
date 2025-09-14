@@ -20,7 +20,7 @@ class MongoInsertOneSchemaRequest(_message.Message):
     def __init__(self, import_name: _Optional[str] = ..., created_at: _Optional[str] = ..., active_schema: _Optional[_Union[_utils_pb2.JsonSchema, _Mapping]] = ..., schemas_releases: _Optional[_Iterable[_Union[_utils_pb2.JsonSchema, _Mapping]]] = ...) -> None: ...
 
 class MongoInsertOneSchemaResponse(_message.Message):
-    __slots__ = ("result",)
+    __slots__ = ("status", "result")
     class ResultEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -28,9 +28,11 @@ class MongoInsertOneSchemaResponse(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    STATUS_FIELD_NUMBER: _ClassVar[int]
     RESULT_FIELD_NUMBER: _ClassVar[int]
+    status: str
     result: _containers.ScalarMap[str, str]
-    def __init__(self, result: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    def __init__(self, status: _Optional[str] = ..., result: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MongoCountAllDocumentsRequest(_message.Message):
     __slots__ = ()
@@ -76,7 +78,7 @@ class MongoUpdateOneJsonSchemaRequest(_message.Message):
     def __init__(self, import_name: _Optional[str] = ..., schema: _Optional[_Union[_utils_pb2.JsonSchema, _Mapping]] = ..., created_at: _Optional[str] = ...) -> None: ...
 
 class MongoUpdateOneJsonSchemaResponse(_message.Message):
-    __slots__ = ("result",)
+    __slots__ = ("status", "result")
     class ResultEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -84,9 +86,11 @@ class MongoUpdateOneJsonSchemaResponse(_message.Message):
         key: str
         value: str
         def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    STATUS_FIELD_NUMBER: _ClassVar[int]
     RESULT_FIELD_NUMBER: _ClassVar[int]
+    status: str
     result: _containers.ScalarMap[str, str]
-    def __init__(self, result: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    def __init__(self, status: _Optional[str] = ..., result: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MongoDeleteOneJsonSchemaRequest(_message.Message):
     __slots__ = ("import_name",)
@@ -95,12 +99,23 @@ class MongoDeleteOneJsonSchemaRequest(_message.Message):
     def __init__(self, import_name: _Optional[str] = ...) -> None: ...
 
 class MongoDeleteOneJsonSchemaResponse(_message.Message):
-    __slots__ = ("success", "message")
+    __slots__ = ("success", "message", "status", "extra")
+    class ExtraEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    EXTRA_FIELD_NUMBER: _ClassVar[int]
     success: bool
     message: str
-    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...
+    status: str
+    extra: _containers.ScalarMap[str, str]
+    def __init__(self, success: bool = ..., message: _Optional[str] = ..., status: _Optional[str] = ..., extra: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MongoDeleteImportNameRequest(_message.Message):
     __slots__ = ("import_name",)
@@ -109,9 +124,20 @@ class MongoDeleteImportNameRequest(_message.Message):
     def __init__(self, import_name: _Optional[str] = ...) -> None: ...
 
 class MongoDeleteImportNameResponse(_message.Message):
-    __slots__ = ("success", "message")
+    __slots__ = ("success", "message", "status", "extra")
+    class ExtraEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    EXTRA_FIELD_NUMBER: _ClassVar[int]
     success: bool
     message: str
-    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...
+    status: str
+    extra: _containers.ScalarMap[str, str]
+    def __init__(self, success: bool = ..., message: _Optional[str] = ..., status: _Optional[str] = ..., extra: _Optional[_Mapping[str, str]] = ...) -> None: ...

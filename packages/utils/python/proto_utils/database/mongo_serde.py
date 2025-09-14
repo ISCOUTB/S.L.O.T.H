@@ -58,19 +58,19 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB insert one schema request dictionary.
         """
-        return {
-            "import_name": proto.import_name,
-            "created_at": proto.created_at,
-            "active_schema": DatabaseUtilsSerde.deserialize_jsonschema(
+        return dtypes.MongoInsertOneSchemaRequest(
+            import_name=proto.import_name,
+            created_at=proto.created_at,
+            active_schema=DatabaseUtilsSerde.deserialize_jsonschema(
                 proto.active_schema
             ),
-            "schemas_releases": list(
+            schemas_releases=list(
                 map(
                     lambda schema: DatabaseUtilsSerde.deserialize_jsonschema(schema),
                     proto.schemas_releases,
                 )
             ),
-        }
+        )
 
     @staticmethod
     def serialize_insert_one_schema_response(
@@ -84,7 +84,10 @@ class MongoSerde:
         Returns:
             The serialized Protocol Buffer MongoInsertOneSchemaResponse message.
         """
-        return mongo_pb2.MongoInsertOneSchemaResponse(result=response["result"])
+        return mongo_pb2.MongoInsertOneSchemaResponse(
+            status=response["status"],
+            result=response["result"],
+        )
 
     @staticmethod
     def deserialize_insert_one_schema_response(
@@ -98,7 +101,10 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB insert one schema response dictionary.
         """
-        return {"result": dict(proto.result)}
+        return dtypes.MongoInsertOneSchemaResponse(
+            status=proto.status,
+            result=dict(proto.result),
+        )
 
     @staticmethod
     def serialize_count_all_documents_request(
@@ -126,7 +132,7 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB count all documents request dictionary.
         """
-        return {}
+        return dtypes.MongoCountAllDocumentsRequest()
 
     @staticmethod
     def serialize_count_all_documents_response(
@@ -140,7 +146,9 @@ class MongoSerde:
         Returns:
             The serialized Protocol Buffer MongoCountAllDocumentsResponse message.
         """
-        return mongo_pb2.MongoCountAllDocumentsResponse(amount=response["amount"])
+        return mongo_pb2.MongoCountAllDocumentsResponse(
+            amount=response["amount"],
+        )
 
     @staticmethod
     def deserialize_count_all_documents_response(
@@ -154,7 +162,9 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB count all documents response dictionary.
         """
-        return {"amount": proto.amount}
+        return dtypes.MongoCountAllDocumentsResponse(
+            amount=proto.amount,
+        )
 
     @staticmethod
     def serialize_find_jsonschema_request(
@@ -182,7 +192,9 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB find JSON schema request dictionary.
         """
-        return {"import_name": proto.import_name}
+        return dtypes.MongoFindJsonSchemaRequest(
+            import_name=proto.import_name,
+        )
 
     @staticmethod
     def serialize_find_jsonschema_response(
@@ -214,11 +226,11 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB find JSON schema response dictionary.
         """
-        return {
-            "status": proto.status,
-            "extra": dict(proto.extra),
-            "schema": DatabaseUtilsSerde.deserialize_jsonschema(proto.schema),
-        }
+        return dtypes.MongoFindJsonSchemaResponse(
+            status=proto.status,
+            extra=dict(proto.extra),
+            schema=DatabaseUtilsSerde.deserialize_jsonschema(proto.schema),
+        )
 
     @staticmethod
     def serialize_update_one_jsonschema_request(
@@ -250,11 +262,11 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB update one JSON schema request dictionary.
         """
-        return {
-            "import_name": proto.import_name,
-            "schema": DatabaseUtilsSerde.deserialize_jsonschema(proto.schema),
-            "created_at": proto.created_at,
-        }
+        return dtypes.MongoUpdateOneJsonSchemaRequest(
+            import_name=proto.import_name,
+            schema=DatabaseUtilsSerde.deserialize_jsonschema(proto.schema),
+            created_at=proto.created_at,
+        )
 
     @staticmethod
     def serialize_update_one_jsonschema_response(
@@ -268,7 +280,10 @@ class MongoSerde:
         Returns:
             The serialized Protocol Buffer MongoUpdateOneJsonSchemaResponse message.
         """
-        return mongo_pb2.MongoUpdateOneJsonSchemaResponse(result=response["result"])
+        return mongo_pb2.MongoUpdateOneJsonSchemaResponse(
+            status=response["status"],
+            result=response["result"],
+        )
 
     @staticmethod
     def deserialize_update_one_jsonschema_response(
@@ -282,7 +297,10 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB update one JSON schema response dictionary.
         """
-        return {"result": dict(proto.result)}
+        return dtypes.MongoUpdateOneJsonSchemaResponse(
+            status=proto.status,
+            result=dict(proto.result),
+        )
 
     @staticmethod
     def serialize_delete_one_jsonschema_request(
@@ -297,7 +315,7 @@ class MongoSerde:
             The serialized Protocol Buffer MongoDeleteOneJsonSchemaRequest message.
         """
         return mongo_pb2.MongoDeleteOneJsonSchemaRequest(
-            import_name=request["import_name"]
+            import_name=request["import_name"],
         )
 
     @staticmethod
@@ -312,7 +330,9 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB delete one JSON schema request dictionary.
         """
-        return {"import_name": proto.import_name}
+        return dtypes.MongoDeleteOneJsonSchemaRequest(
+            import_name=proto.import_name,
+        )
 
     @staticmethod
     def serialize_delete_one_jsonschema_response(
@@ -327,7 +347,10 @@ class MongoSerde:
             The serialized Protocol Buffer MongoDeleteOneJsonSchemaResponse message.
         """
         return mongo_pb2.MongoDeleteOneJsonSchemaResponse(
-            success=response["success"], message=response["message"]
+            success=response["success"],
+            message=response["message"],
+            status=response["status"],
+            extra=response["extra"],
         )
 
     @staticmethod
@@ -342,7 +365,12 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB delete one JSON schema response dictionary.
         """
-        return {"success": proto.success, "message": proto.message}
+        return dtypes.MongoDeleteOneJsonSchemaResponse(
+            success=proto.success,
+            message=proto.message,
+            status=proto.status,
+            extra=dict(proto.extra),
+        )
 
     @staticmethod
     def serialize_delete_import_name_request(
@@ -357,7 +385,7 @@ class MongoSerde:
             The serialized Protocol Buffer MongoDeleteImportNameRequest message.
         """
         return mongo_pb2.MongoDeleteImportNameRequest(
-            import_name=request["import_name"]
+            import_name=request["import_name"],
         )
 
     @staticmethod
@@ -372,7 +400,9 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB delete import name request dictionary.
         """
-        return {"import_name": proto.import_name}
+        return dtypes.MongoDeleteImportNameRequest(
+            import_name=proto.import_name,
+        )
 
     @staticmethod
     def serialize_delete_import_name_response(
@@ -387,7 +417,10 @@ class MongoSerde:
             The serialized Protocol Buffer MongoDeleteImportNameResponse message.
         """
         return mongo_pb2.MongoDeleteImportNameResponse(
-            success=response["success"], message=response["message"]
+            success=response["success"],
+            message=response["message"],
+            status=response["status"],
+            extra=response["extra"],
         )
 
     @staticmethod
@@ -402,4 +435,9 @@ class MongoSerde:
         Returns:
             The deserialized MongoDB delete import name response dictionary.
         """
-        return {"success": proto.success, "message": proto.message}
+        return dtypes.MongoDeleteImportNameResponse(
+            success=proto.success,
+            message=proto.message,
+            status=proto.status,
+            extra=dict(proto.extra),
+        )
