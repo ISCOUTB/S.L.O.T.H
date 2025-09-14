@@ -148,11 +148,15 @@ export namespace mongo {
     export class MongoInsertOneSchemaResponse extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
+            status?: string;
             result?: Map<string, string>;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
             if (!Array.isArray(data) && typeof data == "object") {
+                if ("status" in data && data.status != undefined) {
+                    this.status = data.status;
+                }
                 if ("result" in data && data.result != undefined) {
                     this.result = data.result;
                 }
@@ -160,18 +164,28 @@ export namespace mongo {
             if (!this.result)
                 this.result = new Map();
         }
+        get status() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set status(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
         get result() {
-            return pb_1.Message.getField(this, 1) as any as Map<string, string>;
+            return pb_1.Message.getField(this, 2) as any as Map<string, string>;
         }
         set result(value: Map<string, string>) {
-            pb_1.Message.setField(this, 1, value as any);
+            pb_1.Message.setField(this, 2, value as any);
         }
         static fromObject(data: {
+            status?: string;
             result?: {
                 [key: string]: string;
             };
         }): MongoInsertOneSchemaResponse {
             const message = new MongoInsertOneSchemaResponse({});
+            if (data.status != null) {
+                message.status = data.status;
+            }
             if (typeof data.result == "object") {
                 message.result = new Map(Object.entries(data.result));
             }
@@ -179,10 +193,14 @@ export namespace mongo {
         }
         toObject() {
             const data: {
+                status?: string;
                 result?: {
                     [key: string]: string;
                 };
             } = {};
+            if (this.status != null) {
+                data.status = this.status;
+            }
             if (this.result != null) {
                 data.result = (Object.fromEntries)(this.result);
             }
@@ -192,8 +210,10 @@ export namespace mongo {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
+            if (this.status.length)
+                writer.writeString(1, this.status);
             for (const [key, value] of this.result) {
-                writer.writeMessage(1, this.result, () => {
+                writer.writeMessage(2, this.result, () => {
                     writer.writeString(1, key);
                     writer.writeString(2, value);
                 });
@@ -208,6 +228,9 @@ export namespace mongo {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
+                        message.status = reader.readString();
+                        break;
+                    case 2:
                         reader.readMessage(message, () => pb_1.Map.deserializeBinary(message.result as any, reader, reader.readString, reader.readString));
                         break;
                     default: reader.skipField();
@@ -651,11 +674,15 @@ export namespace mongo {
     export class MongoUpdateOneJsonSchemaResponse extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
+            status?: string;
             result?: Map<string, string>;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
             if (!Array.isArray(data) && typeof data == "object") {
+                if ("status" in data && data.status != undefined) {
+                    this.status = data.status;
+                }
                 if ("result" in data && data.result != undefined) {
                     this.result = data.result;
                 }
@@ -663,18 +690,28 @@ export namespace mongo {
             if (!this.result)
                 this.result = new Map();
         }
+        get status() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set status(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
         get result() {
-            return pb_1.Message.getField(this, 1) as any as Map<string, string>;
+            return pb_1.Message.getField(this, 2) as any as Map<string, string>;
         }
         set result(value: Map<string, string>) {
-            pb_1.Message.setField(this, 1, value as any);
+            pb_1.Message.setField(this, 2, value as any);
         }
         static fromObject(data: {
+            status?: string;
             result?: {
                 [key: string]: string;
             };
         }): MongoUpdateOneJsonSchemaResponse {
             const message = new MongoUpdateOneJsonSchemaResponse({});
+            if (data.status != null) {
+                message.status = data.status;
+            }
             if (typeof data.result == "object") {
                 message.result = new Map(Object.entries(data.result));
             }
@@ -682,10 +719,14 @@ export namespace mongo {
         }
         toObject() {
             const data: {
+                status?: string;
                 result?: {
                     [key: string]: string;
                 };
             } = {};
+            if (this.status != null) {
+                data.status = this.status;
+            }
             if (this.result != null) {
                 data.result = (Object.fromEntries)(this.result);
             }
@@ -695,8 +736,10 @@ export namespace mongo {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
+            if (this.status.length)
+                writer.writeString(1, this.status);
             for (const [key, value] of this.result) {
-                writer.writeMessage(1, this.result, () => {
+                writer.writeMessage(2, this.result, () => {
                     writer.writeString(1, key);
                     writer.writeString(2, value);
                 });
@@ -711,6 +754,9 @@ export namespace mongo {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
+                        message.status = reader.readString();
+                        break;
+                    case 2:
                         reader.readMessage(message, () => pb_1.Map.deserializeBinary(message.result as any, reader, reader.readString, reader.readString));
                         break;
                     default: reader.skipField();
@@ -797,6 +843,8 @@ export namespace mongo {
         constructor(data?: any[] | {
             success?: boolean;
             message?: string;
+            status?: string;
+            extra?: Map<string, string>;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -807,7 +855,15 @@ export namespace mongo {
                 if ("message" in data && data.message != undefined) {
                     this.message = data.message;
                 }
+                if ("status" in data && data.status != undefined) {
+                    this.status = data.status;
+                }
+                if ("extra" in data && data.extra != undefined) {
+                    this.extra = data.extra;
+                }
             }
+            if (!this.extra)
+                this.extra = new Map();
         }
         get success() {
             return pb_1.Message.getFieldWithDefault(this, 1, false) as boolean;
@@ -821,9 +877,25 @@ export namespace mongo {
         set message(value: string) {
             pb_1.Message.setField(this, 2, value);
         }
+        get status() {
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+        }
+        set status(value: string) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        get extra() {
+            return pb_1.Message.getField(this, 4) as any as Map<string, string>;
+        }
+        set extra(value: Map<string, string>) {
+            pb_1.Message.setField(this, 4, value as any);
+        }
         static fromObject(data: {
             success?: boolean;
             message?: string;
+            status?: string;
+            extra?: {
+                [key: string]: string;
+            };
         }): MongoDeleteOneJsonSchemaResponse {
             const message = new MongoDeleteOneJsonSchemaResponse({});
             if (data.success != null) {
@@ -832,18 +904,34 @@ export namespace mongo {
             if (data.message != null) {
                 message.message = data.message;
             }
+            if (data.status != null) {
+                message.status = data.status;
+            }
+            if (typeof data.extra == "object") {
+                message.extra = new Map(Object.entries(data.extra));
+            }
             return message;
         }
         toObject() {
             const data: {
                 success?: boolean;
                 message?: string;
+                status?: string;
+                extra?: {
+                    [key: string]: string;
+                };
             } = {};
             if (this.success != null) {
                 data.success = this.success;
             }
             if (this.message != null) {
                 data.message = this.message;
+            }
+            if (this.status != null) {
+                data.status = this.status;
+            }
+            if (this.extra != null) {
+                data.extra = (Object.fromEntries)(this.extra);
             }
             return data;
         }
@@ -855,6 +943,14 @@ export namespace mongo {
                 writer.writeBool(1, this.success);
             if (this.message.length)
                 writer.writeString(2, this.message);
+            if (this.status.length)
+                writer.writeString(3, this.status);
+            for (const [key, value] of this.extra) {
+                writer.writeMessage(4, this.extra, () => {
+                    writer.writeString(1, key);
+                    writer.writeString(2, value);
+                });
+            }
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -869,6 +965,12 @@ export namespace mongo {
                         break;
                     case 2:
                         message.message = reader.readString();
+                        break;
+                    case 3:
+                        message.status = reader.readString();
+                        break;
+                    case 4:
+                        reader.readMessage(message, () => pb_1.Map.deserializeBinary(message.extra as any, reader, reader.readString, reader.readString));
                         break;
                     default: reader.skipField();
                 }
@@ -954,6 +1056,8 @@ export namespace mongo {
         constructor(data?: any[] | {
             success?: boolean;
             message?: string;
+            status?: string;
+            extra?: Map<string, string>;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -964,7 +1068,15 @@ export namespace mongo {
                 if ("message" in data && data.message != undefined) {
                     this.message = data.message;
                 }
+                if ("status" in data && data.status != undefined) {
+                    this.status = data.status;
+                }
+                if ("extra" in data && data.extra != undefined) {
+                    this.extra = data.extra;
+                }
             }
+            if (!this.extra)
+                this.extra = new Map();
         }
         get success() {
             return pb_1.Message.getFieldWithDefault(this, 1, false) as boolean;
@@ -978,9 +1090,25 @@ export namespace mongo {
         set message(value: string) {
             pb_1.Message.setField(this, 2, value);
         }
+        get status() {
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+        }
+        set status(value: string) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        get extra() {
+            return pb_1.Message.getField(this, 4) as any as Map<string, string>;
+        }
+        set extra(value: Map<string, string>) {
+            pb_1.Message.setField(this, 4, value as any);
+        }
         static fromObject(data: {
             success?: boolean;
             message?: string;
+            status?: string;
+            extra?: {
+                [key: string]: string;
+            };
         }): MongoDeleteImportNameResponse {
             const message = new MongoDeleteImportNameResponse({});
             if (data.success != null) {
@@ -989,18 +1117,34 @@ export namespace mongo {
             if (data.message != null) {
                 message.message = data.message;
             }
+            if (data.status != null) {
+                message.status = data.status;
+            }
+            if (typeof data.extra == "object") {
+                message.extra = new Map(Object.entries(data.extra));
+            }
             return message;
         }
         toObject() {
             const data: {
                 success?: boolean;
                 message?: string;
+                status?: string;
+                extra?: {
+                    [key: string]: string;
+                };
             } = {};
             if (this.success != null) {
                 data.success = this.success;
             }
             if (this.message != null) {
                 data.message = this.message;
+            }
+            if (this.status != null) {
+                data.status = this.status;
+            }
+            if (this.extra != null) {
+                data.extra = (Object.fromEntries)(this.extra);
             }
             return data;
         }
@@ -1012,6 +1156,14 @@ export namespace mongo {
                 writer.writeBool(1, this.success);
             if (this.message.length)
                 writer.writeString(2, this.message);
+            if (this.status.length)
+                writer.writeString(3, this.status);
+            for (const [key, value] of this.extra) {
+                writer.writeMessage(4, this.extra, () => {
+                    writer.writeString(1, key);
+                    writer.writeString(2, value);
+                });
+            }
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -1026,6 +1178,12 @@ export namespace mongo {
                         break;
                     case 2:
                         message.message = reader.readString();
+                        break;
+                    case 3:
+                        message.status = reader.readString();
+                        break;
+                    case 4:
+                        reader.readMessage(message, () => pb_1.Map.deserializeBinary(message.extra as any, reader, reader.readString, reader.readString));
                         break;
                     default: reader.skipField();
                 }
