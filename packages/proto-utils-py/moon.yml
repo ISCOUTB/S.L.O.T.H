@@ -1,3 +1,5 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
 project:
     name: proto-utils-py
     description: Shared utilities for working with protobufs in Python projects.

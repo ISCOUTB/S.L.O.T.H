@@ -5,25 +5,33 @@
             "path": "../"
         },
         {
-            "name": "Excel-Reader",
+            "name": "[ App ] Excel-Reader",
             "path": "../apps/backend/parsers/excel-reader"
         },
         {
-            "name": "Formula-Parser",
+            "name": "[ App ] Formula-Parser",
             "path": "../apps/backend/parsers/formula-parser"
         },
         {
-            "name": "DDL-Generator",
+            "name": "[ App ] DDL-Generator",
             "path": "../apps/backend/parsers/ddl-generator"
         },
         {
-            "name": "SQL-Builder",
+            "name": "[ App ] SQL-Builder",
             "path": "../apps/backend/parsers/sql-builder"
         },
         {
-            "name": "Typechecking",
+            "name": "[ App ] Typechecking",
             "path": "../apps/backend/typechecking"
         },
+        {
+            "name": "[ Package ] Proto-Javascript",
+            "path": "../packages/proto-utils-js"
+        },
+        {
+            "name": "[ Package ] Proto-Python",
+            "path": "../packages/proto-utils-py"
+        }
     ],
     "settings": {
         "files.exclude": {

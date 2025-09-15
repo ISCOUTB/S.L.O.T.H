@@ -21,3 +21,4 @@ tasks:
         deps:
             - proto-utils-js:build
         local: true
+        toolchain: node
