@@ -71,17 +71,3 @@ tasks:
             - "./python/proto_utils/generated/parsers"
         options:
             runFromWorkspaceRoot: false
-
-    js-generate:
-        command: "bash ./scripts/javascript-generate.sh"
-        options:
-            runFromWorkspaceRoot: false
-            cache: false
-
-    js-build:
-        command: "bash ./scripts/javascript-build.sh"
-        deps:
-            - "^:js-generate"
-        options:
-            runFromWorkspaceRoot: false
-            cache: false

@@ -1,0 +1,22 @@
+project:
+    name: proto-utils-js
+    description: Shared utilities for working with protobufs in JavaScript/TypeScript projects.
+
+toolchain:
+    node:
+
+tasks:
+    generate:
+        command: bash ./scripts/generate.sh
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
+    build:
+        command: npx
+        args:
+            - tsup
+        deps:
+            - ^:generate
+        options:
+            runFromWorkspaceRoot: false

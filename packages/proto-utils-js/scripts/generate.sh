@@ -1,6 +1,8 @@
-cd javascript/
+#!/bin/bash
 
-PROTO_PATH="../../proto"
+set -x
+
+PROTO_PATH="../proto"
 
 if [ ! -d "$PROTO_PATH" ]; then
     echo "[error] directory not found $PROTO_PATH"
@@ -17,10 +19,11 @@ fi
 EXPORT_PATH="./src/generated"
 
 if [ ! -d "$EXPORT_PATH" ]; then
+    echo "[info] creating directory $EXPORT_PATH"
     mkdir -p $EXPORT_PATH
 fi
 
-protoc \
+./node_modules/.bin/protoc \
     --plugin=./node_modules/.bin/protoc-gen-ts \
     --ts_out=./src/generated \
     --proto_path=$PROTO_PATH \
