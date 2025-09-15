@@ -1,0 +1,23 @@
+project:
+    name: proto-utils-py
+    description: Shared utilities for working with protobufs in Python projects.
+
+toolchain:
+    python:
+        version: "3.12.10"
+
+tasks:
+    generate:
+        command: bash ./scripts/generate.sh
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
+    build:
+        command: uv
+        args:
+            - build
+        deps:
+            - ^:generate
+        options:
+            runFromWorkspaceRoot: false
