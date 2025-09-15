@@ -47,12 +47,16 @@ class DatabaseTasksService:
         try:
             # Set task in redis
             redis_db.set_task_id(
-                task_id=request["task_id"], value=request["value"].copy(), task=request["task"]
+                task_id=request["task_id"],
+                value=request["value"].copy(),
+                task=request["task"],
             )
 
             # Set task in Mongo
             _set_task_id_mongo(
-                task_id=request["task_id"], value=request["value"].copy(), task=request["task"]
+                task_id=request["task_id"],
+                value=request["value"].copy(),
+                task=request["task"],
             )
 
             return dtypes.SetTaskIdResponse(
@@ -74,6 +78,12 @@ class DatabaseTasksService:
             # Fallback to MongoDB
             mongo_result = _get_task_id_mongo(request["task_id"], request["task"])
             if mongo_result:
+                # Cache the result in Redis for future queries
+                redis_db.set_task_id(
+                    task_id=request["task_id"],
+                    value=mongo_result.copy(),
+                    task=request["task"],
+                )
                 return dtypes.GetTaskIdResponse(value=mongo_result, found=True)
 
             return dtypes.GetTaskIdResponse(value=None, found=False)
@@ -96,6 +106,17 @@ class DatabaseTasksService:
             mongo_tasks = _get_tasks_by_import_name_mongo(
                 request["import_name"], request["task"]
             )
+
+            # Cache all found tasks in Redis for future queries
+            if mongo_tasks:
+                for task_data in mongo_tasks:
+                    # Extract task_id from the data field if available
+                    task_id = task_data["data"].get("task_id")
+                    if task_id:
+                        redis_db.set_task_id(
+                            task_id=task_id, value=task_data, task=request["task"]
+                        )
+
             return dtypes.GetTasksByImportNameResponse(tasks=mongo_tasks)
         except Exception:
             return dtypes.GetTasksByImportNameResponse(tasks=[])

@@ -9,7 +9,7 @@ from src.core.database_mongo import mongo_tasks_connection
 def test_set_task_id() -> None:
     """Test setting a task ID in both Redis and MongoDB."""
     task_id = str(uuid4())
-    task = "test"
+    task = "test_task"
 
     # Create a proper ApiResponse value
     api_response = dtypes.ApiResponse(
@@ -152,6 +152,12 @@ def test_get_task_id_from_mongodb_fallback() -> None:
     assert response["value"]["status"] == "success"
     assert response["value"]["data"]["source"] == "mongodb"
 
+    # Verify that the task was cached in Redis
+    redis_task = redis_db.get_task_id(task_id, task)
+    assert redis_task is not None
+    assert redis_task["status"] == "success"
+    assert redis_task["data"]["source"] == "mongodb"
+
 
 def test_get_task_id_not_found() -> None:
     """Test getting a task ID that doesn't exist."""
@@ -225,6 +231,15 @@ def test_get_tasks_by_import_name_from_mongodb_fallback() -> None:
     for task_data in response["tasks"]:
         assert task_data["status"] == "completed"
         assert task_data["data"]["import_name"] == import_name
+
+    # Verify that tasks were cached in Redis
+    for task_data in response["tasks"]:
+        task_id = task_data["data"].get("task_id")
+        if task_id:
+            redis_task = redis_db.get_task_id(task_id, task)
+            assert redis_task is not None
+            assert redis_task["status"] == "completed"
+            assert redis_task["data"]["import_name"] == import_name
 
 
 def test_get_tasks_by_import_name_empty_result() -> None:
