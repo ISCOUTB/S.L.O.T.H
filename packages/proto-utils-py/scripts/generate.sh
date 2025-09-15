@@ -37,6 +37,17 @@ create_init() {
     fi
 }
 
+create_all_inits() {
+    local base_dir="$1"
+
+    find "$base_dir" -type d | while read -r dir; do
+        if [ ! -f "$dir/__init__.py" ]; then
+            touch "$dir/__init__.py"
+            echo "[info] created $dir/__init__.py"
+        fi
+    done
+}
+
 populate_main_init() {
     local path=$1
 
@@ -90,6 +101,6 @@ fix_submodules() {
 }
 
 create_init "$PACKAGE_PATH"
-create_init "$EXPORT_PATH"
+create_all_inits "$EXPORT_PATH"
 populate_main_init "$EXPORT_PATH/__init__.py"
 fix_submodules "$EXPORT_PATH"

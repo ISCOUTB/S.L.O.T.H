@@ -113,5 +113,8 @@
         "zrange",
         "zset"
     ],
-    "cSpell.language": "en,es-ES"
+    "cSpell.language": "en,es-ES",
+    "python.analysis.extraPaths": [
+        "packages/proto-utils-py/src"
+    ]
 }

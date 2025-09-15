@@ -1,0 +1,23 @@
+project:
+    name: test
+    description: Test project (Python)
+
+toolchain:
+    python:
+
+tasks:
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
+    run:
+        command: uv
+        args:
+            - run
+            - -m
+            - main
+        options:
+            runFromWorkspaceRoot: false
