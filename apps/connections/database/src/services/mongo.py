@@ -1,16 +1,39 @@
-import pymongo
+"""MongoDB schemas service operations module.
 
-from typing import Dict, Any
+This module provides high-level MongoDB service operations for managing
+JSON schemas in the database. It implements the service layer pattern
+to handle schema CRUD operations with proper versioning and comparison
+functionality.
+
+The module includes operations for schema insertion, updates, deletion,
+and retrieval with built-in schema comparison and version management
+through releases tracking.
+"""
+
+import pymongo
 from proto_utils.database import dtypes
 from src.core.database_mongo import mongo_schemas_connection
 
 
 class MongoSchemasService:
+    """MongoDB schemas service layer class.
+
+    Provides high-level MongoDB operations for JSON schema management
+    including versioning, comparison, and CRUD operations. This class
+    acts as a service layer between API endpoints and the MongoDB
+    database operations.
+    """
+
     @staticmethod
-    def compare_schemas(schema1: Dict[str, Any], schema2: Dict[str, Any]) -> bool:
-        """
-        Compare two JSON schemas for equality.
-        Returns True if they are equal, False otherwise.
+    def compare_schemas(schema1: dtypes.JsonSchema, schema2: dtypes.JsonSchema) -> bool:
+        """Compare two JSON schemas for equality.
+
+        Args:
+            schema1 (dtypes.JsonSchema): First schema to compare.
+            schema2 (dtypes.JsonSchema): Second schema to compare.
+
+        Returns:
+            bool: True if schemas are equal, False otherwise.
         """
         return schema1 == schema2
 
@@ -18,6 +41,21 @@ class MongoSchemasService:
     def insert_one_schema(
         request: dtypes.MongoInsertOneSchemaRequest,
     ) -> dtypes.MongoInsertOneSchemaResponse:
+        """Insert or update a JSON schema in the database.
+
+        This method handles schema insertion with intelligent version management.
+        If no schema exists, it inserts a new one. If a schema exists and is
+        identical, it returns no-change status. If different, it updates the
+        schema and moves the old one to releases.
+
+        Args:
+            request (dtypes.MongoInsertOneSchemaRequest): Request containing
+                                                         the schema data to insert.
+
+        Returns:
+            dtypes.MongoInsertOneSchemaResponse: Response indicating the operation
+                                               result (inserted, updated, no_change, or error).
+        """
         total_documents = MongoSchemasService.count_all_documents()["amount"]
         schemas_releases = MongoSchemasService.find_one_jsonschema(
             dtypes.MongoInsertOneSchemaRequest(import_name=request["import_name"])
@@ -91,6 +129,15 @@ class MongoSchemasService:
     def count_all_documents(
         _: dtypes.MongoCountAllDocumentsRequest = None,
     ) -> dtypes.MongoCountAllDocumentsResponse:
+        """Count all documents in the schemas collection.
+
+        Args:
+            _ (dtypes.MongoCountAllDocumentsRequest, optional): Unused request parameter.
+
+        Returns:
+            dtypes.MongoCountAllDocumentsResponse: Response containing the document count.
+                                                 Returns -1 if an error occurs.
+        """
         try:
             amount = mongo_schemas_connection.count_documents()
         except Exception:
@@ -102,6 +149,16 @@ class MongoSchemasService:
     def find_one_jsonschema(
         request: dtypes.MongoFindJsonSchemaRequest,
     ) -> dtypes.MongoFindJsonSchemaResponse:
+        """Find a JSON schema by import name.
+
+        Args:
+            request (dtypes.MongoFindJsonSchemaRequest): Request containing the
+                                                       import name to search for.
+
+        Returns:
+            dtypes.MongoFindJsonSchemaResponse: Response containing the found schema
+                                              or appropriate status (not_found, error).
+        """
         try:
             schema_doc = mongo_schemas_connection.find_one(
                 {"import_name": request["import_name"]}
@@ -125,6 +182,20 @@ class MongoSchemasService:
     def update_one_schema(
         request: dtypes.MongoUpdateOneJsonSchemaRequest,
     ) -> dtypes.MongoUpdateOneJsonSchemaResponse:
+        """Update an existing JSON schema.
+
+        This method updates an existing schema with a new version, preserving
+        the old version in the releases history. It includes schema comparison
+        to avoid unnecessary updates when schemas are identical.
+
+        Args:
+            request (dtypes.MongoUpdateOneJsonSchemaRequest): Request containing
+                                                            the import name and new schema.
+
+        Returns:
+            dtypes.MongoUpdateOneJsonSchemaResponse: Response indicating the operation
+                                                   result (updated, no_change, or error).
+        """
         # First, check if the schema document exists
         existing_schema = MongoSchemasService.find_one_jsonschema(
             dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
@@ -195,6 +266,20 @@ class MongoSchemasService:
     def delete_one_schema(
         request: dtypes.MongoDeleteOneJsonSchemaRequest,
     ) -> dtypes.MongoDeleteOneJsonSchemaResponse:
+        """Delete the current active schema or revert to previous version.
+
+        This method implements intelligent schema deletion. If there are previous
+        versions in releases, it reverts to the most recent one. If no releases
+        exist, it deletes the entire schema document.
+
+        Args:
+            request (dtypes.MongoDeleteOneJsonSchemaRequest): Request containing
+                                                            the import name to delete.
+
+        Returns:
+            dtypes.MongoDeleteOneJsonSchemaResponse: Response indicating the operation
+                                                   result (deleted, reverted, or error).
+        """
         schema_doc = MongoSchemasService.find_one_jsonschema(
             dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
         )
@@ -244,6 +329,19 @@ class MongoSchemasService:
     def delete_import_name(
         request: dtypes.MongoDeleteImportNameRequest,
     ) -> dtypes.MongoDeleteImportNameResponse:
+        """Delete all schemas associated with an import name.
+
+        This method completely removes all schema data (including releases)
+        for a given import name from the database.
+
+        Args:
+            request (dtypes.MongoDeleteImportNameRequest): Request containing
+                                                         the import name to delete.
+
+        Returns:
+            dtypes.MongoDeleteImportNameResponse: Response indicating the operation
+                                                result (deleted or error).
+        """
         try:
             result: pymongo.results.DeleteResult = mongo_schemas_connection.delete_one(
                 {"import_name": request["import_name"]}

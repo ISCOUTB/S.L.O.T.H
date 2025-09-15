@@ -1,3 +1,14 @@
+"""Database tasks service operations module.
+
+This module provides high-level database operations for task management
+across both Redis and MongoDB. It implements a dual-storage strategy
+where Redis serves as a fast cache and MongoDB provides persistent storage
+with automatic synchronization between both databases.
+
+The module includes task CRUD operations with built-in fallback mechanisms
+and data consistency management between the two storage systems.
+"""
+
 from typing import Dict, Any, List, Optional
 
 from proto_utils.database import dtypes
@@ -6,10 +17,33 @@ from src.core.database_mongo import mongo_tasks_connection
 
 
 class DatabaseTasksService:
+    """Database tasks service layer class.
+    
+    Provides high-level task management operations with dual-storage strategy.
+    This class manages tasks in both Redis (for fast access) and MongoDB
+    (for persistence), ensuring data consistency and providing fallback
+    mechanisms when one storage system is unavailable.
+    """
+
     @staticmethod
     def update_task_id(
         request: dtypes.UpdateTaskIdRequest,
     ) -> dtypes.UpdateTaskIdResponse:
+        """Update a specific field in a task across both Redis and MongoDB.
+        
+        This method updates task information in both storage systems to maintain
+        consistency. Updates are performed in Redis first for speed, then in
+        MongoDB for persistence.
+        
+        Args:
+            request (dtypes.UpdateTaskIdRequest): Request containing task ID,
+                                                field to update, new value, and
+                                                optional message and data.
+        
+        Returns:
+            dtypes.UpdateTaskIdResponse: Response indicating success or failure
+                                       of the update operation.
+        """
         try:
             # Update task in redis
             redis_db.update_task_id(
@@ -44,6 +78,19 @@ class DatabaseTasksService:
 
     @staticmethod
     def set_task_id(request: dtypes.SetTaskIdRequest) -> dtypes.SetTaskIdResponse:
+        """Create or replace a task in both Redis and MongoDB.
+        
+        This method sets task data in both storage systems simultaneously
+        to ensure consistency and availability.
+        
+        Args:
+            request (dtypes.SetTaskIdRequest): Request containing task ID,
+                                             task data, and context information.
+        
+        Returns:
+            dtypes.SetTaskIdResponse: Response indicating success or failure
+                                    of the set operation.
+        """
         try:
             # Set task in redis
             redis_db.set_task_id(
@@ -69,6 +116,19 @@ class DatabaseTasksService:
 
     @staticmethod
     def get_task_id(request: dtypes.GetTaskIdRequest) -> dtypes.GetTaskIdResponse:
+        """Retrieve a task by ID with fallback mechanism.
+        
+        This method attempts to retrieve the task from Redis first (for speed),
+        and falls back to MongoDB if not found. Found MongoDB results are
+        automatically cached in Redis for future queries.
+        
+        Args:
+            request (dtypes.GetTaskIdRequest): Request containing task ID and context.
+        
+        Returns:
+            dtypes.GetTaskIdResponse: Response containing the task data or indicating
+                                    if the task was not found.
+        """
         try:
             # Try to get from Redis first (faster)
             redis_result = redis_db.get_task_id(request["task_id"], request["task"])
@@ -94,6 +154,20 @@ class DatabaseTasksService:
     def get_tasks_by_import_name(
         request: dtypes.GetTasksByImportNameRequest,
     ) -> dtypes.GetTasksByImportNameResponse:
+        """Retrieve all tasks associated with a specific import name.
+        
+        This method searches for tasks by import name with fallback mechanism.
+        It tries Redis first, then MongoDB, and caches MongoDB results in Redis
+        for future queries.
+        
+        Args:
+            request (dtypes.GetTasksByImportNameRequest): Request containing
+                                                        import name and context.
+        
+        Returns:
+            dtypes.GetTasksByImportNameResponse: Response containing the list of
+                                               matching tasks.
+        """
         try:
             # Try Redis first
             redis_tasks = redis_db.get_tasks_by_import_name(
@@ -137,6 +211,10 @@ def _update_task_id_mongo(
 ) -> None:
     """Update a specific field in a task ID's data in MongoDB.
 
+    This is a helper function that handles the MongoDB-specific update logic
+    for task data. It supports both simple field updates and complex data
+    merging operations.
+
     Args:
         task_id (str): Unique identifier for the task.
         field (str): The field to update in the task data.
@@ -173,6 +251,10 @@ def _update_task_id_mongo(
 def _set_task_id_mongo(task_id: str, value: dtypes.ApiResponse, task: str) -> None:
     """Set a task ID with associated data in MongoDB.
 
+    This is a helper function that handles the MongoDB-specific insertion/update
+    logic for task data. It uses upsert operation to either insert new tasks
+    or update existing ones.
+
     Args:
         task_id (str): Unique identifier for the task.
         value (dtypes.ApiResponse): ApiResponse object containing task data.
@@ -202,6 +284,9 @@ def _set_task_id_mongo(task_id: str, value: dtypes.ApiResponse, task: str) -> No
 def _get_task_id_mongo(task_id: str, task: str) -> Optional[dtypes.ApiResponse]:
     """Retrieve a task by its ID from MongoDB.
 
+    This is a helper function that handles the MongoDB-specific retrieval
+    logic for task data. It includes proper error handling and data validation.
+
     Args:
         task_id (str): Unique identifier for the task.
         task (str): The task or context under which the task is stored.
@@ -230,6 +315,10 @@ def _get_tasks_by_import_name_mongo(
     import_name: str, task: str
 ) -> List[dtypes.ApiResponse]:
     """Retrieve all tasks associated with a specific import name from MongoDB.
+
+    This is a helper function that handles the MongoDB-specific query logic
+    for retrieving multiple tasks by import name. It includes proper error
+    handling for malformed documents.
 
     Args:
         import_name (str): The import name to filter tasks by.
