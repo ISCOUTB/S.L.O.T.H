@@ -1,318 +1,475 @@
-"""Database serialization and deserialization module.
+"""Database data types module.
 
-This module provides serialization and deserialization utilities for database
-operations including task management functionality for tracking asynchronous
-operations across database systems. Contains the DatabaseSerde class with
-methods for converting between Python dictionaries and Protocol Buffer messages
-for task-related database operations.
+This module contains TypedDict definitions for database operations including
+Redis operations, JSON schema validation, and API response structures.
+These types correspond to the Protocol Buffer message definitions.
 """
 
-from proto_utils.database import dtypes
-from proto_utils.database.utils_serde import DatabaseUtilsSerde
-from proto_utils.generated.database import database_pb2
+from typing import TypedDict, Dict, Literal, List, Optional
 
 
-class DatabaseSerde:
-    """Serialization and deserialization utilities for database task operations.
+PropertyType = Literal["string", "integer", "number", "boolean"]
+"""Type alias for supported property types in JSON schema validation.
 
-    This class provides static methods for converting between Python TypedDict
-    objects and their corresponding Protocol Buffer message representations for
-    task management operations. These operations work with both Redis and MongoDB
-    for task state management and tracking asynchronous processes.
+Supported types:
+    - string: Text/string values
+    - integer: Whole number values  
+    - number: Decimal/floating point values
+    - boolean: True/false values
+"""
+
+
+class ApiResponse(TypedDict):
+    """Standard API response structure used throughout the system.
+
+    Provides consistent response format across all service operations.
+
+    Attributes:
+        status (str): The status of the response (e.g., "success", "error", "pending")
+        code (int): The HTTP status code associated with the response (200, 404, 500, etc.)
+        message (str): A descriptive message providing additional information about the response
+        data (Dict[str, str]): The actual data returned in the response (key-value pairs)
     """
 
-    @staticmethod
-    def serialize_update_task_id_request(
-        request: dtypes.UpdateTaskIdRequest,
-    ) -> database_pb2.UpdateTaskIdRequest:
-        """Serialize an UpdateTaskIdRequest dictionary to Protocol Buffer format.
+    status: str
+    code: int
+    message: str
+    data: Dict[str, str]
 
-        Args:
-            request: The update task ID request dictionary to serialize.
 
-        Returns:
-            The serialized Protocol Buffer UpdateTaskIdRequest message.
-        """
-        return database_pb2.UpdateTaskIdRequest(
-            task_id=request["task_id"],
-            field=request["field"],
-            value=request["value"],
-            task=request["task"],
-            message=request["message"],
-            data=request["data"],
-            reset_data=request["reset_data"],
-        )
+class Properties(TypedDict):
+    """Properties of a field in a JSON schema.
 
-    @staticmethod
-    def deserialize_update_task_id_request(
-        proto: database_pb2.UpdateTaskIdRequest,
-    ) -> dtypes.UpdateTaskIdRequest:
-        """Deserialize a Protocol Buffer UpdateTaskIdRequest to dictionary format.
+    Contains type information and additional metadata for schema validation.
 
-        Args:
-            proto: The Protocol Buffer UpdateTaskIdRequest message to deserialize.
+    Attributes:
+        type (PropertyType): The data type of this property
+        extra (Dict[str, str]): Additional metadata or constraints for the property
+    """
 
-        Returns:
-            The deserialized update task ID request dictionary.
-        """
-        return {
-            "task_id": proto.task_id,
-            "field": proto.field,
-            "value": proto.value,
-            "task": proto.task,
-            "message": proto.message,
-            "data": dict(proto.data),
-            "reset_data": proto.reset_data,
-        }
+    type: PropertyType
+    extra: Dict[str, str]
 
-    @staticmethod
-    def serialize_update_task_id_response(
-        response: dtypes.UpdateTaskIdResponse,
-    ) -> database_pb2.UpdateTaskIdResponse:
-        """Serialize an UpdateTaskIdResponse dictionary to Protocol Buffer format.
 
-        Args:
-            response: The update task ID response dictionary to serialize.
+class JsonSchema(TypedDict):
+    """JSON Schema definition for data validation and structure.
 
-        Returns:
-            The serialized Protocol Buffer UpdateTaskIdResponse message.
-        """
-        return database_pb2.UpdateTaskIdResponse(
-            success=response["success"],
-            message=response["message"],
-        )
+    Used to define the expected structure and types of JSON documents.
 
-    @staticmethod
-    def deserialize_update_task_id_response(
-        proto: database_pb2.UpdateTaskIdResponse,
-    ) -> dtypes.UpdateTaskIdResponse:
-        """Deserialize a Protocol Buffer UpdateTaskIdResponse to dictionary format.
+    Attributes:
+        schema (str): The JSON schema version (e.g., "https://json-schema.org/draft/2020-12/schema")
+        type (str): The root type of the schema (typically "object")
+        required (List[str]): List of required field names
+        properties (Dict[str, Properties]): Definition of all properties in the schema
+    """
 
-        Args:
-            proto: The Protocol Buffer UpdateTaskIdResponse message to deserialize.
+    schema: str
+    type: str
+    required: List[str]
+    properties: Dict[str, Properties]
 
-        Returns:
-            The deserialized update task ID response dictionary.
-        """
-        return {
-            "success": proto.success,
-            "message": proto.message,
-        }
 
-    @staticmethod
-    def serialize_set_task_id_request(
-        request: dtypes.SetTaskIdRequest,
-    ) -> database_pb2.SetTaskIdRequest:
-        """Serialize a SetTaskIdRequest dictionary to Protocol Buffer format.
+class RedisGetKeysRequest(TypedDict):
+    """Request message for retrieving keys that match a specific pattern.
 
-        Args:
-            request: The set task ID request dictionary to serialize.
+    Attributes:
+        pattern (str): Pattern to match keys (e.g., "user:*", "session:*", "*:temp")
+    """
 
-        Returns:
-            The serialized Protocol Buffer SetTaskIdRequest message.
-        """
-        return database_pb2.SetTaskIdRequest(
-            task_id=request["task_id"],
-            value=DatabaseUtilsSerde.serialize_api_response(request["value"]),
-            task=request["task"],
-        )
+    pattern: str
 
-    @staticmethod
-    def deserialize_set_task_id_request(
-        proto: database_pb2.SetTaskIdRequest,
-    ) -> dtypes.SetTaskIdRequest:
-        """Deserialize a Protocol Buffer SetTaskIdRequest to dictionary format.
 
-        Args:
-            proto: The Protocol Buffer SetTaskIdRequest message to deserialize.
+class RedisGetKeysResponse(TypedDict):
+    """Response message containing all keys that match the requested pattern.
 
-        Returns:
-            The deserialized set task ID request dictionary.
-        """
-        return {
-            "task_id": proto.task_id,
-            "value": DatabaseUtilsSerde.deserialize_api_response(proto.value),
-            "task": proto.task,
-        }
+    Attributes:
+        keys (List[str]): List of keys matching the pattern
+    """
 
-    @staticmethod
-    def serialize_set_task_id_response(
-        response: dtypes.SetTaskIdResponse,
-    ) -> database_pb2.SetTaskIdResponse:
-        """Serialize a SetTaskIdResponse dictionary to Protocol Buffer format.
+    keys: List[str]
 
-        Args:
-            response: The set task ID response dictionary to serialize.
 
-        Returns:
-            The serialized Protocol Buffer SetTaskIdResponse message.
-        """
-        return database_pb2.SetTaskIdResponse(
-            success=response["success"],
-            message=response["message"],
-        )
+class RedisSetRequest(TypedDict):
+    """Request message for setting a key-value pair in Redis.
 
-    @staticmethod
-    def deserialize_set_task_id_response(
-        proto: database_pb2.SetTaskIdResponse,
-    ) -> dtypes.SetTaskIdResponse:
-        """Deserialize a Protocol Buffer SetTaskIdResponse to dictionary format.
+    Attributes:
+        key (str): Key to set (must be non-empty)
+        value (str): Value to associate with the key
+        expiration (Optional[int]): Expiration time in seconds (optional)
+    """
 
-        Args:
-            proto: The Protocol Buffer SetTaskIdResponse message to deserialize.
+    key: str
+    value: str
+    expiration: Optional[int]
 
-        Returns:
-            The deserialized set task ID response dictionary.
-        """
-        return {
-            "success": proto.success,
-            "message": proto.message,
-        }
 
-    @staticmethod
-    def serialize_get_task_id_request(
-        request: dtypes.GetTaskIdRequest,
-    ) -> database_pb2.GetTaskIdRequest:
-        """Serialize a GetTaskIdRequest dictionary to Protocol Buffer format.
+class RedisSetResponse(TypedDict):
+    """Response message indicating the success of a SET operation.
 
-        Args:
-            request: The get task ID request dictionary to serialize.
+    Attributes:
+        success (bool): Indicates if the operation was successful
+    """
 
-        Returns:
-            The serialized Protocol Buffer GetTaskIdRequest message.
-        """
-        return database_pb2.GetTaskIdRequest(
-            task_id=request["task_id"],
-            task=request["task"],
-        )
+    success: bool
 
-    @staticmethod
-    def deserialize_get_task_id_request(
-        proto: database_pb2.GetTaskIdRequest,
-    ) -> dtypes.GetTaskIdRequest:
-        """Deserialize a Protocol Buffer GetTaskIdRequest to dictionary format.
 
-        Args:
-            proto: The Protocol Buffer GetTaskIdRequest message to deserialize.
+class RedisGetRequest(TypedDict):
+    """Request message for retrieving a value by its key.
 
-        Returns:
-            The deserialized get task ID request dictionary.
-        """
-        return {
-            "task_id": proto.task_id,
-            "task": proto.task,
-        }
+    Attributes:
+        key (str): Key to retrieve (must be non-empty)
+    """
 
-    @staticmethod
-    def serialize_get_task_id_response(
-        response: dtypes.GetTaskIdResponse,
-    ) -> database_pb2.GetTaskIdResponse:
-        """Serialize a GetTaskIdResponse dictionary to Protocol Buffer format.
+    key: str
 
-        Args:
-            response: The get task ID response dictionary to serialize.
 
-        Returns:
-            The serialized Protocol Buffer GetTaskIdResponse message.
-        """
-        return database_pb2.GetTaskIdResponse(
-            value=(
-                DatabaseUtilsSerde.serialize_api_response(response["value"])
-                if response["value"] is not None
-                else None
-            ),
-            found=response["found"],
-        )
+class RedisGetResponse(TypedDict):
+    """Response message containing the value associated with the requested key.
 
-    @staticmethod
-    def deserialize_get_task_id_response(
-        proto: database_pb2.GetTaskIdResponse,
-    ) -> dtypes.GetTaskIdResponse:
-        """Deserialize a Protocol Buffer GetTaskIdResponse to dictionary format.
+    Attributes:
+        value (Optional[str]): Value associated with the key (None if key doesn't exist)
+        found (bool): Indicates if the key was found in the database
+    """
 
-        Args:
-            proto: The Protocol Buffer GetTaskIdResponse message to deserialize.
+    value: Optional[str]
+    found: bool
 
-        Returns:
-            The deserialized get task ID response dictionary.
-        """
-        return {
-            "value": (
-                DatabaseUtilsSerde.deserialize_api_response(proto.value)
-                if proto.HasField("value")
-                else None
-            ),
-            "found": proto.found,
-        }
 
-    @staticmethod
-    def serialize_get_tasks_by_import_name_request(
-        request: dtypes.GetTasksByImportNameRequest,
-    ) -> database_pb2.GetTasksByImportNameRequest:
-        """Serialize a GetTasksByImportNameRequest dictionary to Protocol Buffer format.
+class RedisDeleteRequest(TypedDict):
+    """Request message for deleting one or more keys from Redis.
 
-        Args:
-            request: The get tasks by import name request dictionary to serialize.
+    Attributes:
+        keys (List[str]): List of keys to delete (can be empty list)
+    """
 
-        Returns:
-            The serialized Protocol Buffer GetTasksByImportNameRequest message.
-        """
-        return database_pb2.GetTasksByImportNameRequest(
-            import_name=request["import_name"],
-            task=request["task"],
-        )
+    keys: List[str]
 
-    @staticmethod
-    def deserialize_get_tasks_by_import_name_request(
-        proto: database_pb2.GetTasksByImportNameRequest,
-    ) -> dtypes.GetTasksByImportNameRequest:
-        """Deserialize a Protocol Buffer GetTasksByImportNameRequest to dictionary format.
 
-        Args:
-            proto: The Protocol Buffer GetTasksByImportNameRequest message to deserialize.
+class RedisDeleteResponse(TypedDict):
+    """Response message indicating how many keys were successfully deleted.
 
-        Returns:
-            The deserialized get tasks by import name request dictionary.
-        """
-        return {
-            "import_name": proto.import_name,
-            "task": proto.task,
-        }
+    Attributes:
+        count (int): Number of keys that were actually deleted
+    """
 
-    @staticmethod
-    def serialize_get_tasks_by_import_name_response(
-        response: dtypes.GetTasksByImportNameResponse,
-    ) -> database_pb2.GetTasksByImportNameResponse:
-        """Serialize a GetTasksByImportNameResponse dictionary to Protocol Buffer format.
+    count: int
 
-        Args:
-            response: The get tasks by import name response dictionary to serialize.
 
-        Returns:
-            The serialized Protocol Buffer GetTasksByImportNameResponse message.
-        """
-        return database_pb2.GetTasksByImportNameResponse(
-            tasks=[
-                DatabaseUtilsSerde.serialize_api_response(task)
-                for task in response["tasks"]
-            ]
-        )
+class RedisPingRequest(TypedDict):
+    """Request message for checking Redis server connectivity.
 
-    @staticmethod
-    def deserialize_get_tasks_by_import_name_response(
-        proto: database_pb2.GetTasksByImportNameResponse,
-    ) -> dtypes.GetTasksByImportNameResponse:
-        """Deserialize a Protocol Buffer GetTasksByImportNameResponse to dictionary format.
+    No fields needed for ping operation.
+    """
 
-        Args:
-            proto: The Protocol Buffer GetTasksByImportNameResponse message to deserialize.
+    pass
 
-        Returns:
-            The deserialized get tasks by import name response dictionary.
-        """
-        return {
-            "tasks": [
-                DatabaseUtilsSerde.deserialize_api_response(task)
-                for task in proto.tasks
-            ]
-        }
+
+class RedisPingResponse(TypedDict):
+    """Response message for ping operation.
+
+    Attributes:
+        pong (bool): Should always be true if the Redis server is reachable and responsive
+    """
+
+    pong: bool
+
+
+class RedisGetCacheRequest(TypedDict):
+    """Request message for retrieving the entire Redis cache.
+
+    Warning: This operation can be expensive on large datasets.
+    No fields needed for getting the entire cache.
+    """
+
+    pass
+
+
+class RedisGetCacheResponse(TypedDict):
+    """Response message containing all key-value pairs in the Redis cache.
+
+    Attributes:
+        cache (Dict[str, str]): Key-value pairs representing the entire cache contents
+    """
+
+    cache: Dict[str, str]
+
+
+class RedisClearCacheRequest(TypedDict):
+    """Request message for clearing all data from the Redis cache.
+
+    Warning: This operation is irreversible and will delete all data.
+    No fields needed for clearing the cache.
+    """
+
+    pass
+
+
+class RedisClearCacheResponse(TypedDict):
+    """Response message indicating the success of cache clearing operation.
+
+    Attributes:
+        success (bool): Indicates if the cache was successfully cleared
+    """
+
+    success: bool
+
+
+class MongoInsertOneSchemaRequest(TypedDict):
+    """Request message for inserting a new schema document into MongoDB.
+
+    Used to store JSON schema definitions with version history.
+
+    Attributes:
+        import_name (str): Unique identifier for the schema (e.g., "user_table", "product_schema")
+        created_at (str): ISO timestamp when the schema was created
+        active_schema (str): The currently active/latest version of the schema
+        schemas_releases (str): Historical versions of the schema for versioning
+    """
+
+    import_name: str
+    created_at: str
+    active_schema: JsonSchema
+    schemas_releases: List[JsonSchema]
+
+
+class MongoInsertOneSchemaResponse(TypedDict):
+    """Response message for schema insertion operation.
+
+    Attributes:
+        status (str): Status of the insertion operation ("inserted", "no_change", "error", "updated")
+        result (str): Generic result data from the insertion operation
+    """
+
+    status: Literal["inserted", "no_change", "error", "updated"]
+    result: Dict[str, str]
+
+
+class MongoCountAllDocumentsRequest(TypedDict):
+    """Request message for counting all documents in a MongoDB collection.
+
+    No fields needed for counting documents.
+    """
+
+    pass
+
+
+class MongoCountAllDocumentsResponse(TypedDict):
+    """Response message containing the total count of schema documents.
+
+    Attributes:
+        amount (int): Total number of schema documents in the collection
+    """
+
+    amount: int
+
+
+class MongoFindJsonSchemaRequest(TypedDict):
+    """Request message for finding a JSON schema by its import name.
+
+    Attributes:
+        import_name (str): The unique identifier of the schema to find
+    """
+
+    import_name: str
+
+
+class MongoFindJsonSchemaResponse(TypedDict):
+    """Response message containing the found schema information.
+
+    Attributes:
+        status (str): Status of the find operation ("found", "not_found", "error")
+        extra (Dict[str, str]): Additional metadata or error information
+        schema (Optional[JsonSchema]): The found schema definition (None if not found)
+    """
+
+    status: Literal["found", "not_found", "error"]
+    extra: Dict[str, str]
+    schema: Optional[JsonSchema]
+
+
+class MongoUpdateOneJsonSchemaRequest(TypedDict):
+    """Request message for updating an existing JSON schema.
+
+    Used to modify schema definitions and add new versions.
+
+    Attributes:
+        import_name (str): Unique identifier of the schema to update
+        schema (JsonSchema): The new schema definition to set as active
+        created_at (str): ISO timestamp when this update was created
+    """
+
+    import_name: str
+    schema: JsonSchema
+    created_at: str
+
+
+class MongoUpdateOneJsonSchemaResponse(TypedDict):
+    """Response message for schema update operation.
+
+    Attributes:
+        status (str): Status of the update operation ("error", "no_change", "updated")
+        result (Dict[str, str]): Generic result data from the update operation
+    """
+
+    status: Literal["error", "no_change", "updated"]
+    result: Dict[str, str]
+
+
+class MongoDeleteOneJsonSchemaRequest(TypedDict):
+    """Request message for deleting a JSON schema by its import name.
+
+    Attributes:
+        import_name (str): The unique identifier of the schema to delete
+    """
+
+    import_name: str
+
+
+class MongoDeleteOneJsonSchemaResponse(TypedDict):
+    """Response message for schema deletion operation.
+
+    Attributes:
+        success (bool): Indicates if the deletion was successful
+        message (str): Descriptive message about the operation result or any errors
+        status (str): Status of the deletion operation ("deleted", "error", "reverted")
+        extra (Dict[str, str]): Generic result data from the deletion operation
+    """
+
+    success: bool
+    message: str
+    status: Literal["deleted", "error", "reverted"]
+    extra: Dict[str, str]
+
+
+class MongoDeleteImportNameRequest(TypedDict):
+    """Request message for deleting all schemas associated with a specific import name.
+
+    Attributes:
+        import_name (str): The unique identifier of the import name to delete
+    """
+
+    import_name: str
+
+
+class MongoDeleteImportNameResponse(TypedDict):
+    """Response message for import name deletion operation.
+
+    Attributes:
+        success (bool): Indicates if the deletion was successful
+        message (str): Descriptive message about the operation result or any errors
+        status (str): Status of the deletion operation ("deleted", "error")
+        extra (Dict[str, str]): Generic result data from the deletion operation
+    """
+
+    success: bool
+    message: str
+    status: Literal["deleted", "error"]
+    extra: Dict[str, str]
+
+
+class UpdateTaskIdRequest(TypedDict):
+    """Request message for updating an existing task's information.
+
+    Attributes:
+        task_id (str): Unique identifier of the task to update
+        field (str): Specific field to update (e.g., "status", "progress", "error_message")
+        value (str): New value for the specified field
+        task (str): Task type/category identifier (e.g., "data_import", "schema_validation")
+        message (Optional[str]): Optional descriptive message to log with the update
+        data (Dict[str, str]): Additional data to merge with existing task data
+        reset_data (Optional[bool]): If true, replace all existing data instead of merging (default: false)
+    """
+
+    task_id: str
+    field: str
+    value: str
+    task: str
+    message: Optional[str]
+    data: Dict[str, str]
+    reset_data: Optional[bool]
+
+
+class UpdateTaskIdResponse(TypedDict):
+    """Response message for task update operations.
+
+    Attributes:
+        success (bool): Indicates if the update operation was successful
+        message (str): Descriptive message about the operation result or any errors
+    """
+
+    success: bool
+    message: str
+
+
+class SetTaskIdRequest(TypedDict):
+    """Request message for creating or setting a new task entry.
+
+    Attributes:
+        task_id (str): Unique identifier for the new task
+        value (ApiResponse): Complete task data encapsulated in ApiResponse format
+        task (str): Task type/category under which the task is stored
+    """
+
+    task_id: str
+    value: ApiResponse
+    task: str
+
+
+class SetTaskIdResponse(TypedDict):
+    """Response message for task creation operations.
+
+    Attributes:
+        success (bool): Indicates if the task was successfully created/set
+        message (str): Descriptive message about the operation result or any errors
+    """
+
+    success: bool
+    message: str
+
+
+class GetTaskIdRequest(TypedDict):
+    """Request message for retrieving a specific task by its ID.
+
+    Attributes:
+        task_id (str): Unique identifier of the task to retrieve
+        task (str): Task type/category to search within
+    """
+
+    task_id: str
+    task: str
+
+
+class GetTaskIdResponse(TypedDict):
+    """Response message containing the requested task information.
+
+    Attributes:
+        value (Optional[ApiResponse]): Task data if found (None if not found)
+        found (bool): Indicates whether the task was found in the database
+    """
+
+    value: Optional[ApiResponse]
+    found: bool
+
+
+class GetTasksByImportNameRequest(TypedDict):
+    """Request message for finding all tasks associated with a specific import name.
+
+    Useful for tracking all tasks related to a particular data import or schema.
+
+    Attributes:
+        import_name (str): The import identifier to filter tasks by
+        task (str): Task type/category to search within
+    """
+
+    import_name: str
+    task: str
+
+
+class GetTasksByImportNameResponse(TypedDict):
+    """Response message containing all tasks matching the import name criteria.
+
+    Attributes:
+        tasks (List[ApiResponse]): List of all matching tasks
+    """
+
+    tasks: List[ApiResponse]

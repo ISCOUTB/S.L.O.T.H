@@ -55,15 +55,15 @@ class DatabaseSerde:
         Returns:
             The deserialized update task ID request dictionary.
         """
-        return {
-            "task_id": proto.task_id,
-            "field": proto.field,
-            "value": proto.value,
-            "task": proto.task,
-            "message": proto.message,
-            "data": dict(proto.data),
-            "reset_data": proto.reset_data,
-        }
+        return dtypes.UpdateTaskIdRequest(
+            task_id=proto.task_id,
+            field=proto.field,
+            value=proto.value,
+            task=proto.task,
+            message=proto.message,
+            data=dict(proto.data),
+            reset_data=proto.reset_data,
+        )
 
     @staticmethod
     def serialize_update_task_id_response(
@@ -94,10 +94,10 @@ class DatabaseSerde:
         Returns:
             The deserialized update task ID response dictionary.
         """
-        return {
-            "success": proto.success,
-            "message": proto.message,
-        }
+        return dtypes.UpdateTaskIdResponse(
+            success=proto.success,
+            message=proto.message,
+        )
 
     @staticmethod
     def serialize_set_task_id_request(
@@ -129,11 +129,11 @@ class DatabaseSerde:
         Returns:
             The deserialized set task ID request dictionary.
         """
-        return {
-            "task_id": proto.task_id,
-            "value": DatabaseUtilsSerde.deserialize_api_response(proto.value),
-            "task": proto.task,
-        }
+        return dtypes.SetTaskIdRequest(
+            task_id=proto.task_id,
+            value=DatabaseUtilsSerde.deserialize_api_response(proto.value),
+            task=proto.task,
+        )
 
     @staticmethod
     def serialize_set_task_id_response(
@@ -164,10 +164,10 @@ class DatabaseSerde:
         Returns:
             The deserialized set task ID response dictionary.
         """
-        return {
-            "success": proto.success,
-            "message": proto.message,
-        }
+        return dtypes.SetTaskIdResponse(
+            success=proto.success,
+            message=proto.message,
+        )
 
     @staticmethod
     def serialize_get_task_id_request(
@@ -198,10 +198,10 @@ class DatabaseSerde:
         Returns:
             The deserialized get task ID request dictionary.
         """
-        return {
-            "task_id": proto.task_id,
-            "task": proto.task,
-        }
+        return dtypes.GetTaskIdRequest(
+            task_id=proto.task_id,
+            task=proto.task,
+        )
 
     @staticmethod
     def serialize_get_task_id_response(
@@ -236,14 +236,14 @@ class DatabaseSerde:
         Returns:
             The deserialized get task ID response dictionary.
         """
-        return {
-            "value": (
+        return dtypes.GetTaskIdResponse(
+            value=(
                 DatabaseUtilsSerde.deserialize_api_response(proto.value)
                 if proto.HasField("value")
                 else None
             ),
-            "found": proto.found,
-        }
+            found=proto.found,
+        )
 
     @staticmethod
     def serialize_get_tasks_by_import_name_request(
@@ -274,10 +274,10 @@ class DatabaseSerde:
         Returns:
             The deserialized get tasks by import name request dictionary.
         """
-        return {
-            "import_name": proto.import_name,
-            "task": proto.task,
-        }
+        return dtypes.GetTasksByImportNameRequest(
+            import_name=proto.import_name,
+            task=proto.task,
+        )
 
     @staticmethod
     def serialize_get_tasks_by_import_name_response(
@@ -292,10 +292,9 @@ class DatabaseSerde:
             The serialized Protocol Buffer GetTasksByImportNameResponse message.
         """
         return database_pb2.GetTasksByImportNameResponse(
-            tasks=[
-                DatabaseUtilsSerde.serialize_api_response(task)
-                for task in response["tasks"]
-            ]
+            tasks=list(
+                map(DatabaseUtilsSerde.serialize_api_response, response["tasks"])
+            )
         )
 
     @staticmethod
@@ -310,9 +309,6 @@ class DatabaseSerde:
         Returns:
             The deserialized get tasks by import name response dictionary.
         """
-        return {
-            "tasks": [
-                DatabaseUtilsSerde.deserialize_api_response(task)
-                for task in proto.tasks
-            ]
-        }
+        return dtypes.GetTasksByImportNameResponse(
+            tasks=list(map(DatabaseUtilsSerde.deserialize_api_response, proto.tasks))
+        )
