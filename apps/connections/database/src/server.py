@@ -156,11 +156,11 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
 async def serve() -> None:
     server = grpc.aio.server()
     database_pb2_grpc.add_DatabaseServiceServicer_to_server(DatabaseServicer(), server)
-    server.add_insecure_port(settings.DATABASE_CONNECTION_URI)
+    server.add_insecure_port(settings.DATABASE_CONNECTION_CHANNEL)
     await server.start()
     logger.info(
         (
-            f"Database server started on {settings.DATABASE_CONNECTION_URI}"
+            f"Database server started on {settings.DATABASE_CONNECTION_CHANNEL}"
             f" -- DEBUG: {settings.DATABASE_CONNECTION_DEBUG}"
         )
     )
