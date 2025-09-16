@@ -6,9 +6,7 @@ from pydantic import (
     computed_field,
     BeforeValidator,
     AmqpDsn,
-    MongoDsn,
     PostgresDsn,
-    RedisDsn,
 )
 
 from typing import Any, Annotated
@@ -47,9 +45,11 @@ class Settings(BaseSettings):
     # API Configuration
     API_V1_STR: str
     CORS_ORIGINS: Annotated[list[str] | str, BeforeValidator(split_list)]
+    SERVER_HOST: str
+    SERVER_PORT: int
+    SERVER_DEBUG: bool
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day by default
 
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str

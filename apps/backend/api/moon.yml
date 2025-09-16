@@ -10,5 +10,27 @@ toolchain:
   python:
 
 tasks:
+  run:
+    command: uv
+    args:
+      - run
+      - python
+      - -m
+      - src.main
+    toolchain: python
+    local: true
+    options:
+      runFromWorkspaceRoot: false
+
+  format:
+    command: uv
+    args:
+      - run
+      - ruff
+      - format
+      - .
+    options:
+      runFromWorkspaceRoot: false
+
   test:
     command: echo "No tests defined"
