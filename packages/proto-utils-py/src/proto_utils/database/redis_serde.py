@@ -369,7 +369,7 @@ class RedisSerde:
         Returns:
             The deserialized Redis get cache response dictionary.
         """
-        return {"cache": dict(proto.cache)}
+        return dtypes.RedisGetCacheResponse(cache=dict(proto.cache))
 
     @staticmethod
     def serialize_clear_cache_request(
@@ -399,7 +399,7 @@ class RedisSerde:
         Returns:
             The deserialized Redis clear cache request dictionary.
         """
-        return {}
+        return dtypes.RedisClearCacheRequest()
 
     @staticmethod
     def serialize_clear_cache_response(
@@ -414,3 +414,17 @@ class RedisSerde:
             The serialized Protocol Buffer RedisClearCacheResponse message.
         """
         return redis_pb2.RedisClearCacheResponse(success=response["success"])
+    
+    @staticmethod
+    def deserialize_clear_cache_response(
+        proto: redis_pb2.RedisClearCacheResponse,
+    ) -> dtypes.RedisClearCacheResponse:
+        """Deserialize a Protocol Buffer RedisClearCacheResponse to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer RedisClearCacheResponse message to deserialize.
+
+        Returns:
+            The deserialized Redis clear cache response dictionary.
+        """
+        return dtypes.RedisClearCacheResponse(success=proto.success)
