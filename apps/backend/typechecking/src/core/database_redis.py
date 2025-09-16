@@ -157,7 +157,9 @@ class RedisConnection:
             self.redis_client.hset(task_key, "message", message)
 
         if data:
-            cached_data = self.get_task_id(task_id, task).data if not reset_data else {}
+            cached_data = (
+                self.get_task_id(task_id, task).data if not reset_data else {}
+            )
             cached_data = {**cached_data, **data}
             self.redis_client.hset(task_key, "data", json.dumps(cached_data))
 
@@ -194,7 +196,9 @@ class RedisConnection:
             Optional[ApiResponse]: ApiResponse object if task exists, None otherwise.
         """
         task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
-        task_data["data"] = json.loads(task_data["data"]) if "data" in task_data else {}
+        task_data["data"] = (
+            json.loads(task_data["data"]) if "data" in task_data else {}
+        )
         try:
             return ApiResponse(**task_data)
         except Exception:
@@ -213,7 +217,9 @@ class RedisConnection:
             List[ApiResponse]: List of ApiResponse objects for all tasks with the given import name.
             Returns empty list if no tasks found.
         """
-        task_ids = self.redis_client.smembers(f"{task}:import:{import_name}:tasks")
+        task_ids = self.redis_client.smembers(
+            f"{task}:import:{import_name}:tasks"
+        )
         tasks = []
         for task_id in task_ids:
             task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
@@ -252,7 +258,9 @@ class RedisConnection:
                 cache_data[key] = self.redis_client.hgetall(key)
                 if "data" in cache_data[key]:
                     try:
-                        cache_data[key]["data"] = json.loads(cache_data[key]["data"])
+                        cache_data[key]["data"] = json.loads(
+                            cache_data[key]["data"]
+                        )
                     except (json.JSONDecodeError, TypeError):
                         pass
             elif key_type == "set":
@@ -260,7 +268,9 @@ class RedisConnection:
             elif key_type == "list":
                 cache_data[key] = self.redis_client.lrange(key, 0, -1)
             elif key_type == "zset":
-                cache_data[key] = self.redis_client.zrange(key, 0, -1, withscores=True)
+                cache_data[key] = self.redis_client.zrange(
+                    key, 0, -1, withscores=True
+                )
             else:
                 cache_data[key] = f"Unsupported type: {key_type}"
 

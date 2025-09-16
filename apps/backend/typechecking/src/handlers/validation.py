@@ -45,7 +45,11 @@ async def validate_file_against_schema(
     # Process the uploaded file using FileProcessor service
     file_processed, data, error_message = await FileProcessor.process_file(file)
     if not file_processed:
-        return {"success": False, "error": error_message, "validation_results": None}
+        return {
+            "success": False,
+            "error": error_message,
+            "validation_results": None,
+        }
 
     if not data:
         return {
@@ -76,10 +80,16 @@ async def validate_file_against_schema(
         }
     )
 
-    return {"success": True, "error": None, "validation_results": validation_results}
+    return {
+        "success": True,
+        "error": None,
+        "validation_results": validation_results,
+    }
 
 
-def get_validation_summary(validation_results: ValidationResult) -> ValidationSummary:
+def get_validation_summary(
+    validation_results: ValidationResult,
+) -> ValidationSummary:
     """
     Generate a summary of validation results.
 

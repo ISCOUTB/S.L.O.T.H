@@ -9,7 +9,9 @@ class MongoConnection:
     def __init__(self, uri: str, database: str, collection: str):
         self.__client: pymongo.MongoClient = pymongo.MongoClient(uri)
         self.__database: pymongo.database.Database = self.__client[database]
-        self.__collection: pymongo.collection.Collection = self.__database[collection]
+        self.__collection: pymongo.collection.Collection = self.__database[
+            collection
+        ]
 
     # ==================== General Purporse ====================
     # To be honest, these functions are a little bit useless, but maybe in a future
@@ -23,7 +25,9 @@ class MongoConnection:
     @property
     def database(self) -> pymongo.database.Database:
         if self.__database is None:
-            raise ValueError("Database not set. Please provide a database name.")
+            raise ValueError(
+                "Database not set. Please provide a database name."
+            )
         return self.__database
 
     @property
@@ -46,7 +50,9 @@ class MongoConnection:
         """Find a single document in the collection."""
         return self.__collection.find_one(filter, projection)
 
-    def update_one(self, filter: dict, update: dict) -> pymongo.results.UpdateResult:
+    def update_one(
+        self, filter: dict, update: dict
+    ) -> pymongo.results.UpdateResult:
         """Update a single document in the collection."""
         return self.__collection.update_one(filter, update)
 

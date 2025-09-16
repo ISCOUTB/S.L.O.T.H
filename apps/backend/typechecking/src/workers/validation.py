@@ -80,7 +80,9 @@ class ValidationWorker:
             self.channel = RabbitMQConnectionFactory.get_thread_channel()
             RabbitMQConnectionFactory.setup_infrastructure(self.channel)
 
-            self.channel.basic_qos(prefetch_count=settings.WORKER_PREFETCH_COUNT)
+            self.channel.basic_qos(
+                prefetch_count=settings.WORKER_PREFETCH_COUNT
+            )
             self.channel.basic_consume(
                 queue="typechecking.validation.queue",
                 on_message_callback=self.process_validation_request,

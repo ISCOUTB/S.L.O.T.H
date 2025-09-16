@@ -78,7 +78,8 @@ async def check_redis_connection() -> Dict[str, str]:
 
         # Run Redis operations with timeout
         await asyncio.wait_for(
-            asyncio.get_event_loop().run_in_executor(None, test_redis), timeout=5.0
+            asyncio.get_event_loop().run_in_executor(None, test_redis),
+            timeout=5.0,
         )
 
         return {"status": "healthy", "response_time_ms": "< 5000"}

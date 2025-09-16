@@ -58,7 +58,7 @@ class ValidationResult(TypedDict):
     Attributes:
         success (bool): Boolean indicating if the validation operation completed successfully.
         error (Optional[str]): Error message if the validation operation failed, None if successful.
-        validation_results (Optional[ValidationResults]): Detailed validation results, 
+        validation_results (Optional[ValidationResults]): Detailed validation results,
             None if operation failed.
 
     Example:

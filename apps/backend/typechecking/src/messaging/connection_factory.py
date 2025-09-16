@@ -73,7 +73,8 @@ class RabbitMQConnectionFactory:
             port=settings.RABBITMQ_PORT,
             virtual_host=settings.RABBITMQ_VHOST,
             credentials=pika.PlainCredentials(
-                username=settings.RABBITMQ_USER, password=settings.RABBITMQ_PASSWORD
+                username=settings.RABBITMQ_USER,
+                password=settings.RABBITMQ_PASSWORD,
             ),
             heartbeat=600,
             blocked_connection_timeout=300,
@@ -146,7 +147,10 @@ class RabbitMQConnectionFactory:
         thread_id = threading.get_ident()
         with cls._lock:
             connection = cls.get_thread_connection()
-            if thread_id not in cls._channels or cls._channels[thread_id].is_closed:
+            if (
+                thread_id not in cls._channels
+                or cls._channels[thread_id].is_closed
+            ):
                 cls._channels[thread_id] = connection.channel()
 
             return cls._channels[thread_id]
@@ -172,7 +176,9 @@ class RabbitMQConnectionFactory:
         """
         try:
             channel.exchange_declare(
-                exchange="typechecking.exchange", exchange_type="topic", durable=True
+                exchange="typechecking.exchange",
+                exchange_type="topic",
+                durable=True,
             )
 
             # Declare queues
@@ -237,7 +243,10 @@ class RabbitMQConnectionFactory:
                 logger.info("Thread channel closed")
 
             # Close connection
-            if thread_id in cls._connections and cls._connections[thread_id].is_open:
+            if (
+                thread_id in cls._connections
+                and cls._connections[thread_id].is_open
+            ):
                 cls._connections[thread_id].close()
                 del cls._connections[thread_id]
                 logger.info("Thread connection closed")

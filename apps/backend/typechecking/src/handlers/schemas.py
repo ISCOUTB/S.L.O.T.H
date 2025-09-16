@@ -161,4 +161,7 @@ def remove_schema(import_name: str) -> Dict[str, Any] | None:
         },
     )
 
-    return {"status": "Active Schema Replaced with Last Release", **result.raw_result}
+    return {
+        "status": "Active Schema Replaced with Last Release",
+        **result.raw_result,
+    }
