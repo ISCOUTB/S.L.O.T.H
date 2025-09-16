@@ -102,5 +102,4 @@ class Settings(BaseSettings):
         return f"{self.DATABASE_CONNECTION_HOST}:{self.DATABASE_CONNECTION_PORT}"
 
 
-
 settings = Settings()

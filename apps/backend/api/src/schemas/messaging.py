@@ -9,7 +9,7 @@ The schemas define the contract between message publishers and consumers,
 ensuring reliable message processing and proper data serialization.
 """
 
-from typing import TypedDict, Literal, Dict, Any, Optional
+from typing import TypedDict, Literal
 
 
 ValidationTasks = Literal["sample_validation"]

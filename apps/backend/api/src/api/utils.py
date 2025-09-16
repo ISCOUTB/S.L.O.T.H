@@ -38,5 +38,7 @@ def invalidate_user_cache(username: str = "", invalidate_lists: bool = False) ->
         patterns_to_delete.append("all_users:*")
 
     for pattern in patterns_to_delete:
-        keys = database_client.redis_get_keys(dtypes.RedisGetKeysRequest(pattern=pattern))["keys"]
+        keys = database_client.redis_get_keys(
+            dtypes.RedisGetKeysRequest(pattern=pattern)
+        )["keys"]
         database_client.redis_delete(dtypes.RedisDeleteRequest(keys=keys))
