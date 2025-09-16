@@ -84,6 +84,8 @@ class RedisConnection:
         Returns:
             None:
         """
+        if ex_secs is None or ex_secs <= 0:
+            ex_secs = settings.DEFAULT_TTL_SECONDS
         self.redis_client.set(key, value, ex=ex_secs)
 
     def get(self, key: str) -> Optional[Any]:
@@ -115,6 +117,49 @@ class RedisConnection:
             bool: True if the server is reachable, False otherwise.
         """
         return self.redis_client.ping()
+
+    def _get_task_ttl(self, status: str) -> int:
+        """
+        Get TTL based on task status.
+
+        Args:
+            status (str): The current status of the task.
+
+        Returns:
+            int: TTL in seconds corresponding to the task status.
+        """
+        # TODO: Use Literal type hints to standardize possible status values across microservices
+
+        ttl_mapping = {
+            # Common task statuses
+            "accepted": settings.TASK_TTL_PENDING_SECONDS,
+            "error": settings.TASK_TTL_FAILED_SECONDS,
+            "completed": settings.TASK_TTL_COMPLETED_SECONDS,
+            "failed-publishing-result": settings.TASK_TTL_FAILED_SECONDS,
+            "published": settings.TASK_TTL_PUBLISHED_SECONDS,
+
+            # Validation task
+            "received-sample-validation": settings.TASK_TTL_PROCESSING_SECONDS,
+            "processing-file": settings.TASK_TTL_PROCESSING_SECONDS,
+            "validating-file": settings.TASK_TTL_PROCESSING_SECONDS,
+            "success": settings.TASK_TTL_PROCESSING_SECONDS,
+            "warning": settings.TASK_TTL_PROCESSING_SECONDS,
+
+            # Update JsonSchema task
+            "received-schema-update": settings.TASK_TTL_PROCESSING_SECONDS,
+            "received-removing-schema": settings.TASK_TTL_PROCESSING_SECONDS,
+            "creating-schema": settings.TASK_TTL_PROCESSING_SECONDS,
+            "schema-created": settings.TASK_TTL_PROCESSING_SECONDS,
+            "failed-creating-schema": settings.TASK_TTL_FAILED_SECONDS,
+            "saving-schema": settings.TASK_TTL_PROCESSING_SECONDS,
+            "failed-saving-schema": settings.TASK_TTL_FAILED_SECONDS,
+
+            # Remove JsonSchema task
+            "removing-schema": settings.TASK_TTL_PROCESSING_SECONDS,
+            "failed-removing-schema": settings.TASK_TTL_FAILED_SECONDS,
+        }
+
+        return ttl_mapping.get(status, settings.DEFAULT_TTL_SECONDS)
 
     # ================= Related to tasks_ids =================
 
@@ -158,6 +203,10 @@ class RedisConnection:
             cached_data = {**cached_data, **data}
             self.redis_client.hset(task_key, "data", json.dumps(cached_data))
 
+        if field == "status":
+            ttl = self._get_task_ttl(value)
+            self.redis_client.expire(task_key, ttl)
+
     def set_task_id(self, task_id: str, value: ApiResponse, task: str) -> None:
         """Set a task ID with associated data in the Redis cache.
 
@@ -179,6 +228,10 @@ class RedisConnection:
         import_key = f"{task}:import:{import_name}:tasks"
         self.redis_client.hset(task_key, mapping=value)
         self.redis_client.sadd(import_key, task_id)
+
+        ttl = self._get_task_ttl(value["status"])
+        self.redis_client.expire(task_key, ttl)
+        self.redis_client.expire(import_key, ttl)
 
     def get_task_id(self, task_id: str, task: str) -> Optional[ApiResponse]:
         """Retrieve a task by its ID from the Redis cache.

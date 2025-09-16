@@ -61,5 +61,20 @@ class Settings(BaseSettings):
     def DATABASE_CONNECTION_CHANNEL(self) -> str:
         return f"{self.DATABASE_CONNECTION_HOST}:{self.DATABASE_CONNECTION_PORT}"
 
+    # Task-specific TTL configurations
+    TASK_TTL_PENDING_SECONDS: int = 60 * 30  # 30 minutes
+    TASK_TTL_PROCESSING_SECONDS: int = 60 * 60  # 1 hour
+    TASK_TTL_COMPLETED_SECONDS: int = 60 * 60 * 24  # 24 hours
+    TASK_TTL_PUBLISHED_SECONDS: int = 60 * 60 * 12  # 12 hours
+    TASK_TTL_FAILED_SECONDS: int = 60 * 60 * 12  # 12 hours
+
+    # Cache TTL configurations
+    USER_CACHE_TTL_SECONDS: int = 60 * 15  # 15 minutes
+    USER_LIST_CACHE_TTL_SECONDS: int = 60 * 5  # 5 minutes
+    SCHEMA_CACHE_TTL_SECONDS: int = 60 * 60 * 6  # 6 minutes
+
+    # Default TTL configuration
+    DEFAULT_TTL_SECONDS: int = 60 * 30  # 30 minutes
+
 
 settings = Settings()
