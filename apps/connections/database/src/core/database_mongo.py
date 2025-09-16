@@ -12,7 +12,7 @@ import pymongo
 import pymongo.database
 import pymongo.collection
 
-from src.core.config import settings
+from core.config import settings
 
 
 class MongoConnection:

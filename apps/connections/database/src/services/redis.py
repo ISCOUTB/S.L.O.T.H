@@ -10,7 +10,7 @@ for basic Redis operations like get, set, delete, and cache management.
 """
 
 from proto_utils.database import dtypes
-from src.core.database_redis import redis_db
+from core.database_redis import redis_db
 
 
 class RedisService:

@@ -12,7 +12,7 @@ through releases tracking.
 
 import pymongo
 from proto_utils.database import dtypes
-from src.core.database_mongo import mongo_schemas_connection
+from core.database_mongo import mongo_schemas_connection
 
 
 class MongoSchemasService:

@@ -14,7 +14,7 @@ from typing import Any, List, Optional, Dict
 
 from redis import Redis
 import redis.exceptions
-from src.core.config import settings
+from core.config import settings
 from proto_utils.database.dtypes import ApiResponse
 
 
