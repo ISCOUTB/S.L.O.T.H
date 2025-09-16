@@ -4,9 +4,10 @@ $schema: "./cache/schemas/workspace.json"
 # extends: './shared/workspace.yml'
 
 projects:
-    - '.'
+    - "."
     - "apps/**/moon.yml"
     - "packages/**/moon.yml"
+    - "tools/**/moon.yml"
 
 vcs:
     manager: "git"

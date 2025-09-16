@@ -4,3 +4,4 @@ linkWorkspacePackages: true
 packages:
     - apps/**
     - packages/**
+    - tools/**

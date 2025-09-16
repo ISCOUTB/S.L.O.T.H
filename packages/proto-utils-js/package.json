@@ -16,7 +16,7 @@
         "protoc-gen-ts": "^0.8.7"
     },
     "devDependencies": {
-        "@etl-design/packages-eslint": "workspace:*",
+        "@etl-design/tools-eslint": "workspace:*",
         "@types/google-protobuf": "^3.15.12",
         "@types/node": "^24.3.2",
         "eslint": "^9.35.0",

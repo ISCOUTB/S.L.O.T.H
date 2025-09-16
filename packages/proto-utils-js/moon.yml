@@ -23,6 +23,13 @@ tasks:
             runFromWorkspaceRoot: true
             cache: false
 
+    prepare:
+        command: noop
+        deps:
+            - eslint:build
+        options:
+            runDepsInParallel: true
+
     build:
         command: npx
         args:

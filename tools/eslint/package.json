@@ -1,5 +1,5 @@
 {
-    "name": "@etl-design/packages-eslint",
+    "name": "@etl-design/tools-eslint",
     "version": "1.0.0",
     "exports": {
         ".": {
@@ -15,6 +15,7 @@
         "lodash.merge": "^4.6.2"
     },
     "devDependencies": {
+        "@etl-design/tools-tsconfig": "workspace:*",
         "@types/lodash.merge": "^4.6.9",
         "tsup": "^8.5.0"
     }

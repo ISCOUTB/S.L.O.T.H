@@ -1,4 +1,4 @@
-import { withConfig } from "@etl-design/packages-eslint";
+import { withConfig } from "@etl-design/tools-eslint";
 
 export default withConfig({
     type: "lib",
