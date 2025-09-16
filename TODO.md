@@ -26,9 +26,9 @@ El servicio de API utiliza otra base de datos, diferente a las antes mencionadas
 
 #### Estado Actual
 
-Ahora mismo ya está implementado las funciones que proveerá este nuevo microservicio, con sus respectivas pruebas unitarias. Sin embargo, en pleno desarrollo, noté ciertas falencias a la hora de utilizar los type hints, entonces, quedaría por refinar eso. Un último detalle a comentar para que no se pase por alto, es que MongoDB ya guarda el estado de las tareas de Redis, por tanto, también falta implementar unas buenas políticas de TTLs para Redis, y así liberar su carga
+Ahora mismo ya está implementado las funciones que proveerá este nuevo microservicio, con sus respectivas pruebas unitarias. Un detalle a comentar para que no se pase por alto, es que MongoDB ya guarda el estado de las tareas de Redis, por tanto, también falta implementar unas buenas políticas de TTLs para Redis, y así liberar su carga. Ya con las funciones bien hechas, y probadas con las pruebas unitarias, entonces solo queda crear el servidor gRPC para dejar por terminado este microservicio y la respectiva documentación.
 
-Ya con las funciones bien hechas, y probadas con las pruebas unitarias, entonces solo queda crear el servidor gRPC para dejar por terminado este microservicio y la respectiva documentación.
+El servidor también está hecho, y parece funcionar de maravillas, solamente queda realizar sus pruebas para comprobar que todo funcione como es debido.
 
 ### Messaging Connection
 
