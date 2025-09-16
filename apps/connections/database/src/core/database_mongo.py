@@ -17,17 +17,17 @@ from core.config import settings
 
 class MongoConnection:
     """MongoDB connection wrapper class.
-    
+
     Provides a simplified interface for MongoDB operations including
     basic CRUD operations and collection management. Encapsulates
     the MongoDB client, database, and collection objects.
-    
+
     Args:
         uri (str): MongoDB connection URI.
         database (str): Name of the database to connect to.
         collection (str): Name of the collection to work with.
     """
-    
+
     def __init__(self, uri: str, database: str, collection: str):
         self.__client: pymongo.MongoClient = pymongo.MongoClient(uri)
         self.__database: pymongo.database.Database = self.__client[database]
@@ -41,7 +41,7 @@ class MongoConnection:
     @property
     def client(self) -> pymongo.MongoClient:
         """Get the MongoDB client instance.
-        
+
         Returns:
             pymongo.MongoClient: The MongoDB client instance.
         """
@@ -50,10 +50,10 @@ class MongoConnection:
     @property
     def database(self) -> pymongo.database.Database:
         """Get the MongoDB database instance.
-        
+
         Returns:
             pymongo.database.Database: The MongoDB database instance.
-            
+
         Raises:
             ValueError: If database is not set.
         """
@@ -64,10 +64,10 @@ class MongoConnection:
     @property
     def collection(self) -> pymongo.collection.Collection:
         """Get the MongoDB collection instance.
-        
+
         Returns:
             pymongo.collection.Collection: The MongoDB collection instance.
-            
+
         Raises:
             ValueError: If database is not set.
         """
@@ -83,11 +83,11 @@ class MongoConnection:
 
     def count_documents(self, filter: dict = None) -> int:
         """Count the number of documents in the collection.
-        
+
         Args:
             filter (dict, optional): Query filter to count specific documents.
                                    Defaults to None (counts all documents).
-        
+
         Returns:
             int: Number of documents matching the filter.
         """
@@ -95,13 +95,13 @@ class MongoConnection:
 
     def find_one(self, filter: dict = None, projection: dict = None):
         """Find a single document in the collection.
-        
+
         Args:
             filter (dict, optional): Query filter to find specific document.
                                    Defaults to None (finds any document).
             projection (dict, optional): Fields to include/exclude in the result.
                                        Defaults to None (returns all fields).
-        
+
         Returns:
             dict or None: The found document or None if not found.
         """
@@ -111,22 +111,22 @@ class MongoConnection:
 
     def update_one(self, filter: dict, update: dict) -> pymongo.results.UpdateResult:
         """Update a single document in the collection.
-        
+
         Args:
             filter (dict): Query filter to identify the document to update.
             update (dict): Update operations to apply to the document.
-        
+
         Returns:
             pymongo.results.UpdateResult: Result of the update operation.
         """
         return self.__collection.update_one(filter, update)
-    
+
     def delete_one(self, filter: dict) -> pymongo.results.DeleteResult:
         """Delete a single document in the collection.
-        
+
         Args:
             filter (dict): Query filter to identify the document to delete.
-        
+
         Returns:
             pymongo.results.DeleteResult: Result of the delete operation.
         """

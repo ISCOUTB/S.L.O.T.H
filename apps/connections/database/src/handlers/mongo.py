@@ -57,7 +57,5 @@ class MongoHandler:
         deserialized_request = MongoSerde.deserialize_delete_import_name_request(
             request
         )
-        service_response = MongoSchemasService.delete_import_name(
-            deserialized_request
-        )
+        service_response = MongoSchemasService.delete_import_name(deserialized_request)
         return MongoSerde.serialize_delete_import_name_response(service_response)

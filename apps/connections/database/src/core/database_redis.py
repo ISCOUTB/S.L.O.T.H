@@ -137,14 +137,12 @@ class RedisConnection:
             "completed": settings.TASK_TTL_COMPLETED_SECONDS,
             "failed-publishing-result": settings.TASK_TTL_FAILED_SECONDS,
             "published": settings.TASK_TTL_PUBLISHED_SECONDS,
-
             # Validation task
             "received-sample-validation": settings.TASK_TTL_PROCESSING_SECONDS,
             "processing-file": settings.TASK_TTL_PROCESSING_SECONDS,
             "validating-file": settings.TASK_TTL_PROCESSING_SECONDS,
             "success": settings.TASK_TTL_PROCESSING_SECONDS,
             "warning": settings.TASK_TTL_PROCESSING_SECONDS,
-
             # Update JsonSchema task
             "received-schema-update": settings.TASK_TTL_PROCESSING_SECONDS,
             "received-removing-schema": settings.TASK_TTL_PROCESSING_SECONDS,
@@ -153,7 +151,6 @@ class RedisConnection:
             "failed-creating-schema": settings.TASK_TTL_FAILED_SECONDS,
             "saving-schema": settings.TASK_TTL_PROCESSING_SECONDS,
             "failed-saving-schema": settings.TASK_TTL_FAILED_SECONDS,
-
             # Remove JsonSchema task
             "removing-schema": settings.TASK_TTL_PROCESSING_SECONDS,
             "failed-removing-schema": settings.TASK_TTL_FAILED_SECONDS,
