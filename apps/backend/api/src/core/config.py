@@ -73,43 +73,6 @@ class Settings(BaseSettings):
             path=self.RABBITMQ_VHOST,
         )
 
-    # MongoDB Configuration
-    MONGO_HOST: str
-    MONGO_PORT: int
-    MONGO_INITDB_ROOT_USERNAME: str | None = None
-    MONGO_INITDB_ROOT_PASSWORD: str | None = None
-    MONGO_DB: str = "typechecking"
-    MONGO_TASKS_COLLECTION: str = "tasks"
-    MONGO_SCHEMAS_COLLECTION: str = "schemas"
-
-    @computed_field
-    @property
-    def MONGO_URI(self) -> MongoDsn:
-        return MultiHostUrl.build(
-            scheme="mongodb",
-            username=self.MONGO_INITDB_ROOT_USERNAME,
-            password=self.MONGO_INITDB_ROOT_PASSWORD,
-            host=self.MONGO_HOST,
-            port=self.MONGO_PORT,
-        )
-
-    # Redis Configuration
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int = 0
-    REDIS_PASSWORD: str
-    REDIS_EXPIRE_SECONDS: int = 60 * 5  # 5 minutes by default
-
-    @computed_field
-    @property
-    def REDIS_URI(self) -> RedisDsn:
-        return MultiHostUrl.build(
-            scheme="redis",
-            password=self.REDIS_PASSWORD,
-            host=self.REDIS_HOST,
-            port=self.REDIS_PORT,
-        )
-
     # PostgreSQL Configuration
     POSTGRES_HOST: str
     POSTGRES_PORT: int
@@ -128,6 +91,16 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
+
+    # Database Connection Configuration
+    DATABASE_CONNECTION_HOST: str
+    DATABASE_CONNECTION_PORT: int
+
+    @computed_field
+    @property
+    def DATABASE_CONNECTION_CHANNEL(self) -> str:
+        return f"{self.DATABASE_CONNECTION_HOST}:{self.DATABASE_CONNECTION_PORT}"
+
 
 
 settings = Settings()

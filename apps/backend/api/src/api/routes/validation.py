@@ -1,7 +1,8 @@
 from fastapi import APIRouter, UploadFile, HTTPException
 from src.messaging.publishers import ValidationPublisher
-from src.schemas.messaging import ApiResponse
-from src.core.database_redis import redis_db
+
+from proto_utils.database import dtypes
+from src.core.database_client import database_client
 
 TASK = "validation"
 router = APIRouter()
@@ -11,7 +12,7 @@ publisher = ValidationPublisher()
 @router.post("/upload/{import_name}")
 async def validate(
     spreadsheet_file: UploadFile, import_name: str, new: bool = False
-) -> ApiResponse | list[ApiResponse]:
+) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Upload a spreadsheet file in order to be validated.
     """
@@ -19,11 +20,11 @@ async def validate(
         raise HTTPException(400, "import_name must be provided.")
 
     if not new and (
-        cached_response := redis_db.get_tasks_by_import_name(
-            import_name, task=TASK
+        cached_response := database_client.get_tasks_by_import_name(
+            dtypes.GetTasksByImportNameRequest(import_name=import_name, task=TASK)
         )
     ):
-        return cached_response
+        return cached_response["tasks"]
 
     try:
         # Read the file content
@@ -45,7 +46,7 @@ async def validate(
             task="sample_validation",
         )
 
-        response = ApiResponse(
+        response = dtypes.ApiResponse(
             status="accepted",
             code=202,
             message="Validation request submitted successfully",
@@ -53,20 +54,26 @@ async def validate(
         )
 
     except Exception as e:
-        response = ApiResponse(
+        response = dtypes.ApiResponse(
             status="error",
             code=500,
             message=f"Failed to submit validation request: {str(e)}",
         )
 
-    redis_db.set_task_id(task_id, response.copy(), task=TASK)
+    database_client.set_task_id(
+        dtypes.SetTaskIdRequest(
+            task_id=task_id,
+            value=response,
+            task=TASK,
+        )
+    )
     return response
 
 
 @router.get("/status")
 async def get_validation_status(
     task_id: str = "", import_name: str = ""
-) -> ApiResponse | list[ApiResponse]:
+) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Get the status of the file being validated.
     """
@@ -74,13 +81,15 @@ async def get_validation_status(
         raise HTTPException(400, "Either `task_id` or `import_name` must be provided.")
 
     if import_name:
-        cached_responses = redis_db.get_tasks_by_import_name(
-            import_name, task=TASK
+        cached_response = database_client.get_tasks_by_import_name(
+            dtypes.GetTasksByImportNameRequest(import_name=import_name, task=TASK)
         )
-        return cached_responses
+        return cached_response["tasks"]
 
-    cached_response = redis_db.get_task_id(task_id, task=TASK)
-    if not cached_response:
+    cached_response = database_client.get_task_id(
+        dtypes.GetTaskIdRequest(task_id=task_id, task=TASK)
+    )
+    if not cached_response["found"]:
         HTTPException(404, f"Task with ID {task_id} not found.")
 
-    return cached_response
+    return cached_response["value"]

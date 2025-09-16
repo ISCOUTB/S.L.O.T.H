@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 
-from src.schemas.messaging import ApiResponse
+from proto_utils.database import dtypes
+from src.core.database_client import database_client
+
 from src.messaging.publishers import ValidationPublisher
-from src.core.database_redis import redis_db
 
 TASK = "schemas"
 router = APIRouter()
@@ -16,7 +17,7 @@ async def upload_schema(
     schema: dict,
     raw: bool = False,
     new: bool = False,
-) -> ApiResponse | list[ApiResponse]:
+) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Upload a schema for validation.
     This endpoint allows users to upload a JSON schema for validation purposes.
@@ -28,18 +29,18 @@ async def upload_schema(
         raise HTTPException(400, "import_name must be provided.")
 
     if not new and (
-        cached_response := redis_db.get_tasks_by_import_name(
-            import_name, task=TASK
+        cached_response := database_client.get_tasks_by_import_name(
+            dtypes.GetTasksByImportNameRequest(import_name=import_name, task=TASK)
         )
     ):
-        return cached_response
+        return cached_response["tasks"]
 
     try:
         task_id = publisher.publish_schema_update(
             schema=schema, import_name=import_name, raw=raw, task="upload_schema"
         )
 
-        response = ApiResponse(
+        response = dtypes.ApiResponse(
             status="accepted",
             code=202,
             message="Schema upload request submitted successfully",
@@ -47,21 +48,27 @@ async def upload_schema(
         )
     except Exception as e:
         task_id = None
-        response = ApiResponse(
+        response = dtypes.ApiResponse(
             status="error",
             code=500,
             message=f"Failed to upload schema: {str(e)}",
             data={"task_id": task_id, "import_name": import_name},
         )
 
-    redis_db.set_task_id(task_id, response.copy(), task=TASK)
+    database_client.set_task_id(
+        dtypes.SetTaskIdRequest(
+            task_id=task_id,
+            value=response.copy(),
+            task=TASK,
+        )
+    )
     return response
 
 
 @router.get("/status")
 async def get_schema_task(
     task_id: str = "", import_name: str = ""
-) -> list[ApiResponse] | ApiResponse:
+) -> list[dtypes.ApiResponse] | dtypes.ApiResponse:
     """
     Get the status of a schema upload task.
     This endpoint retrieves the status of a schema upload task by its ID.
@@ -70,20 +77,24 @@ async def get_schema_task(
         raise HTTPException(400, "Either task_id or import_name must be provided.")
 
     if import_name:
-        tasks = redis_db.get_tasks_by_import_name(import_name, task=TASK)
-        return tasks
+        cached_response = database_client.get_tasks_by_import_name(
+            dtypes.GetTasksByImportNameRequest(import_name=import_name, task=TASK)
+        )
+        return cached_response["tasks"]
 
-    cached_response = redis_db.get_task_id(task_id, task=TASK)
-    if not cached_response:
+    cached_response = database_client.get_task_id(
+        dtypes.GetTaskIdRequest(task_id=task_id, task=TASK)
+    )
+    if not cached_response["found"]:
         raise HTTPException(404, f"Task with ID {task_id} not found.")
 
-    return cached_response
+    return cached_response["value"]
 
 
 @router.delete("/remove/{import_name}")
 async def remove_schema(
     import_name: str,
-) -> ApiResponse:
+) -> dtypes.ApiResponse:
     """
     Remove a schema by its import name.
     This endpoint allows users to remove a schema from the system by its import name.
@@ -97,18 +108,24 @@ async def remove_schema(
             import_name=import_name, task="remove_schema"
         )
 
-        response = ApiResponse(
+        response = dtypes.ApiResponse(
             status="accepted",
             code=202,
             message="Schema removal request submitted successfully",
             data={"task_id": task_id, "import_name": import_name},
         )
     except Exception as e:
-        response = ApiResponse(
+        response = dtypes.ApiResponse(
             status="error",
             code=500,
             message=f"Failed to remove schema: {str(e)}",
         )
 
-    redis_db.set_task_id(task_id, response.copy(), task=TASK)
+    database_client.set_task_id(
+        dtypes.SetTaskIdRequest(
+            task_id=task_id,
+            value=response.copy(),
+            task=TASK,
+        )
+    )
     return response

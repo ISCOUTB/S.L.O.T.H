@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException
 from src.api.deps import CurrentUser, Admin, SessionDep
 from src.api.utils import is_superuser, invalidate_user_cache
 
-from src.core.config import settings
-from src.core.database_redis import redis_db
+from proto_utils.database import dtypes
+from src.core.database_client import database_client
 from src.controllers.users import ControllerUsers
 
 import src.schemas as schemas
@@ -26,19 +26,21 @@ def get_user_info(current_user: CurrentUser, db: SessionDep) -> schemas.users.Ba
         BaseUser: Current user information.
     """
     cache_key = f"{current_user.username}:user_info"
-    cached_response = redis_db.get(cache_key)
-    if cached_response:
-        return schemas.users.BaseUser(**json.loads(cached_response))
+    cached_response = database_client.redis_get(dtypes.RedisGetRequest(key=cache_key))
+    if cached_response["found"]:
+        return schemas.users.BaseUser(**json.loads(cached_response["value"]))
 
     user = ControllerUsers.get_user(current_user.username, db, active=True, rol=False)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
     response = schemas.users.BaseUser.model_validate(user)
-    redis_db.set(
-        cache_key,
-        json.dumps(response.model_dump()),
-        ex_secs=settings.REDIS_EXPIRE_SECONDS,
+    database_client.redis_set(
+        dtypes.RedisSetRequest(
+            key=cache_key,
+            value=json.dumps(response.model_dump()),
+            expiration=None,
+        )
     )
     return response
 
@@ -66,7 +68,7 @@ def get_user(
         BaseUser or AllUser: User information based on the request.
     """
     cache_key = f"{admin.username}:user_info:{username}:{active}:{all}"
-    cached_response = redis_db.get(cache_key)
+    cached_response = database_client.redis_get(dtypes.RedisGetRequest(key=cache_key))
     model = schemas.users.AllUser if all else schemas.users.BaseUser
     if cached_response and use_cache:
         return model(**json.loads(cached_response))
@@ -76,10 +78,12 @@ def get_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     response = model.model_validate(user)
-    redis_db.set(
-        cache_key,
-        json.dumps(response.model_dump()),
-        ex_secs=settings.REDIS_EXPIRE_SECONDS,
+    database_client.redis_set(
+        dtypes.RedisSetRequest(
+            key=cache_key,
+            value=json.dumps(response.model_dump()),
+            expiration=None,
+        )
     )
     return response
 
@@ -111,7 +115,7 @@ def get_all_users(
     """
     cache_key = f"all_users:active={active}:rol={rol}:limit={limit}:page={page}"
     model = schemas.users.AllUser if rol else schemas.users.BaseUser
-    cached_response = redis_db.get(cache_key)
+    cached_response = database_client.redis_get(dtypes.RedisGetRequest(key=cache_key))
     if use_cache and cached_response:
         return json.loads(cached_response)
 
@@ -119,10 +123,12 @@ def get_all_users(
         db, active=active, rol=rol, limit=limit, page=page
     )
     response = [model.model_validate(user) for user in users["items"]]
-    redis_db.set(
-        cache_key,
-        json.dumps({**users, "items": [item.model_dump() for item in response]}),
-        ex_secs=settings.REDIS_EXPIRE_SECONDS,
+    database_client.redis_set(
+        dtypes.RedisSetRequest(
+            key=cache_key,
+            value=json.dumps(response.model_dump()),
+            expiration=None,
+        )
     )
     return {**users, "items": response}
 
@@ -132,7 +138,7 @@ def create_user(
     user: schemas.users.CreateUser,
     db: SessionDep,
     admin: Admin,
-) -> schemas.messaging.ApiResponse:
+) -> dtypes.ApiResponse:
     """
     Create a new user.
 
@@ -153,7 +159,7 @@ def create_user(
         )
 
     invalidate_user_cache(invalidate_lists=True)
-    return schemas.messaging.ApiResponse(
+    return dtypes.ApiResponse(
         status="success",
         code=response["status"],
         message=response["message"],
@@ -168,7 +174,7 @@ def update_user(
     rol: schemas.users.Roles,
     db: SessionDep,
     admin: Admin,
-) -> schemas.messaging.ApiResponse:
+) -> dtypes.ApiResponse:
     """
     Update user information.
 
@@ -197,7 +203,7 @@ def update_user(
         )
 
     invalidate_user_cache(username=username, invalidate_lists=True)
-    return schemas.messaging.ApiResponse(
+    return dtypes.ApiResponse(
         status="success",
         code=response["status"],
         message=response["message"],
@@ -212,7 +218,7 @@ def delete_user(
     db: SessionDep,
     admin: Admin,
     complete: bool = False,
-) -> schemas.messaging.ApiResponse:
+) -> dtypes.ApiResponse:
     """
     Delete a user by username.
 
@@ -243,7 +249,7 @@ def delete_user(
         )
 
     invalidate_user_cache(username=username, invalidate_lists=True)
-    return schemas.messaging.ApiResponse(
+    return dtypes.ApiResponse(
         status="success",
         code=response["status"],
         message=response["message"],

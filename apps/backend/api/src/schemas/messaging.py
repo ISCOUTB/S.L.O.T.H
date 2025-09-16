@@ -104,20 +104,3 @@ class SchemaMessage(TypedDict):
     import_name: str  # The name of the import associated with the schema
     raw: bool = False  # Flag to indicate if the schema is raw or processed
     date: str  # Optional date field for additional context
-
-
-class ApiResponse(TypedDict):
-    """
-    Base model for API responses.
-
-    Attributes:
-        status (str): The status of the response, e.g., "success" or "error".
-        code (int): The HTTP status code associated with the response.
-        message (str): A message providing additional information about the response.
-        data (Optional[Dict[str, Any]]): The data returned in the response, if any. Defaults to None.
-    """
-
-    status: str
-    code: int
-    message: str
-    data: Optional[Dict[str, Any]] = None

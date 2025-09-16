@@ -1,6 +1,8 @@
 import src.schemas as schemas
 from src.core.config import settings
-from src.core.database_redis import redis_db
+
+from proto_utils.database import dtypes
+from src.core.database_client import database_client
 
 
 # TODO: Improve this function to use a more robust method of checking superuser status
@@ -36,6 +38,5 @@ def invalidate_user_cache(username: str = "", invalidate_lists: bool = False) ->
         patterns_to_delete.append("all_users:*")
 
     for pattern in patterns_to_delete:
-        keys = redis_db.keys(pattern)
-        for key in keys:
-            redis_db.delete(key)
+        keys = database_client.redis_get_keys(dtypes.RedisGetKeysRequest(pattern=pattern))["keys"]
+        database_client.redis_delete(dtypes.RedisDeleteRequest(keys=keys))

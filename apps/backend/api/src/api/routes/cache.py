@@ -1,5 +1,8 @@
+import json
+
 from fastapi import APIRouter
-from src.core.database_redis import redis_db
+from src.core.database_client import database_client
+from proto_utils.database import dtypes
 
 router = APIRouter()
 
@@ -10,13 +13,14 @@ async def get_cache() -> dict:
     Get all cached data from Redis.
     This endpoint retrieves all keys and their values from the Redis cache.
     """
-    return redis_db.get_cache()
+    response = database_client.redis_get_cache()
+    return dict(map(lambda x: (x[0], json.loads(x[1])), response["cache"].items()))
 
 
 @router.delete("/clear")
-async def clear_cache() -> bool:
+async def clear_cache() -> dtypes.RedisClearCacheResponse:
     """
     Clear the Redis cache.
     This endpoint clears all cached data in Redis.
     """
-    return redis_db.clear_cache()
+    return database_client.clear_cache()
