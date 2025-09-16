@@ -50,11 +50,11 @@ class MongoSchemasService:
 
         Args:
             request (dtypes.MongoInsertOneSchemaRequest): Request containing
-                                                         the schema data to insert.
+                the schema data to insert.
 
         Returns:
             dtypes.MongoInsertOneSchemaResponse: Response indicating the operation
-                                               result (inserted, updated, no_change, or error).
+                result (inserted, updated, no_change, or error).
         """
         total_documents = MongoSchemasService.count_all_documents()["amount"]
         schemas_releases = MongoSchemasService.find_one_jsonschema(
@@ -136,7 +136,7 @@ class MongoSchemasService:
 
         Returns:
             dtypes.MongoCountAllDocumentsResponse: Response containing the document count.
-                                                 Returns -1 if an error occurs.
+                Returns -1 if an error occurs.
         """
         try:
             amount = mongo_schemas_connection.count_documents()
@@ -153,11 +153,11 @@ class MongoSchemasService:
 
         Args:
             request (dtypes.MongoFindJsonSchemaRequest): Request containing the
-                                                       import name to search for.
+                import name to search for.
 
         Returns:
             dtypes.MongoFindJsonSchemaResponse: Response containing the found schema
-                                              or appropriate status (not_found, error).
+                or appropriate status (not_found, error).
         """
         try:
             schema_doc = mongo_schemas_connection.find_one(
@@ -190,11 +190,11 @@ class MongoSchemasService:
 
         Args:
             request (dtypes.MongoUpdateOneJsonSchemaRequest): Request containing
-                                                            the import name and new schema.
+                the import name and new schema.
 
         Returns:
             dtypes.MongoUpdateOneJsonSchemaResponse: Response indicating the operation
-                                                   result (updated, no_change, or error).
+                result (updated, no_change, or error).
         """
         # First, check if the schema document exists
         existing_schema = MongoSchemasService.find_one_jsonschema(
@@ -274,11 +274,11 @@ class MongoSchemasService:
 
         Args:
             request (dtypes.MongoDeleteOneJsonSchemaRequest): Request containing
-                                                            the import name to delete.
+                the import name to delete.
 
         Returns:
             dtypes.MongoDeleteOneJsonSchemaResponse: Response indicating the operation
-                                                   result (deleted, reverted, or error).
+                result (deleted, reverted, or error).
         """
         schema_doc = MongoSchemasService.find_one_jsonschema(
             dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
@@ -336,11 +336,11 @@ class MongoSchemasService:
 
         Args:
             request (dtypes.MongoDeleteImportNameRequest): Request containing
-                                                         the import name to delete.
+                the import name to delete.
 
         Returns:
             dtypes.MongoDeleteImportNameResponse: Response indicating the operation
-                                                result (deleted or error).
+                result (deleted or error).
         """
         try:
             result: pymongo.results.DeleteResult = mongo_schemas_connection.delete_one(

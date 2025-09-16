@@ -18,7 +18,7 @@ from core.database_mongo import mongo_tasks_connection
 
 class DatabaseTasksService:
     """Database tasks service layer class.
-    
+
     Provides high-level task management operations with dual-storage strategy.
     This class manages tasks in both Redis (for fast access) and MongoDB
     (for persistence), ensuring data consistency and providing fallback
@@ -30,19 +30,18 @@ class DatabaseTasksService:
         request: dtypes.UpdateTaskIdRequest,
     ) -> dtypes.UpdateTaskIdResponse:
         """Update a specific field in a task across both Redis and MongoDB.
-        
+
         This method updates task information in both storage systems to maintain
         consistency. Updates are performed in Redis first for speed, then in
         MongoDB for persistence.
-        
+
         Args:
             request (dtypes.UpdateTaskIdRequest): Request containing task ID,
-                                                field to update, new value, and
-                                                optional message and data.
-        
+                field to update, new value, and optional message and data.
+
         Returns:
             dtypes.UpdateTaskIdResponse: Response indicating success or failure
-                                       of the update operation.
+                of the update operation.
         """
         try:
             # Update task in redis
@@ -79,17 +78,17 @@ class DatabaseTasksService:
     @staticmethod
     def set_task_id(request: dtypes.SetTaskIdRequest) -> dtypes.SetTaskIdResponse:
         """Create or replace a task in both Redis and MongoDB.
-        
+
         This method sets task data in both storage systems simultaneously
         to ensure consistency and availability.
-        
+
         Args:
             request (dtypes.SetTaskIdRequest): Request containing task ID,
-                                             task data, and context information.
-        
+                task data, and context information.
+
         Returns:
             dtypes.SetTaskIdResponse: Response indicating success or failure
-                                    of the set operation.
+                of the set operation.
         """
         try:
             # Set task in redis
@@ -117,17 +116,17 @@ class DatabaseTasksService:
     @staticmethod
     def get_task_id(request: dtypes.GetTaskIdRequest) -> dtypes.GetTaskIdResponse:
         """Retrieve a task by ID with fallback mechanism.
-        
+
         This method attempts to retrieve the task from Redis first (for speed),
         and falls back to MongoDB if not found. Found MongoDB results are
         automatically cached in Redis for future queries.
-        
+
         Args:
             request (dtypes.GetTaskIdRequest): Request containing task ID and context.
-        
+
         Returns:
             dtypes.GetTaskIdResponse: Response containing the task data or indicating
-                                    if the task was not found.
+                if the task was not found.
         """
         try:
             # Try to get from Redis first (faster)
@@ -155,18 +154,18 @@ class DatabaseTasksService:
         request: dtypes.GetTasksByImportNameRequest,
     ) -> dtypes.GetTasksByImportNameResponse:
         """Retrieve all tasks associated with a specific import name.
-        
+
         This method searches for tasks by import name with fallback mechanism.
         It tries Redis first, then MongoDB, and caches MongoDB results in Redis
         for future queries.
-        
+
         Args:
             request (dtypes.GetTasksByImportNameRequest): Request containing
-                                                        import name and context.
-        
+                import name and context.
+
         Returns:
             dtypes.GetTasksByImportNameResponse: Response containing the list of
-                                               matching tasks.
+                matching tasks.
         """
         try:
             # Try Redis first
