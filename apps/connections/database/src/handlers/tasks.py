@@ -30,6 +30,7 @@ class DatabaseTasksHandler:
         service_response = DatabaseTasksService.get_tasks_by_import_name(
             deserialized_request
         )
+
         return DatabaseSerde.serialize_get_tasks_by_import_name_response(
             service_response
         )
