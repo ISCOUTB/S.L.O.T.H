@@ -1,5 +1,5 @@
 {
-    "name": "@etl-design/proto-utils-js",
+    "name": "@etl-design/packages-proto-utils-js",
     "version": "1.0.0",
     "description": "Protobuf utilities for JavaScript",
     "license": "ISC",

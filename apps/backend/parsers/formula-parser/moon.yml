@@ -13,6 +13,15 @@ tasks:
     test:
         command: echo "No tests defined"
 
+    pnpm:
+        command: pnpm
+        args:
+            - --filter
+            - "@etl-design/apps-formula-parser"
+        toolchain: node
+        options:
+            cache: false
+
     run:
         command: node
         args:

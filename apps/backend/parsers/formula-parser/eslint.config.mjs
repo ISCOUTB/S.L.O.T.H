@@ -8,4 +8,7 @@ export default antfu({
         quotes: "double",
         semi: true,
     },
+    rules: {
+        "yaml/indent": ["warn", { indicatorValueIndent: 2 }],
+    },
 });

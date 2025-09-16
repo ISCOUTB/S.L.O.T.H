@@ -1,16 +1,15 @@
 {
-    "name": "@etl-design/formula-parser",
+    "name": "@etl-design/apps-formula-parser",
     "version": "1.0.0",
     "license": "ISC",
     "dependencies": {
-        "@etl-design/proto-utils-js": "workspace:*",
+        "@etl-design/packages-proto-utils-js": "workspace:*",
         "@grpc/grpc-js": "^1.13.4",
         "@grpc/proto-loader": "^0.7.15",
         "excel-formula-ast": "^1.1.1",
         "excel-formula-tokenizer": "^3.0.0",
         "google-protobuf": "^3.21.4",
-        "grpc-tools": "^1.13.0",
-        "nodemon": "^3.1.10"
+        "grpc-tools": "^1.13.0"
     },
     "devDependencies": {
         "@antfu/eslint-config": "^5.3.0",
