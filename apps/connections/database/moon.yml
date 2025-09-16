@@ -24,11 +24,16 @@ tasks:
       runFromWorkspaceRoot: false
 
   test:
-    command: "bash ./scripts/tests.sh"
-    outputs:
-      - "./.pytest_cache/"
-      - "./.coverage"
-      - "./htmlcov/"
-      - "./coverage.xml"
+    command: uv
+    args:
+      - run
+      - pytest
+      - -v
+      - -n
+      - auto
+      - --cov=src
+      - --cov-report=term-missing
+      - --cov-report=html
+      - --cov-report=xml
     options:
       runFromWorkspaceRoot: false
