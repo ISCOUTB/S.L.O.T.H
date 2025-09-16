@@ -9,6 +9,7 @@ The module uses proto_utils for type definitions and provides methods
 for basic Redis operations like get, set, delete, and cache management.
 """
 
+import json
 from proto_utils.database import dtypes
 from core.database_redis import redis_db
 
@@ -111,7 +112,9 @@ class RedisService:
             dtypes.RedisGetCacheResponse: Response containing all cache data.
         """
         cache_data = redis_db.get_cache()
-        return dtypes.RedisGetCacheResponse(cache=cache_data)
+        return dtypes.RedisGetCacheResponse(
+            cache=dict(map(lambda x: (x[0], json.dumps(x[1])), cache_data.items()))
+        )
 
     @staticmethod
     def clear_cache(

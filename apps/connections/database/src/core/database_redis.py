@@ -272,6 +272,10 @@ class RedisConnection:
             task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
             if not task_data:
                 continue
+
+            # Ensure correct types
+            task_data["code"] = int(task_data["code"])
+
             task_data["data"] = (
                 json.loads(task_data["data"]) if "data" in task_data else {}
             )
