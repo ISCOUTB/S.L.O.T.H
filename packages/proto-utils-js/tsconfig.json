@@ -1,18 +1,9 @@
 {
+    // ! this is too stict for the generated files
+    // "extends": "@etl-design/tools-tsconfig/tsconfig.json",
     "compilerOptions": {
         "module": "nodenext",
         "moduleResolution": "nodenext",
-        "strict": true,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "exactOptionalPropertyTypes": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitOverride": true,
-        "noImplicitReturns": true,
-        "noPropertyAccessFromIndexSignature": true,
-        "noUncheckedIndexedAccess": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "forceConsistentCasingInFileNames": true
+        "strict": true
     }
 }

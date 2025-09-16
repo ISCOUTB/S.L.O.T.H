@@ -55,6 +55,9 @@ importers:
       '@etl-design/tools-eslint':
         specifier: workspace:*
         version: link:../../tools/eslint
+      '@etl-design/tools-tsconfig':
+        specifier: workspace:*
+        version: link:../../tools/tsconfig
       '@types/google-protobuf':
         specifier: ^3.15.12
         version: 3.15.12

@@ -3,6 +3,7 @@
     "bracketSameLine": false,
     "bracketSpacing": true,
     "semi": true,
+    "endOfLine": "lf",
     "experimentalTernaries": false,
     "singleQuote": false,
     "jsxSingleQuote": false,
