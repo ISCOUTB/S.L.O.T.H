@@ -37,3 +37,25 @@ tasks:
       - --cov-report=xml
     options:
       runFromWorkspaceRoot: false
+
+  format:
+    command: uv
+    args:
+      - run
+      - ruff
+      - format
+      - .
+    options:
+      runFromWorkspaceRoot: false
+
+  docker-build:
+    command: docker
+    args:
+      - build
+      - -f
+      - apps/connections/database/Dockerfile
+      - .
+      - -t
+      - database:1.0
+    options:
+      runFromWorkspaceRoot: true
