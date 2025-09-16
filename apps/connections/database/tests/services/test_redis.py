@@ -100,7 +100,7 @@ def test_delete_non_existing_keys() -> None:
 
 def test_ping() -> None:
     ping_response = RedisService.ping()
-    assert ping_response["alive"] is True
+    assert ping_response["pong"] is True
 
 
 def test_get_cache() -> None:
