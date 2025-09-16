@@ -1,13 +1,9 @@
-# Secrets
 .env
-
-# Virtual environments
 .venv
-
-# Python cache files
+.pytest_cache
+.coverage
+coverage.xml
 **/__pycache__/
 *.pyc
 .ruff_cache
-
-# Temporal changes
 src/tests/
