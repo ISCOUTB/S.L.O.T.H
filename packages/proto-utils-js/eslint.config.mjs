@@ -1,14 +1,5 @@
-import antfu from "@antfu/eslint-config";
+import { withConfig } from "@etl-design/packages-eslint";
 
-export default antfu({
+export default withConfig({
     type: "lib",
-    typescript: true,
-    stylistic: {
-        semi: true,
-        indent: 4,
-        quotes: "double",
-    },
-    rules: {
-        "yaml/indent": ["warn", { indicatorValueIndent: 2 }],
-    },
 });

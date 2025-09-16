@@ -1,0 +1,23 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
+project:
+    name: eslint
+    description: shared eslint config for etl-design packages
+
+toolchain:
+    node:
+
+tasks:
+    pnpm:
+        command: pnpm
+        args:
+            - --filter
+            - "@etl-design/packages-eslint"
+        options:
+            runFromWorkspaceRoot: true
+            cache: false
+
+    build:
+        command: npx
+        args:
+            - tsup
