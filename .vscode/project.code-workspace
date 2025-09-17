@@ -26,11 +26,11 @@
         },
         {
             "name": "[ Package ] Proto-Javascript",
-            "path": "../packages/proto-utils-js"
+            "path": "../packages/proto-utils/proto-utils-js"
         },
         {
             "name": "[ Package ] Proto-Python",
-            "path": "../packages/proto-utils-py"
+            "path": "../packages/proto-utils/proto-utils-py"
         },
         {
             "name": "[ Tool ] eslint",
@@ -47,7 +47,7 @@
             "**/.svn": true,
             "**/.hg": true,
             "**/.DS_Store": true,
-            "**/Thumbs.db": true,
+            "**/Thumbs.db": true
         }
     }
 }
