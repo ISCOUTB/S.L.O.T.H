@@ -6,3 +6,4 @@ export * from "./generated/parsers/ddl_generator";
 export * from "./generated/parsers/dtypes";
 export * from "./generated/parsers/formula_parser";
 export * from "./generated/parsers/sql_builder";
+export * from "./utils";

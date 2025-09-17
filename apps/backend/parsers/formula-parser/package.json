@@ -11,10 +11,12 @@
         "excel-formula-ast": "^1.1.1",
         "excel-formula-tokenizer": "^3.0.0",
         "google-protobuf": "^3.21.4",
-        "grpc-tools": "^1.13.0"
+        "grpc-tools": "^1.13.0",
+        "winston": "^3.17.0"
     },
     "devDependencies": {
         "eslint": "^9.35.0",
+        "tsconfig-paths": "^4.2.0",
         "tsup": "^8.5.0"
     }
 }

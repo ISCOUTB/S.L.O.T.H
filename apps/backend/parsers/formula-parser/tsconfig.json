@@ -3,6 +3,10 @@
     "compilerOptions": {
         "module": "nodenext",
         "moduleResolution": "nodenext",
+        "paths": {
+            "@/*": ["./src/*"],
+            "@@/*": ["./*"]
+        },
         "allowJs": true
     },
     "exclude": ["tsup.config.ts"]
