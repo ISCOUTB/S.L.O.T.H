@@ -11,6 +11,9 @@ through releases tracking.
 """
 
 import pymongo
+
+from typing import Dict
+
 from proto_utils.database import dtypes
 from core.database_mongo import mongo_schemas_connection
 
@@ -38,6 +41,64 @@ class MongoSchemasService:
         return schema1 == schema2
 
     @staticmethod
+    def convert_datatype(value: str) -> int | float | bool | str:
+        """Convert a string value to its appropriate data type.
+
+        This method attempts to convert the input string to an integer,
+        float, or boolean. If none of these conversions are applicable,
+        it returns the original string.
+
+        Args:
+            value (str): The string value to convert.
+
+        Returns:
+            int | float | bool | str: The converted value in its appropriate type.
+        """
+        if value.isdigit():
+            return int(value)
+
+        try:
+            float_value = float(value)
+            return float_value
+        except ValueError:
+            pass
+
+        if value.lower() in {"true", "false"}:
+            return value.lower() == "true"
+
+        return value
+
+    @staticmethod
+    def parse_schema_properties(
+        properties: Dict[str, dtypes.Properties],
+    ) -> Dict[str, Dict[str, int | float | bool | str]]:
+        """Parse schema properties converting extra attributes to correct types.
+
+        Args:
+            properties (dtypes): Schema properties with extra attributes as strings.
+
+        Returns:
+            Dict[str, Dict[str, int | float | bool | str]]: Parsed properties with converted extra attributes.
+        """
+        return dict(
+            map(
+                lambda item: (
+                    item[0],  # Key: column name
+                    # Concatenate type and extra properties in one dictionary
+                    {
+                        "type": item[1]["type"],
+                        **{
+                            # Convert value from str to its original type
+                            k: MongoSchemasService.convert_datatype(v)
+                            for k, v in item[1]["extra"].items()
+                        },
+                    },
+                ),
+                properties.items(),
+            )
+        )
+
+    @staticmethod
     def insert_one_schema(
         request: dtypes.MongoInsertOneSchemaRequest,
     ) -> dtypes.MongoInsertOneSchemaResponse:
@@ -56,6 +117,17 @@ class MongoSchemasService:
             dtypes.MongoInsertOneSchemaResponse: Response indicating the operation
                 result (inserted, updated, no_change, or error).
         """
+        # Parse and convert schema properties before insertion
+        request["active_schema"]["properties"] = (
+            MongoSchemasService.parse_schema_properties(
+                request["active_schema"]["properties"]
+            )
+        )
+
+        request["schemas_releases"] = list(
+            map(lambda release: release["properties"], request["schemas_releases"])
+        )
+
         total_documents = MongoSchemasService.count_all_documents()["amount"]
         schemas_releases = MongoSchemasService.find_one_jsonschema(
             dtypes.MongoInsertOneSchemaRequest(import_name=request["import_name"])
