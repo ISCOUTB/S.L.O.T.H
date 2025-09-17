@@ -1,7 +1,9 @@
 import { antfu } from "@antfu/eslint-config";
 import merge from "lodash.merge";
 
-export function withConfig(config?: Parameters<typeof antfu>[0]) {
+export function withConfig(
+    config?: Parameters<typeof antfu>[0],
+): ReturnType<typeof antfu> {
     return antfu(
         merge(
             {},

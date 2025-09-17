@@ -4,6 +4,8 @@
     "license": "ISC",
     "dependencies": {
         "@etl-design/packages-proto-utils-js": "workspace:*",
+        "@etl-design/tools-eslint": "workspace:*",
+        "@etl-design/tools-tsconfig": "workspace:*",
         "@grpc/grpc-js": "^1.13.4",
         "@grpc/proto-loader": "^0.7.15",
         "excel-formula-ast": "^1.1.1",
@@ -12,7 +14,7 @@
         "grpc-tools": "^1.13.0"
     },
     "devDependencies": {
-        "@antfu/eslint-config": "^5.3.0",
-        "eslint": "^9.35.0"
+        "eslint": "^9.35.0",
+        "tsup": "^8.5.0"
     }
 }

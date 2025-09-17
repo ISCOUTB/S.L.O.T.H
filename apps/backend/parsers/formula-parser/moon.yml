@@ -26,8 +26,17 @@ tasks:
         command: node
         args:
             - --env-file=.env
-            - src/server.js
+            - dist/server.js
         deps:
             - proto-utils-js:build
+            - ^:build
         local: true
         toolchain: node
+
+    build:
+        command: npx
+        args:
+            - tsup
+        toolchain: node
+        options:
+            runFromWorkspaceRoot: false
