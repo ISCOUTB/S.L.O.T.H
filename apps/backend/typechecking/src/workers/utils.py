@@ -1,6 +1,8 @@
 from typing import Any
-from src.core.database_redis import redis_db
-from src.core.database_mongo import mongo_connection  # noqa: F401
+
+from proto_utils.database import dtypes
+
+from src.core.database_client import database_client
 
 
 def update_task_status(
@@ -14,15 +16,14 @@ def update_task_status(
     reset_data: bool = False,
 ) -> None:
     # Update task in redis
-    redis_db.update_task_id(
-        task_id=task_id,
-        field=field,
-        value=value,
-        task=task,
-        message=message,
-        data=data,
-        reset_data=reset_data,
+    database_client.update_task_id(
+        dtypes.UpdateTaskIdRequest(
+            task_id=task_id,
+            field=field,
+            value=value,
+            task=task,
+            message=message,
+            data=data,
+            reset_data=reset_data,
+        )
     )
-
-    # TODO: Update task in Mongo
-    # Goes right here...

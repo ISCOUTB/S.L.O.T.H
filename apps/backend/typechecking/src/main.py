@@ -30,9 +30,9 @@ import signal
 import sys
 import threading
 
-from src.workers.schema import SchemaWorker
+from src.utils import logger
+from src.workers.schemas import SchemaWorker
 from src.workers.validation import ValidationWorker
-from utils import logger
 
 
 class WorkerManager:

@@ -8,7 +8,7 @@ The schemas are used primarily for file upload validation, content type
 detection, and file metadata processing in the service layer.
 """
 
-from typing import TypedDict, Optional
+from typing import Optional, TypedDict
 
 
 class FileInfo(TypedDict):

@@ -17,29 +17,24 @@ Example:
     >>> worker.start_consuming()  # Blocks and processes validation messages
 """
 
-import json
-import logging
 import asyncio
-from src.utils import get_datetime_now
+import json
+from io import BytesIO
+
+from fastapi import UploadFile
+from proto_utils.database import dtypes
 
 from src.core.config import settings
+from src.core.database_client import database_client
 from src.handlers.validation import (
-    validate_file_against_schema,
     get_validation_summary,
+    validate_file_against_schema,
 )
 from src.messaging.connection_factory import RabbitMQConnectionFactory
-
-from src.core.database_redis import redis_db
-from src.workers.utils import update_task_status
-
-from src.schemas.workers import DataValidated
 from src.schemas.messaging import ValidationMessage
-
-from io import BytesIO
-from fastapi import UploadFile
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from src.schemas.workers import DataValidated
+from src.utils import get_datetime_now, logger
+from src.workers.utils import update_task_status
 
 
 class ValidationWorker:
@@ -260,9 +255,12 @@ class ValidationWorker:
                 for proper error handling and message acknowledgment.
         """
         if result["status"] == "error":
-            upload_date = redis_db.get_task_id(task_id, self.TASK).data.get(
-                "upload_date", get_datetime_now()
-            )
+            upload_date = database_client.get_task_id(
+                dtypes.GetTaskIdRequest(
+                    task_id=task_id,
+                    task=self.TASK,
+                )
+            )["value"]["data"].get("upload_date", get_datetime_now())
             update_task_status(
                 task_id=task_id,
                 field="status",

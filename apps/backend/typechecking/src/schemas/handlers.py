@@ -9,7 +9,7 @@ results to comprehensive summaries with detailed statistics and error
 information.
 """
 
-from typing import TypedDict, Optional, Literal
+from typing import Literal, Optional, TypedDict
 
 SummaryStatus = Literal["success", "warning", "error"]
 

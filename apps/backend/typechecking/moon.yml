@@ -11,10 +11,7 @@ language: python
 toolchain:
     python:
         version: 3.12.10
-    name: typechecking
-    description: A high-performance, enterprise-grade data validation system designed for ETL processes that validates spreadsheet files (CSV, XLSX, XLS) against JSON schemas using parallel processing, message queuing, and modern distributed architecture patterns.
 
-type: application
 tasks:
     test:
         command: uv
@@ -38,5 +35,17 @@ tasks:
             - format
             - .
         toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+
+    run:
+        command: uv
+        args:
+            - run
+            - python
+            - -m
+            - src.main
+        toolchain: python
+        local: true
         options:
             runFromWorkspaceRoot: false

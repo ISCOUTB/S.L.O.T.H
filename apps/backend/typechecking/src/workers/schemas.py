@@ -17,23 +17,19 @@ Example:
 """
 
 import json
-import logging
-from jsonschema import SchemaError
-from src.utils import get_datetime_now
-
-from src.core.config import settings
-from src.schemas.messaging import SchemaMessage
-from src.schemas.workers import SchemaUpdated
-from src.handlers.schemas import save_schema, create_schema, remove_schema
 
 import pika
+from jsonschema import SchemaError
+from proto_utils.database import dtypes
+
+from src.core.config import settings
+from src.core.database_client import database_client
+from src.handlers.schemas import create_schema, remove_schema, save_schema
 from src.messaging.connection_factory import RabbitMQConnectionFactory
-
-from src.core.database_redis import redis_db
+from src.schemas.messaging import SchemaMessage
+from src.schemas.workers import SchemaUpdated
+from src.utils import get_datetime_now, logger
 from src.workers.utils import update_task_status
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class SchemaWorker:
@@ -255,7 +251,7 @@ class SchemaWorker:
             data={"update_date": get_datetime_now()},
         )
         try:
-            result = save_schema(schema, import_name)
+            result = save_schema(schema.copy(), import_name)
             status = "completed"
         except Exception as e:
             result = repr(e)
@@ -365,9 +361,12 @@ class SchemaWorker:
                 for proper error handling and message acknowledgment.
         """
         if result["status"] != "completed":
-            upload_date = redis_db.get_task_id(task_id, self.TASK).data.get(
-                "upload_date", get_datetime_now()
-            )
+            upload_date = database_client.get_task_id(
+                dtypes.GetTaskIdRequest(
+                    task_id=task_id,
+                    task=self.TASK,
+                )
+            )["value"]["data"].get("upload_date", get_datetime_now())
             update_task_status(
                 task_id=task_id,
                 field="status",

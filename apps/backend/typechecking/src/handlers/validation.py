@@ -1,18 +1,18 @@
-import jsonschema
 import multiprocessing as mp
-
 from datetime import datetime
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
+
+import jsonschema
 from fastapi import UploadFile
 
 from src.core.config import settings
 from src.handlers.schemas import get_active_schema
-from src.services.file_processor import FileProcessor
 from src.schemas.handlers import (
     ValidationResult,
-    ValidationSummary,
     ValidationResults,
+    ValidationSummary,
 )
+from src.services.file_processor import FileProcessor
 
 
 async def validate_file_against_schema(

@@ -9,9 +9,11 @@ The schemas ensure consistent result structure for downstream consumers
 and provide proper typing for worker result handling and storage.
 """
 
-from typing import TypedDict, Dict, Any
-from pymongo.results import UpdateResult, InsertOneResult
-from src.schemas.handlers import ValidationSummary, SummaryStatus
+from typing import Any, Dict, TypedDict
+
+from proto_utils.database import dtypes
+
+from src.schemas.handlers import SummaryStatus, ValidationSummary
 
 
 class DataValidated(TypedDict):
@@ -72,7 +74,7 @@ class SchemaUpdated(TypedDict):
         schema (Dict[str, Any]): The complete JSON schema definition that was processed,
             including all validation rules, field types, and constraints.
         import_name (str): Schema identifier used for storage and retrieval.
-        result (UpdateResult | InsertOneResult | None): MongoDB operation result from the database
+        result (proto_utils.database.dtypes.MongoInsertOneSchemaResponse): MongoDB operation result from the database
             update/insert, None if the database operation failed or was not performed.
 
     Example:
@@ -96,4 +98,4 @@ class SchemaUpdated(TypedDict):
     status: str
     schema: Dict[str, Any]  # The updated JSON schema
     import_name: str
-    result: UpdateResult | InsertOneResult | None
+    result: dtypes.MongoInsertOneSchemaResponse

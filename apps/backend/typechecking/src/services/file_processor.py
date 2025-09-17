@@ -1,8 +1,9 @@
 import io
-import polars as pl
-
-from fastapi import UploadFile
 from typing import Dict, List, Tuple
+
+import polars as pl
+from fastapi import UploadFile
+
 from src.schemas.services import FileInfo
 
 

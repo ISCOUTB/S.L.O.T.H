@@ -1,38 +1,40 @@
-import aio_pika
 import asyncio
 from typing import Dict
-from motor.motor_asyncio import AsyncIOMotorClient
+
+import aio_pika
+from motor.motor_asyncio import AsyncIOMotorClient  # noqa: F401
+from proto_utils.database import dtypes
 
 from src.core.config import settings
-from src.core.database_redis import redis_db
+from src.core.database_client import database_client
 
+# TODO: Re-enable MongoDB health check when needed
+# async def check_mongodb_connection() -> Dict[str, str]:
+#     """Check MongoDB connection health."""
+#     try:
+#         mongo_url = str(settings.MONGO_URI)
+#         client = AsyncIOMotorClient(mongo_url)
 
-async def check_mongodb_connection() -> Dict[str, str]:
-    """Check MongoDB connection health."""
-    try:
-        mongo_url = str(settings.MONGO_URI)
-        client = AsyncIOMotorClient(mongo_url)
+#         # Ping the database with a timeout
+#         await asyncio.wait_for(client.admin.command("ping"), timeout=5.0)
 
-        # Ping the database with a timeout
-        await asyncio.wait_for(client.admin.command("ping"), timeout=5.0)
+#         # Get server info
+#         server_info = await client.server_info()
+#         client.close()
 
-        # Get server info
-        server_info = await client.server_info()
-        client.close()
-
-        return {
-            "status": "healthy",
-            "version": server_info.get("version", "unknown"),
-            "response_time_ms": "< 5000",
-        }
-    except asyncio.TimeoutError:
-        return {
-            "status": "unhealthy",
-            "error": "Connection timeout",
-            "response_time_ms": "> 5000",
-        }
-    except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
+#         return {
+#             "status": "healthy",
+#             "version": server_info.get("version", "unknown"),
+#             "response_time_ms": "< 5000",
+#         }
+#     except asyncio.TimeoutError:
+#         return {
+#             "status": "unhealthy",
+#             "error": "Connection timeout",
+#             "response_time_ms": "> 5000",
+#         }
+#     except Exception as e:
+#         return {"status": "unhealthy", "error": str(e)}
 
 
 async def check_rabbitmq_connection() -> Dict[str, str]:
@@ -67,13 +69,12 @@ async def check_redis_connection() -> Dict[str, str]:
         # Test Redis connection with ping and a simple operation
         def test_redis():
             # Test ping
-            redis_db.ping()
+            database_client.redis_ping()
 
             # Test basic operations
             test_key = "healthcheck:test"
-            redis_db.set(test_key, "test_value", ex_secs=60)
-            result = redis_db.get(test_key)
-            redis_db.delete(test_key)
+            database_client.redis_set(dtypes.RedisSetRequest(key=test_key, value="test_value", expiration=10))
+            result = database_client.redis_get(dtypes.RedisGetRequest(key=test_key))["value"]
             return result == "test_value"
 
         # Run Redis operations with timeout
