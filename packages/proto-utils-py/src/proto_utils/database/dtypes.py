@@ -222,8 +222,8 @@ class MongoInsertOneSchemaRequest(TypedDict):
     Attributes:
         import_name (str): Unique identifier for the schema (e.g., "user_table", "product_schema")
         created_at (str): ISO timestamp when the schema was created
-        active_schema (str): The currently active/latest version of the schema
-        schemas_releases (str): Historical versions of the schema for versioning
+        active_schema (JsonSchema): The currently active/latest version of the schema
+        schemas_releases (List[JsonSchema]): Historical versions of the schema for versioning
     """
 
     import_name: str
@@ -237,7 +237,7 @@ class MongoInsertOneSchemaResponse(TypedDict):
 
     Attributes:
         status (str): Status of the insertion operation ("inserted", "no_change", "error", "updated")
-        result (str): Generic result data from the insertion operation
+        result (Dict[str, str]): Generic result data from the insertion operation
     """
 
     status: Literal["inserted", "no_change", "error", "updated"]

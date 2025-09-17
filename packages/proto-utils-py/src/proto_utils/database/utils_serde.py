@@ -70,7 +70,7 @@ class DatabaseUtilsSerde:
         values: Dict[dtypes.PropertyType, utils_pb2.PropertyType] = {
             "string": utils_pb2.PropertyType.STRING,
             "integer": utils_pb2.PropertyType.INTEGER,
-            "float": utils_pb2.PropertyType.NUMBER,
+            "number": utils_pb2.PropertyType.NUMBER,
             "boolean": utils_pb2.PropertyType.BOOLEAN,
         }
 
@@ -89,7 +89,7 @@ class DatabaseUtilsSerde:
         values: Dict[utils_pb2.PropertyType, dtypes.PropertyType] = {
             utils_pb2.PropertyType.STRING: "string",
             utils_pb2.PropertyType.INTEGER: "integer",
-            utils_pb2.PropertyType.NUMBER: "float",
+            utils_pb2.PropertyType.NUMBER: "number",
             utils_pb2.PropertyType.BOOLEAN: "boolean",
         }
 
@@ -135,20 +135,25 @@ class DatabaseUtilsSerde:
         Returns:
             The serialized Protocol Buffer JsonSchema message.
         """
-        return utils_pb2.JsonSchema(
-            schema=jsonschema["schema"],
-            type=jsonschema["type"],
-            required=jsonschema["required"],
-            properties=dict(
-                map(
-                    lambda item: (
-                        item[0],
-                        DatabaseUtilsSerde.serialize_properties(item[1]),
-                    ),
-                    jsonschema["properties"].items(),
-                )
-            ),
-        )
+        try:
+            return utils_pb2.JsonSchema(
+                schema=jsonschema["schema"],
+                type=jsonschema["type"],
+                required=jsonschema["required"],
+                properties=dict(
+                    map(
+                        lambda item: (
+                            item[0],
+                            DatabaseUtilsSerde.serialize_properties(item[1]),
+                        ),
+                        jsonschema["properties"].items(),
+                    )
+                ),
+            )
+        except Exception as e:
+            print(repr(e))
+            print(str(e))
+            raise e
 
     @staticmethod
     def deserialize_jsonschema(proto: utils_pb2.JsonSchema) -> dtypes.JsonSchema:
