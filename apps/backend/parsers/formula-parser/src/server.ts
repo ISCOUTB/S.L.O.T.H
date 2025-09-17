@@ -6,11 +6,11 @@ import {
 } from "@etl-design/packages-proto-utils-js";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
 import { settings } from "@/core/config";
-import { parseFormulaHandler } from "@/handlers/formulaParserHandler";
+import { handler } from "@/handlers/handler";
 import { logger } from "@/utils";
 
 function parseFormula(call: any, callback: any) {
-    callback(null, parseFormulaHandler(call.request.getFormula()));
+    callback(null, handler(call.request.getFormula()));
 }
 
 function getServer() {

@@ -6,9 +6,7 @@
         "paths": {
             "@/*": ["./src/*"],
             "@@/*": ["./*"]
-        },
-        "allowJs": true,
-        "outDir": "./dist"
+        }
     },
     "exclude": ["tsup.config.ts"]
 }

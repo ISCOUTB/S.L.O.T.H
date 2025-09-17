@@ -2,6 +2,6 @@ preferSymlinkedExecutables: true
 linkWorkspacePackages: true
 
 packages:
-    - apps/**
-    - packages/**
-    - tools/**
+    - apps/**/*
+    - packages/**/*
+    - tools/**/*
