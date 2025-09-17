@@ -49,3 +49,16 @@ tasks:
         local: true
         options:
             runFromWorkspaceRoot: false
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -f
+            - apps/backend/typechecking/Dockerfile
+            - .
+            - -t
+            - typechecking:1.0
+        options:
+            runFromWorkspaceRoot: true
+            cache: false

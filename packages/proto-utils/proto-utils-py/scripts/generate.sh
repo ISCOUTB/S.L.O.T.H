@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROTO_PATH="../proto"
+PROTO_PATH="../../proto"
 
 if [ ! -d "$PROTO_PATH" ]; then
     echo "[error] directory not found $PROTO_PATH"

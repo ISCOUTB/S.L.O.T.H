@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-proto-utils = { path = "../../../packages/proto-utils-py", editable = true }
+proto-utils = { path = "../../../packages/proto-utils/proto-utils-py", editable = true }
 
 [dependency-groups]
 dev = [

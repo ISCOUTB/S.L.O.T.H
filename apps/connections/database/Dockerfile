@@ -21,7 +21,7 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Copy shared packages
-COPY ./packages/proto-utils-py /app/packages/proto-utils-py
+COPY ./packages/proto-utils/proto-utils-py /app/packages/proto-utils/proto-utils-py
 
 # Install dependencies
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
