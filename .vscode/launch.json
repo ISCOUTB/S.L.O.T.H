@@ -37,10 +37,17 @@
             "program": "${workspaceFolder}/apps/backend/parsers/formula-parser/node_modules/@grpc/grpc-js/build/src/server-interceptors.js"
         },
         {
+            "name": "Python Debugger: Database Connection Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/apps/connections/database/src/server.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python Debugger: Workers",
             "type": "debugpy",
             "request": "launch",
-            "module": "app.workers.worker_manager",
+            "module": "src.main",
             "cwd": "${workspaceFolder}/apps/backend/typechecking"
         },
         {
