@@ -7,7 +7,8 @@
             "@/*": ["./src/*"],
             "@@/*": ["./*"]
         },
-        "allowJs": true
+        "allowJs": true,
+        "outDir": "./dist"
     },
     "exclude": ["tsup.config.ts"]
 }

@@ -1,8 +1,9 @@
-const { tokenize } = require("excel-formula-tokenizer");
 const { buildTree } = require("excel-formula-ast");
+const { tokenize } = require("excel-formula-tokenizer");
 
 function parseFormula(formula) {
-    let tokens = null, ast = null;
+    let tokens = null;
+    let ast = null;
 
     try {
         tokens = tokenize(formula);

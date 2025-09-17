@@ -15,6 +15,8 @@ export function withConfig(
                 },
                 rules: {
                     "yaml/indent": ["warn", 4, { indicatorValueIndent: 2 }],
+                    "style/arrow-parens": ["warn", "always"],
+                    "style/operator-linebreak": ["off"],
                 },
             },
             config,

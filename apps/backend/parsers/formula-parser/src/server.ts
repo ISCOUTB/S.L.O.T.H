@@ -37,10 +37,11 @@ function getServer() {
 async function main(): Promise<void> {
     const server = getServer();
 
-    const { host, port, debug } = settings;
+    const { FORMULA_PARSER_HOST, FORMULA_PARSER_PORT, DEBUG_FORMULA_PARSER } =
+        settings;
 
     server.bindAsync(
-        `${host}:${port}`,
+        `${FORMULA_PARSER_HOST}:${FORMULA_PARSER_PORT}`,
         ServerCredentials.createInsecure(),
         (error, port) => {
             if (error) {
@@ -49,7 +50,7 @@ async function main(): Promise<void> {
             }
 
             logger.info(
-                `formula-parser service on ${host}:${port} | Debug: ${debug}`,
+                `formula-parser service on ${FORMULA_PARSER_HOST}:${port} | Debug: ${DEBUG_FORMULA_PARSER}`,
             );
         },
     );
