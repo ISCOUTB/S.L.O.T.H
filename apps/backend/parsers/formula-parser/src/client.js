@@ -1,27 +1,28 @@
-var messages = require('./clients/formula_parser_pb');
-var services = require('./clients/formula_parser_grpc_pb');
-var grpc = require('@grpc/grpc-js');
+import { formula_parser } from "@etl-design/packages-proto-utils-js";
+import { credentials } from "@grpc/grpc-js";
 
-var client = new services.FormulaParserClient('localhost:50052', grpc.credentials.createInsecure());
-
+const client = new formula_parser.FormulaParserClient(
+    "localhost:50052",
+    credentials.createInsecure(),
+);
 
 function runParseFormula() {
     function parseFormulaCallback(error, response) {
         if (error) {
-            console.error('Error:', error);
+            console.error("Error:", error);
         } else {
-            console.log(`Formula: ${response.getFormula()}`);
-            console.log(`Tokens: ${response.getTokens()}`);
-            console.log(`AST: ${response.getAst()}`);
-            console.log(`Error: ${response.getError()}`);
+            console.warn(`Formula: ${response.getFormula()}`);
+            console.warn(`Tokens: ${response.getTokens()}`);
+            console.warn(`AST: ${response.getAst()}`);
+            console.warn(`Error: ${response.getError()}`);
         }
     }
     const formula1 = "=A1 > B1";
-    const request = new messages.FormulaParserRequest();
-    request.setFormula(formula1);
-    client.parseFormula(request, parseFormulaCallback);
+    const request = new formula_parser.FormulaParserRequest();
+
+    request.formula = formula1;
+
+    client.ParseFormula(request, parseFormulaCallback);
 }
 
-if (require.main === module) {
-    runParseFormula();
-}
+runParseFormula();

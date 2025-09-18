@@ -1,5 +1,6 @@
 {
     "name": "@etl-design/apps-formula-parser",
+    "type": "module",
     "version": "1.0.0",
     "license": "ISC",
     "dependencies": {
@@ -8,6 +9,7 @@
         "@etl-design/tools-tsconfig": "workspace:*",
         "@grpc/grpc-js": "^1.13.4",
         "@grpc/proto-loader": "^0.7.15",
+        "effect": "^3.17.13",
         "excel-formula-ast": "^1.1.1",
         "excel-formula-tokenizer": "^3.0.0",
         "google-protobuf": "^3.21.4",

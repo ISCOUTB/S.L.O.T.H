@@ -1,7 +1,7 @@
 import type { Node } from "excel-formula-ast";
 import type { Token } from "excel-formula-tokenizer";
 import { dtypes } from "@etl-design/packages-proto-utils-js";
-import { getAstTypeEnum, getRefTypeEnum, logger } from "@/utils";
+import { getAstTypeEnum, getRefTypeEnum, logger } from "../utils/index.js";
 
 export function convertTokensToProto(tokens: Token[]) {
     const protoTokens = new dtypes.Tokens();

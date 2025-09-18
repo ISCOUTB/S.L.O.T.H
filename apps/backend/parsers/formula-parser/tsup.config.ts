@@ -12,6 +12,6 @@ export default defineConfig(() => {
         dts: true,
         sourcemap: true,
         minify: isProduction,
-        external: ["@grpc/grpc-js", "google-protobuf", "winston"],
+        external: ["@grpc/grpc-js", "google-protobuf", "winston", "effect"],
     };
 });
