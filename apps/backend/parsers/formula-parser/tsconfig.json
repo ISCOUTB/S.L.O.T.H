@@ -1,12 +1,11 @@
 {
     "extends": "@etl-design/tools-tsconfig/tsconfig.json",
     "compilerOptions": {
-        "module": "nodenext",
-        "moduleResolution": "nodenext",
-        "paths": {
-            "@/*": ["./src/*"],
-            "@@/*": ["./*"]
-        }
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "noEmit": true
     },
     "exclude": ["tsup.config.ts"]
 }

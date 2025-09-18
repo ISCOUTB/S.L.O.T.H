@@ -6,9 +6,9 @@ import {
 } from "@etl-design/packages-proto-utils-js";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
 import { Effect } from "effect";
-import { BindPortError, settings } from "./core/index.js";
-import { handler } from "./handlers/handler.js";
-import { logger } from "./utils/index.js";
+import { BindPortError, settings } from "./core/";
+import { handler } from "./handlers/handler";
+import { logger } from "./utils/";
 
 function parseFormula(call: any, callback: any) {
     callback(null, handler(call.request.getFormula()));

@@ -1,3 +1,3 @@
-export * from "./logger.js";
-export * from "./proto-utils.js";
-export * from "./to-proto.js";
+export * from "./logger";
+export * from "./proto-utils";
+export * from "./to-proto";
