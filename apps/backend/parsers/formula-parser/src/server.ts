@@ -5,13 +5,20 @@ import {
     responseSerialize,
 } from "@etl-design/packages-proto-utils-js";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
-import { Effect } from "effect";
-import { BindPortError, settings } from "./core/index.ts";
+import { Data, Effect } from "effect";
+import { settings } from "./core/index.ts";
 import { handler } from "./handlers/handler.ts";
 import { logger } from "./utils/index.ts";
 
+class BindPortError extends Data.TaggedError("BindPortError")<{ error: Error }> {}
+
 function parseFormula(call: any, callback: any) {
-    callback(null, handler(call.request.formula));
+    Effect.runPromise(handler(call.request.formula))
+        .then((response) => callback(null, response))
+        .catch((error) => {
+            logger.error(`[parseFormula] failed to handle formula: ${error}`);
+            callback(error, null);
+        });
 }
 
 function getServer() {
@@ -40,7 +47,8 @@ function getServer() {
 function main() {
     return Effect.gen(function* () {
         const server = yield* getServer();
-        const { FORMULA_PARSER_HOST, FORMULA_PARSER_PORT, DEBUG_FORMULA_PARSER } = settings;
+
+        const { FORMULA_PARSER_HOST, FORMULA_PARSER_PORT, DEBUG_FORMULA_PARSER } = yield* settings;
 
         yield* Effect.async<void, BindPortError>((resume) => {
             server.bindAsync(

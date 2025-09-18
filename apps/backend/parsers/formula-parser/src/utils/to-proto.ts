@@ -1,6 +1,7 @@
 import type { Node } from "excel-formula-ast";
 import type { Token } from "excel-formula-tokenizer";
 import { dtypes } from "@etl-design/packages-proto-utils-js";
+import { Effect } from "effect";
 import { getAstTypeEnum, getRefTypeEnum, logger } from "../utils/index.ts";
 
 export function convertTokensToProto(tokens: Token[]) {
@@ -16,12 +17,12 @@ export function convertTokensToProto(tokens: Token[]) {
         protoTokens.tokens.push(protoToken);
     });
 
-    return protoTokens;
+    return Effect.succeed(protoTokens);
 }
 
 export function convertAstToProto(ast: Node) {
     const astProto = new dtypes.AST();
-    astProto.type = getAstTypeEnum(ast.type);
+    astProto.type = Effect.runSync(getAstTypeEnum(ast.type));
 
     const astType = ast.type;
 
@@ -32,11 +33,11 @@ export function convertAstToProto(ast: Node) {
             }
 
             if (ast.left) {
-                astProto.left = convertAstToProto(ast.left);
+                astProto.left = Effect.runSync(convertAstToProto(ast.left));
             }
 
             if (ast.right) {
-                astProto.right = convertAstToProto(ast.right);
+                astProto.right = Effect.runSync(convertAstToProto(ast.right));
             }
 
             break;
@@ -48,7 +49,7 @@ export function convertAstToProto(ast: Node) {
             }
 
             if (ast.operand) {
-                astProto.operand = convertAstToProto(ast.operand);
+                astProto.operand = Effect.runSync(convertAstToProto(ast.operand));
             }
 
             break;
@@ -62,7 +63,7 @@ export function convertAstToProto(ast: Node) {
             if (ast.arguments && Array.isArray(ast.arguments)) {
                 ast.arguments.forEach((argument) => {
                     if (astProto.arguments) {
-                        astProto.arguments.push(convertAstToProto(argument));
+                        astProto.arguments.push(Effect.runSync(convertAstToProto(argument)));
                     }
                 });
             }
@@ -76,7 +77,7 @@ export function convertAstToProto(ast: Node) {
             }
 
             if (ast.refType) {
-                astProto.refType = getRefTypeEnum(ast.refType);
+                astProto.refType = Effect.runSync(getRefTypeEnum(ast.refType));
             }
 
             break;
@@ -84,11 +85,11 @@ export function convertAstToProto(ast: Node) {
 
         case "cell-range": {
             if (ast.left) {
-                astProto.left = convertAstToProto(ast.left);
+                astProto.left = Effect.runSync(convertAstToProto(ast.left));
             }
 
             if (ast.right) {
-                astProto.right = convertAstToProto(ast.right);
+                astProto.right = Effect.runSync(convertAstToProto(ast.right));
             }
 
             break;
@@ -124,7 +125,7 @@ export function convertAstToProto(ast: Node) {
         }
     }
 
-    return astProto;
+    return Effect.succeed(astProto);
 }
 
 export const Convert = {

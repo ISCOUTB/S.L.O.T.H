@@ -1,5 +1,6 @@
 import type { CellNode, Node } from "excel-formula-ast";
 import { dtypes } from "@etl-design/packages-proto-utils-js";
+import { Effect } from "effect";
 
 export function getAstTypeEnum(type: Node["type"]) {
     const dtypesEnum = dtypes.AstType;
@@ -15,7 +16,7 @@ export function getAstTypeEnum(type: Node["type"]) {
         "unary-expression": dtypesEnum.AST_UNARY_EXPRESSION,
     };
 
-    return typeMap[type] || dtypesEnum.AST_UNKNOWN;
+    return Effect.succeed(typeMap[type] ?? dtypesEnum.AST_UNKNOWN);
 }
 
 export function getRefTypeEnum(refType: Required<CellNode>["refType"]) {
@@ -27,9 +28,5 @@ export function getRefTypeEnum(refType: Required<CellNode>["refType"]) {
         mixed: dtypesEnum.REF_MIXED,
     };
 
-    if (refType in refMap) {
-        return refMap[refType as keyof typeof refMap];
-    }
-
-    return dtypesEnum.REF_UNKNOWN;
+    return Effect.succeed(refMap[refType as keyof typeof refMap] ?? dtypesEnum.REF_UNKNOWN);
 }

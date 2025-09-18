@@ -1,32 +1,55 @@
 import { formula_parser } from "@etl-design/packages-proto-utils-js";
+import { Effect } from "effect";
 import { settings } from "../core/index.ts";
 import { parseFormula } from "../services/parse.ts";
 import { Convert, logger } from "../utils/index.ts";
 
 export function handler(formula: string) {
-    const response = new formula_parser.FormulaParserResponse();
-    const { tokens, ast, error } = parseFormula(formula);
+    return Effect.gen(function* () {
+        const response = new formula_parser.FormulaParserResponse();
 
-    if (settings.DEBUG_FORMULA_PARSER) {
-        logger.info(`received formula: ${formula}`);
-        logger.info(`AST: ${JSON.stringify(ast, null, 2)}`);
-    }
+        const { tokens, ast, error } = yield* parseFormula(formula).pipe(
+            Effect.catchTag("TokenizeError", (error) => {
+                logger.info(`[handler] could not tokenize formula: ${error.error}`);
+                return Effect.succeed({
+                    tokens: null,
+                    ast: null,
+                    error: `tokenization failed: ${error.error}`,
+                });
+            }),
+            Effect.catchTag("BuildTreeError", (error) => {
+                logger.info(`[handler] could not build tree: ${error.error}`);
+                return Effect.succeed({
+                    tokens: null,
+                    ast: null,
+                    error: `tree building failed: ${error.error}`,
+                });
+            }),
+        );
 
-    response.formula = formula;
+        const { DEBUG_FORMULA_PARSER } = yield* settings;
 
-    if (error || !tokens || !ast) {
-        response.error = error;
+        if (DEBUG_FORMULA_PARSER) {
+            logger.info(`received formula: ${formula}`);
+            logger.info(`AST: ${JSON.stringify(ast, null, 2)}`);
+        }
+
+        response.formula = formula;
+
+        if (error || !tokens || !ast) {
+            response.error = error;
+            return response;
+        }
+
+        if (tokens) {
+            response.tokens = yield* Convert.TokensToProto(tokens);
+        }
+
+        if (ast) {
+            response.ast = yield* Convert.AstToProto(ast);
+        }
+
+        response.error = "";
         return response;
-    }
-
-    if (tokens) {
-        response.tokens = Convert.TokensToProto(tokens);
-    }
-
-    if (ast) {
-        response.ast = Convert.AstToProto(ast);
-    }
-
-    response.error = "";
-    return response;
+    });
 }
