@@ -1,0 +1,107 @@
+// Messaging Protocol Definitions
+//
+// This file defines the protobuf messages and services for the distributed
+// typechecking and validation system. It provides the contract between
+// message publishers and consumers in the ETL pipeline, ensuring reliable
+// message processing and proper data serialization across worker nodes.
+//
+// The messaging system supports two main types of operations:
+// 1. Schema Management: Creating, updating, and removing schema definitions
+// 2. File Validation: Processing file validation requests against schemas
+//
+// All messages use hex-encoded binary data for safe transmission through
+// JSON serialization, and include comprehensive metadata for processing
+// context and priority management.
+//
+// Note: Some parameters from the original Python schemas have been omitted
+// in this protobuf definition as they are no longer required for the
+// simplified messaging architecture.
+
+syntax = "proto3";
+
+import "database/utils.proto";
+import "messaging/validation.proto";
+import "messaging/schemas.proto";
+
+package messaging;
+
+// MessagingService defines RPC methods for handling distributed message processing
+// in the typechecking system. This service provides streaming endpoints for both
+// schema management and file validation operations across worker nodes.
+//
+// The service enables reliable message delivery between producers and consumers
+// in the distributed validation system, ensuring proper data serialization
+// and consistent message structure.
+service MessagingService {
+    // ReceiveSchemaMessage streams schema update messages to workers
+    // Used for creating, updating, or removing schema definitions in the schema registry
+    rpc ReceiveSchemaMessage(SchemaMessageRequest) returns (stream SchemaMessageResponse) {}
+    
+    // ReceiveValidationMessage streams validation request messages to workers
+    // Used for processing file validation requests against specified schemas
+    rpc ReceiveValidationMessage(ValidationMessageRequest) returns (stream ValidationMessageResponse) {}
+}
+
+// Request message for schema operations (currently empty)
+// Future versions may include filtering or subscription parameters
+message SchemaMessageRequest {}
+
+// Schema update message for creating or updating schema definitions
+// 
+// Represents a message sent to schema workers for managing schema definitions
+// in the schema registry. Contains the schema definition and associated
+// metadata for proper storage, indexing, and retrieval operations.
+//
+// Schema messages maintain the schema registry that validation workers
+// use to validate incoming files against defined data structures.
+//
+// Example usage:
+//   SchemaMessageResponse {
+//     id: "550e8400-e29b-41d4-a716-446655440001"
+//     schema: { schema: "https://json-schema.org/draft/2020-12/schema", type: "object", ... }
+//     import_name: "person_schema"
+//     raw: false
+//     task: UPLOAD_SCHEMA
+//     date: "2024-01-15T10:30:00.000Z"
+//   }
+message SchemaMessageResponse {
+    string id = 1;  // Unique identifier (UUID) for tracking the schema update request
+    utils.JsonSchema schema = 2; // JSON schema definition containing validation rules, field types, and constraints
+    string import_name = 3; // Unique identifier for the schema used for storage and retrieval operations
+    bool raw = 4; // Boolean flag indicating if the schema is raw (unprocessed) or processed
+    schemas.SchemasTasks task = 5; // Task type: upload_schema or remove_schema
+    string date = 6; // Date of the message creation in ISO format
+    map<string, string> extra = 7; // Additional metadata or configuration parameters
+}
+
+// Request message for validation operations (currently empty)
+// Future versions may include filtering or subscription parameters
+message ValidationMessageRequest {}
+
+// Validation request message for processing file validation requests
+//
+// Represents a message sent to validation workers for processing file
+// validation requests against specified schemas. Contains all necessary
+// information for workers to validate files and provide validation results.
+//
+// The file data is hex-encoded for safe transmission through the messaging
+// system, ensuring binary data integrity across network boundaries.
+// Additional metadata provides context for processing priorities and options.
+//
+// Example usage:
+//   ValidationMessageResponse {
+//     id: "550e8400-e29b-41d4-a716-446655440000"
+//     task: SAMPLE_VALIDATION
+//     file_data: "48656c6c6f2c576f726c64"  // "Hello,World" in hex
+//     import_name: "user_schema"
+//     date: "2024-01-15T10:30:00.000Z"
+//     extra: {"filename": "users.csv", "format": "csv"}
+//   }
+message ValidationMessageResponse {
+    string id = 1;  // Unique identifier (UUID) for tracking the validation request
+    validation.ValidationTasks task = 2;  // Task type: sample_validation for file validation operations
+    string file_data = 3;  // Hexadecimal-encoded binary file content for validation
+    string import_name = 4;  // Schema identifier to validate the file against
+    string date = 5; // Date of the message creation in ISO format
+    map<string, string> extra = 6; // Additional metadata including filename, processing options, and other request-specific information
+}

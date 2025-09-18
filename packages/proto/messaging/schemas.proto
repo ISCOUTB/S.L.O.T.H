@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package schemas;
+
+// Schema management task types for distributed schema operations
+//
+// Defines the available operations that can be performed on schemas
+// in the distributed typechecking system. These tasks are used by
+// schema workers to process schema-related messages from the message queue.
+//
+// Schema operations are essential for maintaining the schema registry
+// that validation workers use to validate incoming files against
+// defined data structures and constraints.
+enum SchemasTasks {
+    UPLOAD_SCHEMA = 0; // Create or update a schema definition in the registry
+    REMOVE_SCHEMA = 1; // Remove an existing schema definition from the registry
+}
