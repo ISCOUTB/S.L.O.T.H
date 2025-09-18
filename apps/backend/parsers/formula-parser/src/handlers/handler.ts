@@ -1,7 +1,7 @@
 import { formula_parser } from "@etl-design/packages-proto-utils-js";
-import { settings } from "../core";
-import { parseFormula } from "../services/parse";
-import { Convert, logger } from "../utils/";
+import { settings } from "../core/index.ts";
+import { parseFormula } from "../services/parse.ts";
+import { Convert, logger } from "../utils/index.ts";
 
 export function handler(formula: string) {
     const response = new formula_parser.FormulaParserResponse();

@@ -11,10 +11,11 @@ function runParseFormula() {
         if (error) {
             console.error("Error:", error);
         } else {
-            console.warn(`Formula: ${response.getFormula()}`);
-            console.warn(`Tokens: ${response.getTokens()}`);
-            console.warn(`AST: ${response.getAst()}`);
-            console.warn(`Error: ${response.getError()}`);
+            // console.warn(`Formula: ${response.getFormula()}`);
+            // console.warn(`Tokens: ${response.getTokens()}`);
+            // console.warn(`AST: ${response.getAst()}`);
+            // console.warn(`Error: ${response.getError()}`);
+            console.warn(response);
         }
     }
     const formula1 = "=A1 > B1";

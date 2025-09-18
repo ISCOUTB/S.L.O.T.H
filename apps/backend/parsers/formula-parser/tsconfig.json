@@ -1,9 +1,8 @@
 {
     "extends": "@etl-design/tools-tsconfig/tsconfig.json",
     "compilerOptions": {
-        "target": "esnext",
-        "module": "esnext",
-        "moduleResolution": "bundler",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
         "allowImportingTsExtensions": true,
         "noEmit": true
     },

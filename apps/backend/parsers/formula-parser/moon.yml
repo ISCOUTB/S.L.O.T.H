@@ -28,7 +28,6 @@ tasks:
             - --env-file=.env
             - dist/server.js
         deps:
-            - proto-utils-js:build
             - ^:build
         local: true
         toolchain: node

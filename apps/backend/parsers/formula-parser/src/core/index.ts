@@ -1,2 +1,2 @@
-export * from "./config";
-export * from "./errorrs";
+export * from "./config.ts";
+export * from "./errorrs.ts";

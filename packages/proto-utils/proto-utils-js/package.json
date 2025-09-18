@@ -10,6 +10,9 @@
             "require": "./dist/index.js"
         }
     },
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.mts",
     "dependencies": {
         "@grpc/grpc-js": "^1.13.4",
         "google-protobuf": "^3.21.4",
