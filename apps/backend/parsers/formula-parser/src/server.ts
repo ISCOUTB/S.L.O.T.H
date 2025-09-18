@@ -1,3 +1,5 @@
+import type { formula_parser } from "@etl-design/packages-proto-utils-js";
+import type { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import {
     requestDeserialize,
     requestSerialize,
@@ -12,7 +14,13 @@ import { logger } from "./utils/index.ts";
 
 class BindPortError extends Data.TaggedError("BindPortError")<{ error: Error }> {}
 
-function parseFormula(call: any, callback: any) {
+function parseFormula(
+    call: ServerUnaryCall<
+        formula_parser.FormulaParserRequest,
+        formula_parser.FormulaParserResponse
+    >,
+    callback: sendUnaryData<formula_parser.FormulaParserResponse>,
+) {
     Effect.runPromise(handler(call.request.formula))
         .then((response) => callback(null, response))
         .catch((error) => {
