@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17messaging/schemas.proto\x12\x07schemas*4\n\x0cSchemasTasks\x12\x11\n\rUPLOAD_SCHEMA\x10\x00\x12\x11\n\rREMOVE_SCHEMA\x10\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17messaging/schemas.proto\x12\x07schemas*A\n\x0cSchemasTasks\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x11\n\rUPLOAD_SCHEMA\x10\x01\x12\x11\n\rREMOVE_SCHEMA\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,5 +32,5 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'messaging.schemas_pb2', _gl
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_SCHEMASTASKS']._serialized_start=36
-  _globals['_SCHEMASTASKS']._serialized_end=88
+  _globals['_SCHEMASTASKS']._serialized_end=101
 # @@protoc_insertion_point(module_scope)

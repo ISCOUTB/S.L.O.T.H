@@ -43,7 +43,7 @@ class ValidationMessageRequest(_message.Message):
     def __init__(self) -> None: ...
 
 class ValidationMessageResponse(_message.Message):
-    __slots__ = ("id", "task", "file_data", "import_name", "date", "extra")
+    __slots__ = ("id", "task", "file_data", "import_name", "metadata", "date", "extra")
     class ExtraEntry(_message.Message):
         __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
@@ -55,12 +55,14 @@ class ValidationMessageResponse(_message.Message):
     TASK_FIELD_NUMBER: _ClassVar[int]
     FILE_DATA_FIELD_NUMBER: _ClassVar[int]
     IMPORT_NAME_FIELD_NUMBER: _ClassVar[int]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
     DATE_FIELD_NUMBER: _ClassVar[int]
     EXTRA_FIELD_NUMBER: _ClassVar[int]
     id: str
     task: _validation_pb2.ValidationTasks
     file_data: str
     import_name: str
+    metadata: _validation_pb2.Metadata
     date: str
     extra: _containers.ScalarMap[str, str]
-    def __init__(self, id: _Optional[str] = ..., task: _Optional[_Union[_validation_pb2.ValidationTasks, str]] = ..., file_data: _Optional[str] = ..., import_name: _Optional[str] = ..., date: _Optional[str] = ..., extra: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., task: _Optional[_Union[_validation_pb2.ValidationTasks, str]] = ..., file_data: _Optional[str] = ..., import_name: _Optional[str] = ..., metadata: _Optional[_Union[_validation_pb2.Metadata, _Mapping]] = ..., date: _Optional[str] = ..., extra: _Optional[_Mapping[str, str]] = ...) -> None: ...

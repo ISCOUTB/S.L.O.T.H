@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1amessaging/validation.proto\x12\nvalidation\"@\n\x08Metadata\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x14\n\x0c\x63ontent_type\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x03*(\n\x0fValidationTasks\x12\x15\n\x11SAMPLE_VALIDATION\x10\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1amessaging/validation.proto\x12\nvalidation\"@\n\x08Metadata\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x14\n\x0c\x63ontent_type\x18\x02 \x01(\t\x12\x0c\n\x04size\x18\x03 \x01(\x03*5\n\x0fValidationTasks\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x15\n\x11SAMPLE_VALIDATION\x10\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,7 +32,7 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'messaging.validation_pb2', 
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_VALIDATIONTASKS']._serialized_start=108
-  _globals['_VALIDATIONTASKS']._serialized_end=148
+  _globals['_VALIDATIONTASKS']._serialized_end=161
   _globals['_METADATA']._serialized_start=42
   _globals['_METADATA']._serialized_end=106
 # @@protoc_insertion_point(module_scope)

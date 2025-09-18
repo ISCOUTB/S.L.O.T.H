@@ -86,7 +86,8 @@ message ValidationMessageRequest {}
 //
 // The file data is hex-encoded for safe transmission through the messaging
 // system, ensuring binary data integrity across network boundaries.
-// Additional metadata provides context for processing priorities and options.
+// File metadata provides essential context about the uploaded file, including
+// filename, content type, and size for optimal processing strategies.
 //
 // Example usage:
 //   ValidationMessageResponse {
@@ -94,14 +95,20 @@ message ValidationMessageRequest {}
 //     task: SAMPLE_VALIDATION
 //     file_data: "48656c6c6f2c576f726c64"  // "Hello,World" in hex
 //     import_name: "user_schema"
+//     metadata: {
+//       filename: "users.csv"
+//       content_type: "text/csv"
+//       size: 12345
+//     }
 //     date: "2024-01-15T10:30:00.000Z"
-//     extra: {"filename": "users.csv", "format": "csv"}
+//     extra: {"priority": "high", "batch_id": "batch_001"}
 //   }
 message ValidationMessageResponse {
     string id = 1;  // Unique identifier (UUID) for tracking the validation request
     validation.ValidationTasks task = 2;  // Task type: sample_validation for file validation operations
     string file_data = 3;  // Hexadecimal-encoded binary file content for validation
     string import_name = 4;  // Schema identifier to validate the file against
-    string date = 5; // Date of the message creation in ISO format
-    map<string, string> extra = 6; // Additional metadata including filename, processing options, and other request-specific information
+    validation.Metadata metadata = 5; // File metadata containing filename, content type, and size information
+    string date = 6; // Date of the message creation in ISO format
+    map<string, string> extra = 7; // Additional processing metadata such as priority, batch information, and other request-specific parameters
 }

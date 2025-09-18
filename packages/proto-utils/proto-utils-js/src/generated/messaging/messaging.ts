@@ -116,7 +116,7 @@ export namespace messaging {
             pb_1.Message.setField(this, 4, value);
         }
         get task() {
-            return pb_1.Message.getFieldWithDefault(this, 5, dependency_3.schemas.SchemasTasks.UPLOAD_SCHEMA) as dependency_3.schemas.SchemasTasks;
+            return pb_1.Message.getFieldWithDefault(this, 5, dependency_3.schemas.SchemasTasks.UNKNOWN) as dependency_3.schemas.SchemasTasks;
         }
         set task(value: dependency_3.schemas.SchemasTasks) {
             pb_1.Message.setField(this, 5, value);
@@ -215,7 +215,7 @@ export namespace messaging {
                 writer.writeString(3, this.import_name);
             if (this.raw != false)
                 writer.writeBool(4, this.raw);
-            if (this.task != dependency_3.schemas.SchemasTasks.UPLOAD_SCHEMA)
+            if (this.task != dependency_3.schemas.SchemasTasks.UNKNOWN)
                 writer.writeEnum(5, this.task);
             if (this.date.length)
                 writer.writeString(6, this.date);
@@ -314,6 +314,7 @@ export namespace messaging {
             task?: dependency_2.validation.ValidationTasks;
             file_data?: string;
             import_name?: string;
+            metadata?: dependency_2.validation.Metadata;
             date?: string;
             extra?: Map<string, string>;
         }) {
@@ -332,6 +333,9 @@ export namespace messaging {
                 if ("import_name" in data && data.import_name != undefined) {
                     this.import_name = data.import_name;
                 }
+                if ("metadata" in data && data.metadata != undefined) {
+                    this.metadata = data.metadata;
+                }
                 if ("date" in data && data.date != undefined) {
                     this.date = data.date;
                 }
@@ -349,7 +353,7 @@ export namespace messaging {
             pb_1.Message.setField(this, 1, value);
         }
         get task() {
-            return pb_1.Message.getFieldWithDefault(this, 2, dependency_2.validation.ValidationTasks.SAMPLE_VALIDATION) as dependency_2.validation.ValidationTasks;
+            return pb_1.Message.getFieldWithDefault(this, 2, dependency_2.validation.ValidationTasks.UNKNOWN) as dependency_2.validation.ValidationTasks;
         }
         set task(value: dependency_2.validation.ValidationTasks) {
             pb_1.Message.setField(this, 2, value);
@@ -366,23 +370,33 @@ export namespace messaging {
         set import_name(value: string) {
             pb_1.Message.setField(this, 4, value);
         }
+        get metadata() {
+            return pb_1.Message.getWrapperField(this, dependency_2.validation.Metadata, 5) as dependency_2.validation.Metadata;
+        }
+        set metadata(value: dependency_2.validation.Metadata) {
+            pb_1.Message.setWrapperField(this, 5, value);
+        }
+        get has_metadata() {
+            return pb_1.Message.getField(this, 5) != null;
+        }
         get date() {
-            return pb_1.Message.getFieldWithDefault(this, 5, "") as string;
+            return pb_1.Message.getFieldWithDefault(this, 6, "") as string;
         }
         set date(value: string) {
-            pb_1.Message.setField(this, 5, value);
+            pb_1.Message.setField(this, 6, value);
         }
         get extra() {
-            return pb_1.Message.getField(this, 6) as any as Map<string, string>;
+            return pb_1.Message.getField(this, 7) as any as Map<string, string>;
         }
         set extra(value: Map<string, string>) {
-            pb_1.Message.setField(this, 6, value as any);
+            pb_1.Message.setField(this, 7, value as any);
         }
         static fromObject(data: {
             id?: string;
             task?: dependency_2.validation.ValidationTasks;
             file_data?: string;
             import_name?: string;
+            metadata?: ReturnType<typeof dependency_2.validation.Metadata.prototype.toObject>;
             date?: string;
             extra?: {
                 [key: string]: string;
@@ -401,6 +415,9 @@ export namespace messaging {
             if (data.import_name != null) {
                 message.import_name = data.import_name;
             }
+            if (data.metadata != null) {
+                message.metadata = dependency_2.validation.Metadata.fromObject(data.metadata);
+            }
             if (data.date != null) {
                 message.date = data.date;
             }
@@ -415,6 +432,7 @@ export namespace messaging {
                 task?: dependency_2.validation.ValidationTasks;
                 file_data?: string;
                 import_name?: string;
+                metadata?: ReturnType<typeof dependency_2.validation.Metadata.prototype.toObject>;
                 date?: string;
                 extra?: {
                     [key: string]: string;
@@ -432,6 +450,9 @@ export namespace messaging {
             if (this.import_name != null) {
                 data.import_name = this.import_name;
             }
+            if (this.metadata != null) {
+                data.metadata = this.metadata.toObject();
+            }
             if (this.date != null) {
                 data.date = this.date;
             }
@@ -446,16 +467,18 @@ export namespace messaging {
             const writer = w || new pb_1.BinaryWriter();
             if (this.id.length)
                 writer.writeString(1, this.id);
-            if (this.task != dependency_2.validation.ValidationTasks.SAMPLE_VALIDATION)
+            if (this.task != dependency_2.validation.ValidationTasks.UNKNOWN)
                 writer.writeEnum(2, this.task);
             if (this.file_data.length)
                 writer.writeString(3, this.file_data);
             if (this.import_name.length)
                 writer.writeString(4, this.import_name);
+            if (this.has_metadata)
+                writer.writeMessage(5, this.metadata, () => this.metadata.serialize(writer));
             if (this.date.length)
-                writer.writeString(5, this.date);
+                writer.writeString(6, this.date);
             for (const [key, value] of this.extra) {
-                writer.writeMessage(6, this.extra, () => {
+                writer.writeMessage(7, this.extra, () => {
                     writer.writeString(1, key);
                     writer.writeString(2, value);
                 });
@@ -482,9 +505,12 @@ export namespace messaging {
                         message.import_name = reader.readString();
                         break;
                     case 5:
-                        message.date = reader.readString();
+                        reader.readMessage(message.metadata, () => message.metadata = dependency_2.validation.Metadata.deserialize(reader));
                         break;
                     case 6:
+                        message.date = reader.readString();
+                        break;
+                    case 7:
                         reader.readMessage(message, () => pb_1.Map.deserializeBinary(message.extra as any, reader, reader.readString, reader.readString));
                         break;
                     default: reader.skipField();

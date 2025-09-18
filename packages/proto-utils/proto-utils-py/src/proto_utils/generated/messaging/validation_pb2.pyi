@@ -7,7 +7,9 @@ DESCRIPTOR: _descriptor.FileDescriptor
 
 class ValidationTasks(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
+    UNKNOWN: _ClassVar[ValidationTasks]
     SAMPLE_VALIDATION: _ClassVar[ValidationTasks]
+UNKNOWN: ValidationTasks
 SAMPLE_VALIDATION: ValidationTasks
 
 class Metadata(_message.Message):

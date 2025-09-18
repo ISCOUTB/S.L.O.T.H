@@ -11,7 +11,8 @@ package validation;
 // Validation operations ensure data quality and consistency by validating
 // incoming files against predefined schemas and data structure requirements.
 enum ValidationTasks {
-    SAMPLE_VALIDATION = 0; // Validate file content against a specified schema for data quality assurance
+    UNKNOWN = 0; // Unknown task type
+    SAMPLE_VALIDATION = 1; // Validate file content against a specified schema for data quality assurance
 }
 
 // File metadata for validation context and processing information

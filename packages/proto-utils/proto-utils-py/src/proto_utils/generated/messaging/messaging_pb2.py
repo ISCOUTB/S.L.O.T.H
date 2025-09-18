@@ -25,12 +25,12 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from . import utils_pb2 as database_dot_utils__pb2
+from ..database import utils_pb2 as database_dot_utils__pb2
 from . import validation_pb2 as messaging_dot_validation__pb2
 from . import schemas_pb2 as messaging_dot_schemas__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19messaging/messaging.proto\x12\tmessaging\x1a\x14\x64\x61tabase/utils.proto\x1a\x1amessaging/validation.proto\x1a\x17messaging/schemas.proto\"\x16\n\x14SchemaMessageRequest\"\x85\x02\n\x15SchemaMessageResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12!\n\x06schema\x18\x02 \x01(\x0b\x32\x11.utils.JsonSchema\x12\x13\n\x0bimport_name\x18\x03 \x01(\t\x12\x0b\n\x03raw\x18\x04 \x01(\x08\x12#\n\x04task\x18\x05 \x01(\x0e\x32\x15.schemas.SchemasTasks\x12\x0c\n\x04\x64\x61te\x18\x06 \x01(\t\x12:\n\x05\x65xtra\x18\x07 \x03(\x0b\x32+.messaging.SchemaMessageResponse.ExtraEntry\x1a,\n\nExtraEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\x18ValidationMessageRequest\"\xf6\x01\n\x19ValidationMessageResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x04task\x18\x02 \x01(\x0e\x32\x1b.validation.ValidationTasks\x12\x11\n\tfile_data\x18\x03 \x01(\t\x12\x13\n\x0bimport_name\x18\x04 \x01(\t\x12\x0c\n\x04\x64\x61te\x18\x05 \x01(\t\x12>\n\x05\x65xtra\x18\x06 \x03(\x0b\x32/.messaging.ValidationMessageResponse.ExtraEntry\x1a,\n\nExtraEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32\xdc\x01\n\x10MessagingService\x12]\n\x14ReceiveSchemaMessage\x12\x1f.messaging.SchemaMessageRequest\x1a .messaging.SchemaMessageResponse\"\x00\x30\x01\x12i\n\x18ReceiveValidationMessage\x12#.messaging.ValidationMessageRequest\x1a$.messaging.ValidationMessageResponse\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19messaging/messaging.proto\x12\tmessaging\x1a\x14\x64\x61tabase/utils.proto\x1a\x1amessaging/validation.proto\x1a\x17messaging/schemas.proto\"\x16\n\x14SchemaMessageRequest\"\x85\x02\n\x15SchemaMessageResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12!\n\x06schema\x18\x02 \x01(\x0b\x32\x11.utils.JsonSchema\x12\x13\n\x0bimport_name\x18\x03 \x01(\t\x12\x0b\n\x03raw\x18\x04 \x01(\x08\x12#\n\x04task\x18\x05 \x01(\x0e\x32\x15.schemas.SchemasTasks\x12\x0c\n\x04\x64\x61te\x18\x06 \x01(\t\x12:\n\x05\x65xtra\x18\x07 \x03(\x0b\x32+.messaging.SchemaMessageResponse.ExtraEntry\x1a,\n\nExtraEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\x18ValidationMessageRequest\"\x9e\x02\n\x19ValidationMessageResponse\x12\n\n\x02id\x18\x01 \x01(\t\x12)\n\x04task\x18\x02 \x01(\x0e\x32\x1b.validation.ValidationTasks\x12\x11\n\tfile_data\x18\x03 \x01(\t\x12\x13\n\x0bimport_name\x18\x04 \x01(\t\x12&\n\x08metadata\x18\x05 \x01(\x0b\x32\x14.validation.Metadata\x12\x0c\n\x04\x64\x61te\x18\x06 \x01(\t\x12>\n\x05\x65xtra\x18\x07 \x03(\x0b\x32/.messaging.ValidationMessageResponse.ExtraEntry\x1a,\n\nExtraEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32\xdc\x01\n\x10MessagingService\x12]\n\x14ReceiveSchemaMessage\x12\x1f.messaging.SchemaMessageRequest\x1a .messaging.SchemaMessageResponse\"\x00\x30\x01\x12i\n\x18ReceiveValidationMessage\x12#.messaging.ValidationMessageRequest\x1a$.messaging.ValidationMessageResponse\"\x00\x30\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -50,9 +50,9 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_VALIDATIONMESSAGEREQUEST']._serialized_start=403
   _globals['_VALIDATIONMESSAGEREQUEST']._serialized_end=429
   _globals['_VALIDATIONMESSAGERESPONSE']._serialized_start=432
-  _globals['_VALIDATIONMESSAGERESPONSE']._serialized_end=678
+  _globals['_VALIDATIONMESSAGERESPONSE']._serialized_end=718
   _globals['_VALIDATIONMESSAGERESPONSE_EXTRAENTRY']._serialized_start=357
   _globals['_VALIDATIONMESSAGERESPONSE_EXTRAENTRY']._serialized_end=401
-  _globals['_MESSAGINGSERVICE']._serialized_start=681
-  _globals['_MESSAGINGSERVICE']._serialized_end=901
+  _globals['_MESSAGINGSERVICE']._serialized_start=721
+  _globals['_MESSAGINGSERVICE']._serialized_end=941
 # @@protoc_insertion_point(module_scope)

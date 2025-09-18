@@ -12,6 +12,7 @@ package schemas;
 // that validation workers use to validate incoming files against
 // defined data structures and constraints.
 enum SchemasTasks {
-    UPLOAD_SCHEMA = 0; // Create or update a schema definition in the registry
-    REMOVE_SCHEMA = 1; // Remove an existing schema definition from the registry
+    UNKNOWN = 0; // Unknown task type
+    UPLOAD_SCHEMA = 1; // Create or update a schema definition in the registry
+    REMOVE_SCHEMA = 2; // Remove an existing schema definition from the registry
 }

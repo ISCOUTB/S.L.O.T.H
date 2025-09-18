@@ -6,7 +6,8 @@
 import * as pb_1 from "google-protobuf";
 export namespace schemas {
     export enum SchemasTasks {
-        UPLOAD_SCHEMA = 0,
-        REMOVE_SCHEMA = 1
+        UNKNOWN = 0,
+        UPLOAD_SCHEMA = 1,
+        REMOVE_SCHEMA = 2
     }
 }

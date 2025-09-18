@@ -6,7 +6,8 @@
 import * as pb_1 from "google-protobuf";
 export namespace validation {
     export enum ValidationTasks {
-        SAMPLE_VALIDATION = 0
+        UNKNOWN = 0,
+        SAMPLE_VALIDATION = 1
     }
     export class Metadata extends pb_1.Message {
         #one_of_decls: number[][] = [];
