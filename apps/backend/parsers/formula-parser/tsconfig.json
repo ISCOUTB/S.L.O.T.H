@@ -1,5 +1,5 @@
 {
-    "extends": "@etl-design/tools-tsconfig/tsconfig.json",
+    "extends": "../../../../tools/tsconfig/tsconfig.base.json",
     "compilerOptions": {
         "module": "nodenext",
         "moduleResolution": "nodenext",

@@ -13,5 +13,5 @@
         "noUnusedParameters": true,
         "forceConsistentCasingInFileNames": true
     },
-    "exclude": ["node_modules", "eslint.config.mjs"]
+    "exclude": ["node_modules", "eslint.config.mjs", "dist"]
 }

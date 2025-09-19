@@ -32,7 +32,7 @@ tasks:
         command: node
         args:
             - --env-file=.env
-            - dist/server.js
+            - dist/server.cjs
         deps:
             - ^:build
         local: true
@@ -45,3 +45,18 @@ tasks:
         toolchain: node
         options:
             runFromWorkspaceRoot: false
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -f
+            - apps/backend/parsers/formula-parser/Dockerfile
+            - -t
+            - formula-parser:latest
+            - .
+            - --network=host
+        local: true
+        platform: system
+        options:
+            runFromWorkspaceRoot: true
