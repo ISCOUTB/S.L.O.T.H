@@ -44,6 +44,21 @@ class MessagingServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetMessagingParams = channel.unary_unary(
+                '/messaging.MessagingService/GetMessagingParams',
+                request_serializer=messaging_dot_messaging__pb2.GetMessagingParamsRequest.SerializeToString,
+                response_deserializer=messaging_dot_messaging__pb2.GetMessagingParamsResponse.FromString,
+                _registered_method=True)
+        self.GetRoutingKeySchemas = channel.unary_unary(
+                '/messaging.MessagingService/GetRoutingKeySchemas',
+                request_serializer=messaging_dot_messaging__pb2.GetRoutingKeySchemasRequest.SerializeToString,
+                response_deserializer=messaging_dot_messaging__pb2.RoutingKey.FromString,
+                _registered_method=True)
+        self.GetRoutingKeyValidations = channel.unary_unary(
+                '/messaging.MessagingService/GetRoutingKeyValidations',
+                request_serializer=messaging_dot_messaging__pb2.GetRoutingKeyValidationsRequest.SerializeToString,
+                response_deserializer=messaging_dot_messaging__pb2.RoutingKey.FromString,
+                _registered_method=True)
         self.ReceiveSchemaMessage = channel.unary_stream(
                 '/messaging.MessagingService/ReceiveSchemaMessage',
                 request_serializer=messaging_dot_messaging__pb2.SchemaMessageRequest.SerializeToString,
@@ -66,6 +81,30 @@ class MessagingServiceServicer(object):
     and consistent message structure.
     """
 
+    def GetMessagingParams(self, request, context):
+        """GetMessagingParams retrieves RabbitMQ connection parameters and configuration
+        Used by workers and services to obtain the necessary connection details for message broker setup
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetRoutingKeySchemas(self, request, context):
+        """GetRoutingKeySchemas retrieves the routing key used for schema management messages
+        Used by producers to determine the correct routing key when publishing schema operations to the message broker
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetRoutingKeyValidations(self, request, context):
+        """GetRoutingKeyValidations retrieves the routing key used for validation request messages
+        Used by producers to determine the correct routing key when publishing validation requests to the message broker
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def ReceiveSchemaMessage(self, request, context):
         """ReceiveSchemaMessage streams schema update messages to workers
         Used for creating, updating, or removing schema definitions in the schema registry
@@ -85,6 +124,21 @@ class MessagingServiceServicer(object):
 
 def add_MessagingServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetMessagingParams': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMessagingParams,
+                    request_deserializer=messaging_dot_messaging__pb2.GetMessagingParamsRequest.FromString,
+                    response_serializer=messaging_dot_messaging__pb2.GetMessagingParamsResponse.SerializeToString,
+            ),
+            'GetRoutingKeySchemas': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetRoutingKeySchemas,
+                    request_deserializer=messaging_dot_messaging__pb2.GetRoutingKeySchemasRequest.FromString,
+                    response_serializer=messaging_dot_messaging__pb2.RoutingKey.SerializeToString,
+            ),
+            'GetRoutingKeyValidations': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetRoutingKeyValidations,
+                    request_deserializer=messaging_dot_messaging__pb2.GetRoutingKeyValidationsRequest.FromString,
+                    response_serializer=messaging_dot_messaging__pb2.RoutingKey.SerializeToString,
+            ),
             'ReceiveSchemaMessage': grpc.unary_stream_rpc_method_handler(
                     servicer.ReceiveSchemaMessage,
                     request_deserializer=messaging_dot_messaging__pb2.SchemaMessageRequest.FromString,
@@ -112,6 +166,87 @@ class MessagingService(object):
     in the distributed validation system, ensuring proper data serialization
     and consistent message structure.
     """
+
+    @staticmethod
+    def GetMessagingParams(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/messaging.MessagingService/GetMessagingParams',
+            messaging_dot_messaging__pb2.GetMessagingParamsRequest.SerializeToString,
+            messaging_dot_messaging__pb2.GetMessagingParamsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetRoutingKeySchemas(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/messaging.MessagingService/GetRoutingKeySchemas',
+            messaging_dot_messaging__pb2.GetRoutingKeySchemasRequest.SerializeToString,
+            messaging_dot_messaging__pb2.RoutingKey.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetRoutingKeyValidations(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/messaging.MessagingService/GetRoutingKeyValidations',
+            messaging_dot_messaging__pb2.GetRoutingKeyValidationsRequest.SerializeToString,
+            messaging_dot_messaging__pb2.RoutingKey.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
 
     @staticmethod
     def ReceiveSchemaMessage(request,

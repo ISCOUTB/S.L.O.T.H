@@ -1,4 +1,5 @@
 from proto_utils.messaging import dtypes
+from proto_utils.generated.messaging import dtypes_pb2
 from proto_utils.generated.messaging import messaging_pb2
 from proto_utils.messaging.schemas_serde import SchemasSerde
 from proto_utils.messaging.validation_serde import ValidationSerde
@@ -6,6 +7,117 @@ from proto_utils.database.utils_serde import DatabaseUtilsSerde
 
 
 class MessagingSerde:
+    @staticmethod
+    def serialize_queue_info(queue: dtypes.QueueInfo) -> dtypes_pb2.QueueInfo:
+        return dtypes_pb2.QueueInfo(
+            queue=queue["queue"],
+            durable=queue["durable"],
+            routing_key=queue["routing_key"],
+        )
+
+    @staticmethod
+    def deserialize_queue_info(proto: dtypes_pb2.QueueInfo) -> dtypes.QueueInfo:
+        return dtypes.QueueInfo(
+            queue=proto.queue,
+            routing_key=proto.routing_key,
+            durable=proto.durable,
+        )
+
+    @staticmethod
+    def serialize_exchange_info(
+        exchange: dtypes.ExchangeInfo,
+    ) -> dtypes_pb2.ExchangeInfo:
+        return dtypes_pb2.ExchangeInfo(
+            exchange=exchange["exchange"],
+            type=exchange["type"],
+            durable=exchange["durable"],
+            queues=list(map(MessagingSerde.serialize_queue_info, exchange["queues"])),
+        )
+
+    @staticmethod
+    def deserialize_exchange_info(
+        proto: dtypes_pb2.ExchangeInfo,
+    ) -> dtypes.ExchangeInfo:
+        return dtypes.ExchangeInfo(
+            exchange=proto.exchange,
+            type=proto.type,
+            durable=proto.durable,
+            queues=list(map(MessagingSerde.deserialize_queue_info, proto.queues)),
+        )
+
+    @staticmethod
+    def serialize_get_messaging_params_request(
+        message: dtypes.GetMessagingParamsRequest,
+    ) -> messaging_pb2.GetMessagingParamsRequest:
+        return messaging_pb2.GetMessagingParamsRequest()
+
+    @staticmethod
+    def deserialize_get_messaging_params_request(
+        proto: messaging_pb2.GetMessagingParamsRequest,
+    ) -> dtypes.GetMessagingParamsRequest:
+        return dtypes.GetMessagingParamsRequest()
+
+    @staticmethod
+    def serialize_get_messaging_params_response(
+        message: dtypes.GetMessagingParamsResponse,
+    ) -> messaging_pb2.GetMessagingParamsResponse:
+        return messaging_pb2.GetMessagingParamsResponse(
+            host=message["host"],
+            port=message["port"],
+            username=message["username"],
+            password=message["password"],
+            virtual_host=message["virtual_host"],
+            exchange=MessagingSerde.serialize_exchange_info(message["exchange"]),
+        )
+
+    def deserialize_get_messaging_params_response(
+        proto: messaging_pb2.GetMessagingParamsResponse,
+    ) -> dtypes.GetMessagingParamsResponse:
+        return dtypes.GetMessagingParamsResponse(
+            host=proto.host,
+            port=proto.port,
+            username=proto.username,
+            password=proto.password,
+            virtual_host=proto.virtual_host,
+            exchange=MessagingSerde.deserialize_exchange_info(proto.exchange),
+        )
+
+    @staticmethod
+    def serialize_get_routing_key_schemas_request(
+        message: dtypes.GetRoutingKeySchemasRequest,
+    ) -> messaging_pb2.GetRoutingKeySchemasRequest:
+        return messaging_pb2.GetRoutingKeySchemasRequest()
+
+    @staticmethod
+    def deserialize_get_routing_key_schemas_request(
+        proto: messaging_pb2.GetRoutingKeySchemasRequest,
+    ) -> dtypes.GetRoutingKeySchemasRequest:
+        return dtypes.GetRoutingKeySchemasRequest()
+
+    @staticmethod
+    def serialize_routing_key(
+        message: dtypes.RoutingKey,
+    ) -> messaging_pb2.RoutingKey:
+        return messaging_pb2.RoutingKey(routing_key=message["routing_key"])
+
+    @staticmethod
+    def deserialize_routing_key(
+        proto: messaging_pb2.RoutingKey,
+    ) -> dtypes.RoutingKey:
+        return dtypes.RoutingKey(routing_key=proto.routing_key)
+
+    @staticmethod
+    def serialize_get_routing_key_validations_request(
+        message: dtypes.GetRoutingKeyValidationsRequest,
+    ) -> messaging_pb2.GetRoutingKeyValidationsRequest:
+        return messaging_pb2.GetRoutingKeyValidationsRequest()
+
+    @staticmethod
+    def deserialize_get_routing_key_validations_request(
+        proto: messaging_pb2.GetRoutingKeyValidationsRequest,
+    ) -> dtypes.GetRoutingKeyValidationsRequest:
+        return dtypes.GetRoutingKeyValidationsRequest()
+
     @staticmethod
     def serialize_schema_message_request(
         message: dtypes.SchemaMessageRequest,

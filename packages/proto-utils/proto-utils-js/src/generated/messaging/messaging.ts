@@ -6,9 +6,382 @@
 import * as dependency_1 from "./../database/utils";
 import * as dependency_2 from "./validation";
 import * as dependency_3 from "./schemas";
+import * as dependency_4 from "./dtypes";
 import * as pb_1 from "google-protobuf";
 import * as grpc_1 from "@grpc/grpc-js";
 export namespace messaging {
+    export class GetRoutingKeySchemasRequest extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {}) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") { }
+        }
+        static fromObject(data: {}): GetRoutingKeySchemasRequest {
+            const message = new GetRoutingKeySchemasRequest({});
+            return message;
+        }
+        toObject() {
+            const data: {} = {};
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): GetRoutingKeySchemasRequest {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new GetRoutingKeySchemasRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): GetRoutingKeySchemasRequest {
+            return GetRoutingKeySchemasRequest.deserialize(bytes);
+        }
+    }
+    export class GetRoutingKeyValidationsRequest extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {}) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") { }
+        }
+        static fromObject(data: {}): GetRoutingKeyValidationsRequest {
+            const message = new GetRoutingKeyValidationsRequest({});
+            return message;
+        }
+        toObject() {
+            const data: {} = {};
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): GetRoutingKeyValidationsRequest {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new GetRoutingKeyValidationsRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): GetRoutingKeyValidationsRequest {
+            return GetRoutingKeyValidationsRequest.deserialize(bytes);
+        }
+    }
+    export class RoutingKey extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            routing_key?: string;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("routing_key" in data && data.routing_key != undefined) {
+                    this.routing_key = data.routing_key;
+                }
+            }
+        }
+        get routing_key() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set routing_key(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data: {
+            routing_key?: string;
+        }): RoutingKey {
+            const message = new RoutingKey({});
+            if (data.routing_key != null) {
+                message.routing_key = data.routing_key;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                routing_key?: string;
+            } = {};
+            if (this.routing_key != null) {
+                data.routing_key = this.routing_key;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.routing_key.length)
+                writer.writeString(1, this.routing_key);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): RoutingKey {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new RoutingKey();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.routing_key = reader.readString();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): RoutingKey {
+            return RoutingKey.deserialize(bytes);
+        }
+    }
+    export class GetMessagingParamsRequest extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {}) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") { }
+        }
+        static fromObject(data: {}): GetMessagingParamsRequest {
+            const message = new GetMessagingParamsRequest({});
+            return message;
+        }
+        toObject() {
+            const data: {} = {};
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): GetMessagingParamsRequest {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new GetMessagingParamsRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): GetMessagingParamsRequest {
+            return GetMessagingParamsRequest.deserialize(bytes);
+        }
+    }
+    export class GetMessagingParamsResponse extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            host?: string;
+            port?: number;
+            virtual_host?: string;
+            username?: string;
+            password?: string;
+            exchange?: dependency_4.dtypes.ExchangeInfo;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("host" in data && data.host != undefined) {
+                    this.host = data.host;
+                }
+                if ("port" in data && data.port != undefined) {
+                    this.port = data.port;
+                }
+                if ("virtual_host" in data && data.virtual_host != undefined) {
+                    this.virtual_host = data.virtual_host;
+                }
+                if ("username" in data && data.username != undefined) {
+                    this.username = data.username;
+                }
+                if ("password" in data && data.password != undefined) {
+                    this.password = data.password;
+                }
+                if ("exchange" in data && data.exchange != undefined) {
+                    this.exchange = data.exchange;
+                }
+            }
+        }
+        get host() {
+            return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+        }
+        set host(value: string) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        get port() {
+            return pb_1.Message.getFieldWithDefault(this, 2, 0) as number;
+        }
+        set port(value: number) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        get virtual_host() {
+            return pb_1.Message.getFieldWithDefault(this, 3, "") as string;
+        }
+        set virtual_host(value: string) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        get username() {
+            return pb_1.Message.getFieldWithDefault(this, 4, "") as string;
+        }
+        set username(value: string) {
+            pb_1.Message.setField(this, 4, value);
+        }
+        get password() {
+            return pb_1.Message.getFieldWithDefault(this, 5, "") as string;
+        }
+        set password(value: string) {
+            pb_1.Message.setField(this, 5, value);
+        }
+        get exchange() {
+            return pb_1.Message.getWrapperField(this, dependency_4.dtypes.ExchangeInfo, 6) as dependency_4.dtypes.ExchangeInfo;
+        }
+        set exchange(value: dependency_4.dtypes.ExchangeInfo) {
+            pb_1.Message.setWrapperField(this, 6, value);
+        }
+        get has_exchange() {
+            return pb_1.Message.getField(this, 6) != null;
+        }
+        static fromObject(data: {
+            host?: string;
+            port?: number;
+            virtual_host?: string;
+            username?: string;
+            password?: string;
+            exchange?: ReturnType<typeof dependency_4.dtypes.ExchangeInfo.prototype.toObject>;
+        }): GetMessagingParamsResponse {
+            const message = new GetMessagingParamsResponse({});
+            if (data.host != null) {
+                message.host = data.host;
+            }
+            if (data.port != null) {
+                message.port = data.port;
+            }
+            if (data.virtual_host != null) {
+                message.virtual_host = data.virtual_host;
+            }
+            if (data.username != null) {
+                message.username = data.username;
+            }
+            if (data.password != null) {
+                message.password = data.password;
+            }
+            if (data.exchange != null) {
+                message.exchange = dependency_4.dtypes.ExchangeInfo.fromObject(data.exchange);
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                host?: string;
+                port?: number;
+                virtual_host?: string;
+                username?: string;
+                password?: string;
+                exchange?: ReturnType<typeof dependency_4.dtypes.ExchangeInfo.prototype.toObject>;
+            } = {};
+            if (this.host != null) {
+                data.host = this.host;
+            }
+            if (this.port != null) {
+                data.port = this.port;
+            }
+            if (this.virtual_host != null) {
+                data.virtual_host = this.virtual_host;
+            }
+            if (this.username != null) {
+                data.username = this.username;
+            }
+            if (this.password != null) {
+                data.password = this.password;
+            }
+            if (this.exchange != null) {
+                data.exchange = this.exchange.toObject();
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.host.length)
+                writer.writeString(1, this.host);
+            if (this.port != 0)
+                writer.writeInt32(2, this.port);
+            if (this.virtual_host.length)
+                writer.writeString(3, this.virtual_host);
+            if (this.username.length)
+                writer.writeString(4, this.username);
+            if (this.password.length)
+                writer.writeString(5, this.password);
+            if (this.has_exchange)
+                writer.writeMessage(6, this.exchange, () => this.exchange.serialize(writer));
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): GetMessagingParamsResponse {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new GetMessagingParamsResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.host = reader.readString();
+                        break;
+                    case 2:
+                        message.port = reader.readInt32();
+                        break;
+                    case 3:
+                        message.virtual_host = reader.readString();
+                        break;
+                    case 4:
+                        message.username = reader.readString();
+                        break;
+                    case 5:
+                        message.password = reader.readString();
+                        break;
+                    case 6:
+                        reader.readMessage(message.exchange, () => message.exchange = dependency_4.dtypes.ExchangeInfo.deserialize(reader));
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): GetMessagingParamsResponse {
+            return GetMessagingParamsResponse.deserialize(bytes);
+        }
+    }
     export class SchemaMessageRequest extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {}) {
@@ -551,6 +924,33 @@ export namespace messaging {
     }
     export abstract class UnimplementedMessagingServiceService {
         static definition = {
+            GetMessagingParams: {
+                path: "/messaging.MessagingService/GetMessagingParams",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: GetMessagingParamsRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => GetMessagingParamsRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: GetMessagingParamsResponse) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => GetMessagingParamsResponse.deserialize(new Uint8Array(bytes))
+            },
+            GetRoutingKeySchemas: {
+                path: "/messaging.MessagingService/GetRoutingKeySchemas",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: GetRoutingKeySchemasRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => GetRoutingKeySchemasRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: RoutingKey) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => RoutingKey.deserialize(new Uint8Array(bytes))
+            },
+            GetRoutingKeyValidations: {
+                path: "/messaging.MessagingService/GetRoutingKeyValidations",
+                requestStream: false,
+                responseStream: false,
+                requestSerialize: (message: GetRoutingKeyValidationsRequest) => Buffer.from(message.serialize()),
+                requestDeserialize: (bytes: Buffer) => GetRoutingKeyValidationsRequest.deserialize(new Uint8Array(bytes)),
+                responseSerialize: (message: RoutingKey) => Buffer.from(message.serialize()),
+                responseDeserialize: (bytes: Buffer) => RoutingKey.deserialize(new Uint8Array(bytes))
+            },
             ReceiveSchemaMessage: {
                 path: "/messaging.MessagingService/ReceiveSchemaMessage",
                 requestStream: false,
@@ -571,6 +971,9 @@ export namespace messaging {
             }
         };
         [method: string]: grpc_1.UntypedHandleCall;
+        abstract GetMessagingParams(call: grpc_1.ServerUnaryCall<GetMessagingParamsRequest, GetMessagingParamsResponse>, callback: grpc_1.sendUnaryData<GetMessagingParamsResponse>): void;
+        abstract GetRoutingKeySchemas(call: grpc_1.ServerUnaryCall<GetRoutingKeySchemasRequest, RoutingKey>, callback: grpc_1.sendUnaryData<RoutingKey>): void;
+        abstract GetRoutingKeyValidations(call: grpc_1.ServerUnaryCall<GetRoutingKeyValidationsRequest, RoutingKey>, callback: grpc_1.sendUnaryData<RoutingKey>): void;
         abstract ReceiveSchemaMessage(call: grpc_1.ServerWritableStream<SchemaMessageRequest, SchemaMessageResponse>): void;
         abstract ReceiveValidationMessage(call: grpc_1.ServerWritableStream<ValidationMessageRequest, ValidationMessageResponse>): void;
     }
@@ -578,6 +981,15 @@ export namespace messaging {
         constructor(address: string, credentials: grpc_1.ChannelCredentials, options?: Partial<grpc_1.ChannelOptions>) {
             super(address, credentials, options);
         }
+        GetMessagingParams: GrpcUnaryServiceInterface<GetMessagingParamsRequest, GetMessagingParamsResponse> = (message: GetMessagingParamsRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<GetMessagingParamsResponse>, options?: grpc_1.CallOptions | grpc_1.requestCallback<GetMessagingParamsResponse>, callback?: grpc_1.requestCallback<GetMessagingParamsResponse>): grpc_1.ClientUnaryCall => {
+            return super.GetMessagingParams(message, metadata, options, callback);
+        };
+        GetRoutingKeySchemas: GrpcUnaryServiceInterface<GetRoutingKeySchemasRequest, RoutingKey> = (message: GetRoutingKeySchemasRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<RoutingKey>, options?: grpc_1.CallOptions | grpc_1.requestCallback<RoutingKey>, callback?: grpc_1.requestCallback<RoutingKey>): grpc_1.ClientUnaryCall => {
+            return super.GetRoutingKeySchemas(message, metadata, options, callback);
+        };
+        GetRoutingKeyValidations: GrpcUnaryServiceInterface<GetRoutingKeyValidationsRequest, RoutingKey> = (message: GetRoutingKeyValidationsRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<RoutingKey>, options?: grpc_1.CallOptions | grpc_1.requestCallback<RoutingKey>, callback?: grpc_1.requestCallback<RoutingKey>): grpc_1.ClientUnaryCall => {
+            return super.GetRoutingKeyValidations(message, metadata, options, callback);
+        };
         ReceiveSchemaMessage: GrpcStreamServiceInterface<SchemaMessageRequest, SchemaMessageResponse> = (message: SchemaMessageRequest, metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientReadableStream<SchemaMessageResponse> => {
             return super.ReceiveSchemaMessage(message, metadata, options);
         };

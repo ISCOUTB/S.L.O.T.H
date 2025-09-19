@@ -22,6 +22,7 @@ syntax = "proto3";
 import "database/utils.proto";
 import "messaging/validation.proto";
 import "messaging/schemas.proto";
+import "messaging/dtypes.proto";
 
 package messaging;
 
@@ -33,6 +34,18 @@ package messaging;
 // in the distributed validation system, ensuring proper data serialization
 // and consistent message structure.
 service MessagingService {
+    // GetMessagingParams retrieves RabbitMQ connection parameters and configuration
+    // Used by workers and services to obtain the necessary connection details for message broker setup
+    rpc GetMessagingParams(GetMessagingParamsRequest) returns (GetMessagingParamsResponse) {}
+
+    // GetRoutingKeySchemas retrieves the routing key used for schema management messages
+    // Used by producers to determine the correct routing key when publishing schema operations to the message broker
+    rpc GetRoutingKeySchemas(GetRoutingKeySchemasRequest) returns (RoutingKey);
+    
+    // GetRoutingKeyValidations retrieves the routing key used for validation request messages
+    // Used by producers to determine the correct routing key when publishing validation requests to the message broker
+    rpc GetRoutingKeyValidations(GetRoutingKeyValidationsRequest) returns (RoutingKey);
+
     // ReceiveSchemaMessage streams schema update messages to workers
     // Used for creating, updating, or removing schema definitions in the schema registry
     rpc ReceiveSchemaMessage(SchemaMessageRequest) returns (stream SchemaMessageResponse) {}
@@ -40,6 +53,67 @@ service MessagingService {
     // ReceiveValidationMessage streams validation request messages to workers
     // Used for processing file validation requests against specified schemas
     rpc ReceiveValidationMessage(ValidationMessageRequest) returns (stream ValidationMessageResponse) {}
+}
+
+// Request message for retrieving schema routing key information
+// Currently empty as no filtering or specific parameters are required
+// for obtaining the standard schema routing key configuration
+message GetRoutingKeySchemasRequest {}
+
+// Request message for retrieving validation routing key information
+// Currently empty as no filtering or specific parameters are required
+// for obtaining the standard validation routing key configuration
+message GetRoutingKeyValidationsRequest {}
+
+// Routing key response message for message broker routing configuration
+//
+// Contains the routing key string used for directing messages to the appropriate
+// queues in the RabbitMQ exchange. This routing key determines which workers
+// will receive specific types of messages based on the exchange routing rules.
+//
+// Routing keys are essential for proper message distribution in the distributed
+// system, ensuring that schema messages reach schema workers and validation
+// messages reach validation workers.
+message RoutingKey {
+    string routing_key = 1; // The routing key string used for message routing (e.g., "schema.upload", "validation.sample")
+}
+
+// Request message for retrieving messaging configuration parameters
+// Currently empty as no filtering or specific parameters are required
+// for obtaining the standard RabbitMQ connection configuration
+message GetMessagingParamsRequest {}
+
+// Response message containing RabbitMQ connection parameters and configuration
+//
+// Provides all necessary information for establishing connections to the
+// message broker, including authentication credentials, connection details,
+// and exchange configuration. This information is essential for workers
+// and services to properly connect to the messaging infrastructure.
+//
+// The response contains both connection parameters and exchange configuration
+// to ensure consistent messaging setup across all system components.
+//
+// Example usage:
+//   GetMessagingParamsResponse {
+//     host: "localhost"
+//     port: 5672
+//     virtual_host: "/etl"
+//     username: "worker_user"
+//     password: "secure_password"
+//     exchange: {
+//       exchange: "validation_exchange"
+//       type: "direct"
+//       durable: true
+//       queues: [...]
+//     }
+//   }
+message GetMessagingParamsResponse {
+    string host = 1;                    // RabbitMQ server hostname or IP address
+    int32 port = 2;                     // RabbitMQ server port number (typically 5672)
+    string virtual_host = 3;            // Virtual host name for logical separation of messaging environments
+    string username = 4;                // Authentication username for broker connection
+    string password = 5;                // Authentication password for broker connection
+    dtypes.ExchangeInfo exchange = 6;   // Exchange configuration including queues and routing information
 }
 
 // Request message for schema operations (currently empty)

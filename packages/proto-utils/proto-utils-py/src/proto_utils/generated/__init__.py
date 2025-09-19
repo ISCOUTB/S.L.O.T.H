@@ -16,6 +16,8 @@ from .database.database_pb2 import *
 from .database.database_pb2_grpc import *
 from .database.mongo_pb2 import *
 from .database.redis_pb2 import *
+from .messaging.dtypes_pb2 import *
+from .messaging.dtypes_pb2_grpc import *
 from .messaging.messaging_pb2 import *
 from .messaging.messaging_pb2_grpc import *
 from .messaging.schemas_pb2 import *

@@ -1,6 +1,7 @@
-from database import utils_pb2 as _utils_pb2
-from messaging import validation_pb2 as _validation_pb2
-from messaging import schemas_pb2 as _schemas_pb2
+from ..database import utils_pb2 as _utils_pb2
+from ..messaging import validation_pb2 as _validation_pb2
+from ..messaging import schemas_pb2 as _schemas_pb2
+from ..messaging import dtypes_pb2 as _dtypes_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -8,6 +9,40 @@ from collections.abc import Mapping as _Mapping
 from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
+
+class GetRoutingKeySchemasRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class GetRoutingKeyValidationsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class RoutingKey(_message.Message):
+    __slots__ = ("routing_key",)
+    ROUTING_KEY_FIELD_NUMBER: _ClassVar[int]
+    routing_key: str
+    def __init__(self, routing_key: _Optional[str] = ...) -> None: ...
+
+class GetMessagingParamsRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class GetMessagingParamsResponse(_message.Message):
+    __slots__ = ("host", "port", "virtual_host", "username", "password", "exchange")
+    HOST_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
+    VIRTUAL_HOST_FIELD_NUMBER: _ClassVar[int]
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    EXCHANGE_FIELD_NUMBER: _ClassVar[int]
+    host: str
+    port: int
+    virtual_host: str
+    username: str
+    password: str
+    exchange: _dtypes_pb2.ExchangeInfo
+    def __init__(self, host: _Optional[str] = ..., port: _Optional[int] = ..., virtual_host: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., exchange: _Optional[_Union[_dtypes_pb2.ExchangeInfo, _Mapping]] = ...) -> None: ...
 
 class SchemaMessageRequest(_message.Message):
     __slots__ = ()
