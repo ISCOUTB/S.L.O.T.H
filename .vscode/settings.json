@@ -94,6 +94,7 @@
         "classpath",
         "dtypes",
         "eslintcache",
+        "fanout",
         "fastapi",
         "GENCODE",
         "grpcio",
