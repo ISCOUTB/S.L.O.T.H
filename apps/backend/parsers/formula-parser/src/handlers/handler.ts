@@ -8,24 +8,7 @@ export function handler(formula: string) {
     return Effect.gen(function* () {
         const response = new formula_parser.FormulaParserResponse();
 
-        const { tokens, ast, error } = yield* parseFormula(formula).pipe(
-            Effect.catchTag("TokenizeError", (error) => {
-                logger.info(`[handler] could not tokenize formula: ${error.error}`);
-                return Effect.succeed({
-                    tokens: null,
-                    ast: null,
-                    error: `tokenization failed: ${error.error}`,
-                });
-            }),
-            Effect.catchTag("BuildTreeError", (error) => {
-                logger.info(`[handler] could not build tree: ${error.error}`);
-                return Effect.succeed({
-                    tokens: null,
-                    ast: null,
-                    error: `tree building failed: ${error.error}`,
-                });
-            }),
-        );
+        const { tokens, ast, error } = yield* parseFormula(formula);
 
         const { DEBUG_FORMULA_PARSER } = yield* settings;
 

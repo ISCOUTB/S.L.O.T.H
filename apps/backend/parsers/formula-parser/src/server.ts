@@ -7,12 +7,10 @@ import {
     responseSerialize,
 } from "@etl-design/packages-proto-utils-js";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
-import { Data, Effect } from "effect";
-import { settings } from "./core/index.ts";
+import { Effect } from "effect";
+import { BindPortError, settings } from "./core/index.ts";
 import { handler } from "./handlers/handler.ts";
 import { logger } from "./utils/index.ts";
-
-class BindPortError extends Data.TaggedError("BindPortError")<{ error: Error }> {}
 
 function parseFormula(
     call: ServerUnaryCall<

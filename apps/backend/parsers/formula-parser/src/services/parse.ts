@@ -1,10 +1,16 @@
-import { Data, Effect } from "effect";
+import type { Node } from "excel-formula-ast";
+import type { Token } from "excel-formula-tokenizer";
+import { Effect } from "effect";
 import { buildTree } from "excel-formula-ast";
 import { tokenize } from "excel-formula-tokenizer";
+import { BuildTreeError, TokenizeError } from "../core/index.ts";
 
-class BuildTreeError extends Data.TaggedError("BuildTreeError")<{ error: unknown }> {}
-
-class TokenizeError extends Data.TaggedError("TokenizeError")<{ error: unknown }> {}
+interface ParseFormulaReturnType {
+    formula: string;
+    tokens: Token[] | null;
+    ast: Node | null;
+    error: string;
+}
 
 export function parseFormula(formula: string) {
     return Effect.gen(function* () {
@@ -18,8 +24,25 @@ export function parseFormula(formula: string) {
             catch: (error) => new BuildTreeError({ error }),
         });
 
-        return { formula, tokens, ast, error: "" };
-    });
+        return { formula, tokens, ast, error: "" } as ParseFormulaReturnType;
+    }).pipe(
+        Effect.catchTags({
+            BuildTreeError: (error) =>
+                Effect.succeed<ParseFormulaReturnType>({
+                    formula,
+                    tokens: null,
+                    ast: null,
+                    error: `tokenization failed: ${error.error}`,
+                }),
+            TokenizeError: (error) =>
+                Effect.succeed<ParseFormulaReturnType>({
+                    formula,
+                    tokens: null,
+                    ast: null,
+                    error: `tree building failed: ${error.error}`,
+                }),
+        }),
+    );
 }
 
 export default parseFormula;
