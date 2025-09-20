@@ -12,23 +12,47 @@ import * as grpc_1 from "@grpc/grpc-js";
 export namespace messaging {
     export class GetRoutingKeySchemasRequest extends pb_1.Message {
         #one_of_decls: number[][] = [];
-        constructor(data?: any[] | {}) {
+        constructor(data?: any[] | {
+            results?: boolean;
+        }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
-            if (!Array.isArray(data) && typeof data == "object") { }
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("results" in data && data.results != undefined) {
+                    this.results = data.results;
+                }
+            }
         }
-        static fromObject(data: {}): GetRoutingKeySchemasRequest {
+        get results() {
+            return pb_1.Message.getFieldWithDefault(this, 1, false) as boolean;
+        }
+        set results(value: boolean) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data: {
+            results?: boolean;
+        }): GetRoutingKeySchemasRequest {
             const message = new GetRoutingKeySchemasRequest({});
+            if (data.results != null) {
+                message.results = data.results;
+            }
             return message;
         }
         toObject() {
-            const data: {} = {};
+            const data: {
+                results?: boolean;
+            } = {};
+            if (this.results != null) {
+                data.results = this.results;
+            }
             return data;
         }
         serialize(): Uint8Array;
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
+            if (this.results != false)
+                writer.writeBool(1, this.results);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -38,6 +62,9 @@ export namespace messaging {
                 if (reader.isEndGroup())
                     break;
                 switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.results = reader.readBool();
+                        break;
                     default: reader.skipField();
                 }
             }
@@ -52,23 +79,47 @@ export namespace messaging {
     }
     export class GetRoutingKeyValidationsRequest extends pb_1.Message {
         #one_of_decls: number[][] = [];
-        constructor(data?: any[] | {}) {
+        constructor(data?: any[] | {
+            results?: boolean;
+        }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
-            if (!Array.isArray(data) && typeof data == "object") { }
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("results" in data && data.results != undefined) {
+                    this.results = data.results;
+                }
+            }
         }
-        static fromObject(data: {}): GetRoutingKeyValidationsRequest {
+        get results() {
+            return pb_1.Message.getFieldWithDefault(this, 1, false) as boolean;
+        }
+        set results(value: boolean) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data: {
+            results?: boolean;
+        }): GetRoutingKeyValidationsRequest {
             const message = new GetRoutingKeyValidationsRequest({});
+            if (data.results != null) {
+                message.results = data.results;
+            }
             return message;
         }
         toObject() {
-            const data: {} = {};
+            const data: {
+                results?: boolean;
+            } = {};
+            if (this.results != null) {
+                data.results = this.results;
+            }
             return data;
         }
         serialize(): Uint8Array;
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
+            if (this.results != false)
+                writer.writeBool(1, this.results);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -78,6 +129,9 @@ export namespace messaging {
                 if (reader.isEndGroup())
                     break;
                 switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.results = reader.readBool();
+                        break;
                     default: reader.skipField();
                 }
             }

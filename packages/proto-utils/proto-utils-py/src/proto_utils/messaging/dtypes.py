@@ -25,11 +25,11 @@ class Metadata(TypedDict):
 
 
 class GetRoutingKeySchemasRequest(TypedDict):
-    pass
+    results: bool
 
 
 class GetRoutingKeyValidationsRequest(TypedDict):
-    pass
+    results: bool
 
 
 class GetMessagingParamsRequest(TypedDict):

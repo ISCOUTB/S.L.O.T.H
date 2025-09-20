@@ -56,14 +56,20 @@ service MessagingService {
 }
 
 // Request message for retrieving schema routing key information
-// Currently empty as no filtering or specific parameters are required
-// for obtaining the standard schema routing key configuration
-message GetRoutingKeySchemasRequest {}
+// The results parameter determines the type of routing key to retrieve:
+// - true: Returns routing key for result/response messages
+// - false: Returns routing key for standard/input messages (default)
+message GetRoutingKeySchemasRequest {
+    bool results = 1;  // Specifies if the routing key is for result messages (default: false)
+}
 
 // Request message for retrieving validation routing key information
-// Currently empty as no filtering or specific parameters are required
-// for obtaining the standard validation routing key configuration
-message GetRoutingKeyValidationsRequest {}
+// The results parameter determines the type of routing key to retrieve:
+// - true: Returns routing key for result/response messages
+// - false: Returns routing key for standard/input messages (default)
+message GetRoutingKeyValidationsRequest {
+    bool results = 1;  // Specifies if the routing key is for result messages (default: false)
+}
 
 // Routing key response message for message broker routing configuration
 //

@@ -11,12 +11,16 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class GetRoutingKeySchemasRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("results",)
+    RESULTS_FIELD_NUMBER: _ClassVar[int]
+    results: bool
+    def __init__(self, results: bool = ...) -> None: ...
 
 class GetRoutingKeyValidationsRequest(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("results",)
+    RESULTS_FIELD_NUMBER: _ClassVar[int]
+    results: bool
+    def __init__(self, results: bool = ...) -> None: ...
 
 class RoutingKey(_message.Message):
     __slots__ = ("routing_key",)

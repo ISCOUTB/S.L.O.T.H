@@ -86,13 +86,13 @@ class MessagingSerde:
     def serialize_get_routing_key_schemas_request(
         message: dtypes.GetRoutingKeySchemasRequest,
     ) -> messaging_pb2.GetRoutingKeySchemasRequest:
-        return messaging_pb2.GetRoutingKeySchemasRequest()
+        return messaging_pb2.GetRoutingKeySchemasRequest(results=message["results"])
 
     @staticmethod
     def deserialize_get_routing_key_schemas_request(
         proto: messaging_pb2.GetRoutingKeySchemasRequest,
     ) -> dtypes.GetRoutingKeySchemasRequest:
-        return dtypes.GetRoutingKeySchemasRequest()
+        return dtypes.GetRoutingKeySchemasRequest(results=proto.results)
 
     @staticmethod
     def serialize_routing_key(
@@ -110,13 +110,13 @@ class MessagingSerde:
     def serialize_get_routing_key_validations_request(
         message: dtypes.GetRoutingKeyValidationsRequest,
     ) -> messaging_pb2.GetRoutingKeyValidationsRequest:
-        return messaging_pb2.GetRoutingKeyValidationsRequest()
+        return messaging_pb2.GetRoutingKeyValidationsRequest(results=message["results"])
 
     @staticmethod
     def deserialize_get_routing_key_validations_request(
         proto: messaging_pb2.GetRoutingKeyValidationsRequest,
     ) -> dtypes.GetRoutingKeyValidationsRequest:
-        return dtypes.GetRoutingKeyValidationsRequest()
+        return dtypes.GetRoutingKeyValidationsRequest(results=proto.results)
 
     @staticmethod
     def serialize_schema_message_request(
