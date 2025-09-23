@@ -54,8 +54,8 @@ class Settings(BaseSettings):
     RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS: str = "validation.request"
 
     # Workers configuration
-    WORKER_CONCURRENCY = 4
-    WORKER_PREFETCH_COUNT = 1
+    WORKER_CONCURRENCY: int = 4
+    WORKER_PREFETCH_COUNT: int = 1
 
     # Messaging Connection Configuration
     MESSAGING_CONNECTION_HOST: str
@@ -71,7 +71,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-
-if __name__ == "__main__":
-    print(settings.model_dump_json(indent=4))
