@@ -21,8 +21,8 @@ from messaging_utils.messaging.connection_factory import (
 
 from src.core.connection_params import messaging_params
 from src.utils.logger import logger
-from src.workers.schemas_worker import SchemasWorker
-from src.workers.validation_worker import ValidationWorker
+from src.workers.schemas import SchemasWorker
+from src.workers.validation import ValidationWorker
 
 
 class WorkerManager:
