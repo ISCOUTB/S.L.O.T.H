@@ -25,7 +25,7 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from . import utils_pb2 as database_dot_utils__pb2
+from ..database import utils_pb2 as database_dot_utils__pb2
 from . import validation_pb2 as messaging_dot_validation__pb2
 from . import schemas_pb2 as messaging_dot_schemas__pb2
 from . import dtypes_pb2 as messaging_dot_dtypes__pb2
