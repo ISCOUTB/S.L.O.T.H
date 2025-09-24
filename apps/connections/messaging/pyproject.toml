@@ -29,3 +29,10 @@ dev = [
 line-length = 80
 target-version = "py312"
 lint.extend-select = ["I"]
+
+[tool.pytest.ini_options]
+# Disable parallel execution for RabbitMQ tests to avoid queue interference
+# Use -n0 to run tests sequentially when dealing with message queues
+addopts = "--cov=src --cov-report=html --cov-report=xml --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py"]

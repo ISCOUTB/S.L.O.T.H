@@ -6,6 +6,6 @@
 
 # Test and coverage files
 coverage.*
-.coverage
+.coverage*
 htmlcov/
 .pytest_cache/
