@@ -14,22 +14,22 @@ messaging_params: dtypes.GetMessagingParamsResponse = dtypes.GetMessagingParamsR
         type=settings.RABBITMQ_EXCHANGE_TYPE,
         queues=[
             dtypes.QueueInfo(
-                name=settings.RABBITMQ_QUEUE_SCHEMAS,
+                queue=settings.RABBITMQ_QUEUE_SCHEMAS,
                 routing_key=settings.RABBITMQ_ROUTING_KEY_SCHEMAS,
                 durable=True,
             ),
             dtypes.QueueInfo(
-                name=settings.RABBITMQ_QUEUE_VALIDATIONS,
+                queue=settings.RABBITMQ_QUEUE_VALIDATIONS,
                 routing_key=settings.RABBITMQ_ROUTING_KEY_VALIDATIONS,
                 durable=True,
             ),
             dtypes.QueueInfo(
-                name=settings.RABBITMQ_QUEUE_RESULTS_SCHEMAS,
+                queue=settings.RABBITMQ_QUEUE_RESULTS_SCHEMAS,
                 routing_key=settings.RABBITMQ_ROUTING_KEY_RESULTS_SCHEMAS,
                 durable=True,
             ),
             dtypes.QueueInfo(
-                name=settings.RABBITMQ_QUEUE_RESULTS_VALIDATIONS,
+                queue=settings.RABBITMQ_QUEUE_RESULTS_VALIDATIONS,
                 routing_key=settings.RABBITMQ_ROUTING_KEY_RESULTS_VALIDATIONS,
                 durable=True,
             ),

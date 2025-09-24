@@ -17,6 +17,8 @@ from typing import Any, Dict
 import pika
 from proto_utils.messaging.dtypes import (
     ExchangeInfo,
+    GetMessagingParamsResponse,
+    Metadata,
     SchemaMessageResponse,
     SchemasTasks,
     ValidationMessageResponse,
@@ -45,6 +47,8 @@ class Publisher:
         _channel: RabbitMQ channel obtained from the factory connection.
     """
 
+    # TODO: Maybe configure RabbitMQConnectionFactory it's unnecessary, since
+    # it's already configured in the worker initialization.
     def __init__(
         self,
         params: ConnectionParams,
@@ -58,7 +62,9 @@ class Publisher:
         connection. The channel is used for all message publishing operations.
         """
         self.exchange_info = exchange_info
-        RabbitMQConnectionFactory.configure(params, exchange_info)
+        RabbitMQConnectionFactory.configure(
+            GetMessagingParamsResponse(**params, exchange=self.exchange_info)
+        )
         self._channel = RabbitMQConnectionFactory.get_thread_channel()
 
     def publish_validation_request(
@@ -66,7 +72,7 @@ class Publisher:
         routing_key: str,
         file_data: bytes,
         import_name: str,
-        metadata: Dict[str, Any],
+        metadata: Metadata,
         task: ValidationTasks,
         **kwargs: str,
     ) -> str:
