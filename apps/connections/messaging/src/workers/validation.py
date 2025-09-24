@@ -18,7 +18,9 @@ Example:
 """
 
 import json
-from typing import Generator
+import queue
+import threading
+from typing import Generator, Optional
 
 from messaging_utils.messaging.connection_factory import (
     RabbitMQConnectionFactory,
@@ -49,6 +51,13 @@ class ValidationWorker:
 
     TASK: str = "validation"
 
+    def __init__(self):
+        self._message_queue: queue.Queue[ValidationMessageResponse] = (
+            queue.Queue()
+        )
+        self._is_consuming: bool = False
+        self._stop_event = threading.Event()
+
     def start_consuming(self) -> None:
         """Start consuming messages from the RabbitMQ queue.
 
@@ -64,6 +73,9 @@ class ValidationWorker:
                 unrecoverable errors. Errors are logged and consumption is stopped.
         """
         try:
+            self._is_consuming = True
+            self._stop_event.clear()
+
             self.connection = RabbitMQConnectionFactory.get_thread_connection()
             self.channel = RabbitMQConnectionFactory.get_thread_channel()
             RabbitMQConnectionFactory.setup_infrastructure(self.channel)
@@ -95,16 +107,21 @@ class ValidationWorker:
         the shutdown process for monitoring purposes.
         """
         try:
-            if self.channel and self.channel.is_open:
+            self._is_consuming = False
+            self._stop_event.set()
+
+            if (
+                hasattr(self, "channel")
+                and self.channel
+                and self.channel.is_open
+            ):
                 self.channel.stop_consuming()
                 RabbitMQConnectionFactory.close_thread_connections()
                 logger.info("ValidationWorker: Connections closed")
         except Exception as e:
             logger.error(f"ValidationWorker: Error closing connections: {e}")
 
-    def process_validation_request(
-        self, ch, method, properties, body
-    ) -> Generator[ValidationMessageResponse, None, None]:
+    def process_validation_request(self, ch, method, properties, body) -> None:
         """Process a validation request message.
 
         Handles individual validation request messages by parsing the message body,
@@ -133,10 +150,47 @@ class ValidationWorker:
             message: ValidationMessageResponse = json.loads(body.decode())
             task_id = message["id"]
 
-            yield message
+            self._message_queue.put(message)
 
             ch.basic_ack(delivery_tag=method.delivery_tag)
             logger.info(f"Validation completed for task: {task_id}")
         except Exception as e:
             logger.error(f"Error processing validation request: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+
+    def get_message_stream(
+        self,
+        timeout_secs: float = 1.0,
+        yield_none_on_timeout: bool = False,
+    ) -> Generator[Optional[ValidationMessageResponse], None, None]:
+        """Generator to yield received validation messages."""
+        try:
+            # Generator runs until explicitly stopped or has no messages for timeout period
+            while not self._stop_event.is_set():
+                try:
+                    message = self._message_queue.get(timeout=timeout_secs)
+                    yield message
+                    self._message_queue.task_done()
+                except queue.Empty:
+                    if yield_none_on_timeout:
+                        yield None
+
+                    # If not yielding None on timeout and worker is not consuming, break
+                    if not self._is_consuming:
+                        break
+                    continue
+        except GeneratorExit:
+            pass  # Suppress logging on generator exit to avoid closed file errors
+        except Exception as e:
+            logger.error(f"Error in message stream: {e}")
+            raise e
+        finally:
+            pass  # Suppress logging on exit to avoid closed file errors
+
+    def has_messages(self) -> bool:
+        """Check if there are messages in the queue."""
+        return not self._message_queue.empty()
+
+    def get_queue_size(self) -> int:
+        """Get current queue size."""
+        return self._message_queue.qsize()
