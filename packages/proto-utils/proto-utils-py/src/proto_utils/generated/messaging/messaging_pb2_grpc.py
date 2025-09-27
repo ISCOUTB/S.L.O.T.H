@@ -59,13 +59,13 @@ class MessagingServiceStub(object):
                 request_serializer=messaging_dot_messaging__pb2.GetRoutingKeyValidationsRequest.SerializeToString,
                 response_deserializer=messaging_dot_messaging__pb2.RoutingKey.FromString,
                 _registered_method=True)
-        self.ReceiveSchemaMessage = channel.unary_stream(
-                '/messaging.MessagingService/ReceiveSchemaMessage',
+        self.StreamSchemaMessages = channel.unary_stream(
+                '/messaging.MessagingService/StreamSchemaMessages',
                 request_serializer=messaging_dot_messaging__pb2.SchemaMessageRequest.SerializeToString,
                 response_deserializer=messaging_dot_messaging__pb2.SchemaMessageResponse.FromString,
                 _registered_method=True)
-        self.ReceiveValidationMessage = channel.unary_stream(
-                '/messaging.MessagingService/ReceiveValidationMessage',
+        self.StreamValidationMessages = channel.unary_stream(
+                '/messaging.MessagingService/StreamValidationMessages',
                 request_serializer=messaging_dot_messaging__pb2.ValidationMessageRequest.SerializeToString,
                 response_deserializer=messaging_dot_messaging__pb2.ValidationMessageResponse.FromString,
                 _registered_method=True)
@@ -105,16 +105,16 @@ class MessagingServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ReceiveSchemaMessage(self, request, context):
-        """ReceiveSchemaMessage streams schema update messages to workers
+    def StreamSchemaMessages(self, request, context):
+        """StreamSchemaMessages streams schema update messages to workers
         Used for creating, updating, or removing schema definitions in the schema registry
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ReceiveValidationMessage(self, request, context):
-        """ReceiveValidationMessage streams validation request messages to workers
+    def StreamValidationMessages(self, request, context):
+        """StreamValidationMessages streams validation request messages to workers
         Used for processing file validation requests against specified schemas
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -139,13 +139,13 @@ def add_MessagingServiceServicer_to_server(servicer, server):
                     request_deserializer=messaging_dot_messaging__pb2.GetRoutingKeyValidationsRequest.FromString,
                     response_serializer=messaging_dot_messaging__pb2.RoutingKey.SerializeToString,
             ),
-            'ReceiveSchemaMessage': grpc.unary_stream_rpc_method_handler(
-                    servicer.ReceiveSchemaMessage,
+            'StreamSchemaMessages': grpc.unary_stream_rpc_method_handler(
+                    servicer.StreamSchemaMessages,
                     request_deserializer=messaging_dot_messaging__pb2.SchemaMessageRequest.FromString,
                     response_serializer=messaging_dot_messaging__pb2.SchemaMessageResponse.SerializeToString,
             ),
-            'ReceiveValidationMessage': grpc.unary_stream_rpc_method_handler(
-                    servicer.ReceiveValidationMessage,
+            'StreamValidationMessages': grpc.unary_stream_rpc_method_handler(
+                    servicer.StreamValidationMessages,
                     request_deserializer=messaging_dot_messaging__pb2.ValidationMessageRequest.FromString,
                     response_serializer=messaging_dot_messaging__pb2.ValidationMessageResponse.SerializeToString,
             ),
@@ -249,7 +249,7 @@ class MessagingService(object):
             _registered_method=True)
 
     @staticmethod
-    def ReceiveSchemaMessage(request,
+    def StreamSchemaMessages(request,
             target,
             options=(),
             channel_credentials=None,
@@ -262,7 +262,7 @@ class MessagingService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/messaging.MessagingService/ReceiveSchemaMessage',
+            '/messaging.MessagingService/StreamSchemaMessages',
             messaging_dot_messaging__pb2.SchemaMessageRequest.SerializeToString,
             messaging_dot_messaging__pb2.SchemaMessageResponse.FromString,
             options,
@@ -276,7 +276,7 @@ class MessagingService(object):
             _registered_method=True)
 
     @staticmethod
-    def ReceiveValidationMessage(request,
+    def StreamValidationMessages(request,
             target,
             options=(),
             channel_credentials=None,
@@ -289,7 +289,7 @@ class MessagingService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/messaging.MessagingService/ReceiveValidationMessage',
+            '/messaging.MessagingService/StreamValidationMessages',
             messaging_dot_messaging__pb2.ValidationMessageRequest.SerializeToString,
             messaging_dot_messaging__pb2.ValidationMessageResponse.FromString,
             options,

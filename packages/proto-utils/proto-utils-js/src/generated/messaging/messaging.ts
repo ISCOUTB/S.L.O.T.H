@@ -1005,8 +1005,8 @@ export namespace messaging {
                 responseSerialize: (message: RoutingKey) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => RoutingKey.deserialize(new Uint8Array(bytes))
             },
-            ReceiveSchemaMessage: {
-                path: "/messaging.MessagingService/ReceiveSchemaMessage",
+            StreamSchemaMessages: {
+                path: "/messaging.MessagingService/StreamSchemaMessages",
                 requestStream: false,
                 responseStream: true,
                 requestSerialize: (message: SchemaMessageRequest) => Buffer.from(message.serialize()),
@@ -1014,8 +1014,8 @@ export namespace messaging {
                 responseSerialize: (message: SchemaMessageResponse) => Buffer.from(message.serialize()),
                 responseDeserialize: (bytes: Buffer) => SchemaMessageResponse.deserialize(new Uint8Array(bytes))
             },
-            ReceiveValidationMessage: {
-                path: "/messaging.MessagingService/ReceiveValidationMessage",
+            StreamValidationMessages: {
+                path: "/messaging.MessagingService/StreamValidationMessages",
                 requestStream: false,
                 responseStream: true,
                 requestSerialize: (message: ValidationMessageRequest) => Buffer.from(message.serialize()),
@@ -1028,8 +1028,8 @@ export namespace messaging {
         abstract GetMessagingParams(call: grpc_1.ServerUnaryCall<GetMessagingParamsRequest, GetMessagingParamsResponse>, callback: grpc_1.sendUnaryData<GetMessagingParamsResponse>): void;
         abstract GetRoutingKeySchemas(call: grpc_1.ServerUnaryCall<GetRoutingKeySchemasRequest, RoutingKey>, callback: grpc_1.sendUnaryData<RoutingKey>): void;
         abstract GetRoutingKeyValidations(call: grpc_1.ServerUnaryCall<GetRoutingKeyValidationsRequest, RoutingKey>, callback: grpc_1.sendUnaryData<RoutingKey>): void;
-        abstract ReceiveSchemaMessage(call: grpc_1.ServerWritableStream<SchemaMessageRequest, SchemaMessageResponse>): void;
-        abstract ReceiveValidationMessage(call: grpc_1.ServerWritableStream<ValidationMessageRequest, ValidationMessageResponse>): void;
+        abstract StreamSchemaMessages(call: grpc_1.ServerWritableStream<SchemaMessageRequest, SchemaMessageResponse>): void;
+        abstract StreamValidationMessages(call: grpc_1.ServerWritableStream<ValidationMessageRequest, ValidationMessageResponse>): void;
     }
     export class MessagingServiceClient extends grpc_1.makeGenericClientConstructor(UnimplementedMessagingServiceService.definition, "MessagingService", {}) {
         constructor(address: string, credentials: grpc_1.ChannelCredentials, options?: Partial<grpc_1.ChannelOptions>) {
@@ -1044,11 +1044,11 @@ export namespace messaging {
         GetRoutingKeyValidations: GrpcUnaryServiceInterface<GetRoutingKeyValidationsRequest, RoutingKey> = (message: GetRoutingKeyValidationsRequest, metadata: grpc_1.Metadata | grpc_1.CallOptions | grpc_1.requestCallback<RoutingKey>, options?: grpc_1.CallOptions | grpc_1.requestCallback<RoutingKey>, callback?: grpc_1.requestCallback<RoutingKey>): grpc_1.ClientUnaryCall => {
             return super.GetRoutingKeyValidations(message, metadata, options, callback);
         };
-        ReceiveSchemaMessage: GrpcStreamServiceInterface<SchemaMessageRequest, SchemaMessageResponse> = (message: SchemaMessageRequest, metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientReadableStream<SchemaMessageResponse> => {
-            return super.ReceiveSchemaMessage(message, metadata, options);
+        StreamSchemaMessages: GrpcStreamServiceInterface<SchemaMessageRequest, SchemaMessageResponse> = (message: SchemaMessageRequest, metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientReadableStream<SchemaMessageResponse> => {
+            return super.StreamSchemaMessages(message, metadata, options);
         };
-        ReceiveValidationMessage: GrpcStreamServiceInterface<ValidationMessageRequest, ValidationMessageResponse> = (message: ValidationMessageRequest, metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientReadableStream<ValidationMessageResponse> => {
-            return super.ReceiveValidationMessage(message, metadata, options);
+        StreamValidationMessages: GrpcStreamServiceInterface<ValidationMessageRequest, ValidationMessageResponse> = (message: ValidationMessageRequest, metadata?: grpc_1.Metadata | grpc_1.CallOptions, options?: grpc_1.CallOptions): grpc_1.ClientReadableStream<ValidationMessageResponse> => {
+            return super.StreamValidationMessages(message, metadata, options);
         };
     }
 }

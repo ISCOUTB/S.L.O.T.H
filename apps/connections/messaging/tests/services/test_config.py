@@ -1,7 +1,7 @@
 from proto_utils.messaging import dtypes
 
 from src.core.connection_params import messaging_params
-from src.services.config import MessagingParams
+from src.services.params import MessagingParams
 
 
 def test_get_messaging_params() -> None:

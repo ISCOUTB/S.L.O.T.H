@@ -154,7 +154,7 @@ class SchemasWorker:
             logger.error(f"Error processing schema task: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
-    def get_received_messages(
+    def get_message_stream(
         self,
         timeout_secs: float = 1.0,
         yield_none_on_timeout: bool = True,

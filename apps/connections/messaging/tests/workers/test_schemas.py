@@ -37,7 +37,7 @@ def test_schemas_worker_yielding_success(
         task="upload_schema",
     )
 
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=5.0, yield_none_on_timeout=True
     )
 
@@ -56,7 +56,7 @@ def test_schemas_worker_no_messages_timeout(
 ) -> None:
     """Test behavior when no messages are available - yields None on timeout."""
     # Don't start consuming, so no messages will be processed
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=0.5,  # Short timeout
         yield_none_on_timeout=True,
     )
@@ -92,7 +92,7 @@ def test_schemas_worker_multiple_messages(
             task="upload_schema",
         )
 
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=2.0, yield_none_on_timeout=True
     )
 
@@ -257,7 +257,7 @@ def test_schemas_worker_large_schema(
         task="upload_schema",
     )
 
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=10.0,  # Longer timeout for large message
         yield_none_on_timeout=True,
     )
@@ -293,7 +293,7 @@ def test_schemas_worker_empty_schema(
         task="upload_schema",
     )
 
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=2.0, yield_none_on_timeout=True
     )
 
@@ -330,7 +330,7 @@ def test_schemas_worker_special_characters_in_import_name(
         task="upload_schema",
     )
 
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=2.0, yield_none_on_timeout=True
     )
 
@@ -380,7 +380,7 @@ def test_schemas_worker_queue_metrics(
     assert queue_size <= messages_count
 
     # Process one message
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=1.0, yield_none_on_timeout=True
     )
 
@@ -416,7 +416,7 @@ def test_schemas_worker_remove_schema_task(
         task="remove_schema",
     )
 
-    processed_messages = schemas_worker.get_received_messages(
+    processed_messages = schemas_worker.get_message_stream(
         timeout_secs=2.0, yield_none_on_timeout=True
     )
 
