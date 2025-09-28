@@ -107,7 +107,7 @@ class DatabaseUtilsSerde:
         """
         return utils_pb2.Properties(
             type=DatabaseUtilsSerde.serialize_property_type(properties["type"]),
-            extra=properties["extra"],
+            extra=properties.get("extra", {}),
         )
 
     @staticmethod

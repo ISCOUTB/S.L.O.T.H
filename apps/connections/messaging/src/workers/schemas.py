@@ -149,7 +149,7 @@ class SchemasWorker:
             self._message_queue.put(message)
 
             ch.basic_ack(delivery_tag=method.delivery_tag)
-            logger.info(f"Schema task {task_id} processed successfully.")
+            logger.info(f"Schema completed for task: {task_id}")
         except Exception as e:
             logger.error(f"Error processing schema task: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)

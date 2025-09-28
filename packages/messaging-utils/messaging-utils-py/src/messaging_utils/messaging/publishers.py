@@ -12,12 +12,13 @@ for reliable delivery and processing.
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 import pika
 from proto_utils.messaging.dtypes import (
     ExchangeInfo,
     GetMessagingParamsResponse,
+    JsonSchema,
     Metadata,
     SchemaMessageResponse,
     SchemasTasks,
@@ -134,7 +135,7 @@ class Publisher:
     def publish_schema_update(
         self,
         routing_key: str,
-        schema: Dict = None,
+        schema: JsonSchema = None,
         import_name: str = None,
         raw: bool = False,
         task: SchemasTasks = None,
@@ -195,3 +196,7 @@ class Publisher:
         )
 
         return task_id
+
+    def close(self) -> None:
+        if self._channel and self._channel.is_open:
+            self._channel.close()
