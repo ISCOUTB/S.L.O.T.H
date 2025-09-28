@@ -58,8 +58,8 @@ class Settings(BaseSettings):
     WORKER_PREFETCH_COUNT: int = 1
 
     # Messaging Connection Configuration
-    MESSAGING_CONNECTION_HOST: str
-    MESSAGING_CONNECTION_PORT: int
+    MESSAGING_CONNECTION_HOST: str = "localhost"
+    MESSAGING_CONNECTION_PORT: int = "50055"
     MESSAGING_CONNECTION_DEBUG: bool = False
 
     @computed_field
