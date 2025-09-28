@@ -1,5 +1,3 @@
-from typing import Generator
-
 import pika
 import pytest
 from messaging_utils.messaging.connection_factory import (
@@ -9,8 +7,6 @@ from messaging_utils.messaging.publishers import Publisher
 from messaging_utils.schemas.connection import ConnectionParams
 
 from src.core.connection_params import messaging_params
-from src.workers.schemas import SchemasWorker
-from src.workers.validation import ValidationWorker
 
 RabbitMQConnectionFactory.configure(messaging_params)
 
@@ -57,17 +53,3 @@ def clean_queues() -> None:
 
     purge_queue(settings.RABBITMQ_QUEUE_VALIDATIONS)
     purge_queue(settings.RABBITMQ_QUEUE_SCHEMAS)
-
-
-@pytest.fixture(scope="function")
-def validation_worker() -> Generator[ValidationWorker, None, None]:
-    worker = ValidationWorker()
-    yield worker
-    worker.stop_consuming()
-
-
-@pytest.fixture(scope="function")
-def schemas_worker() -> Generator[SchemasWorker, None, None]:
-    worker = SchemasWorker()
-    yield worker
-    worker.stop_consuming()

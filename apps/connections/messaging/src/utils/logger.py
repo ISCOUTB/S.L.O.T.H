@@ -40,18 +40,18 @@ def setup_logger() -> logging.Logger:
     rotating_handler.setLevel(logging.DEBUG)
     rotating_handler.setFormatter(file_formatter)
 
-    # 2. Timed Rotating Handler - Logs diarios
+    # 2. Timed Rotating Handler - Daily logs
     daily_handler = logging.handlers.TimedRotatingFileHandler(
         log_dir / "messaging_server_daily.log",
         when="midnight",
         interval=1,
-        backupCount=30,  # Mantener 30 días
+        backupCount=30,  # keep 30 days
         encoding="utf-8",
     )
     daily_handler.setLevel(logging.INFO)
     daily_handler.setFormatter(file_formatter)
 
-    # 3. Error File Handler - Solo errores
+    # 3. Error File Handler - Only errors
     error_handler = logging.FileHandler(
         log_dir / "messaging_server_errors.log", encoding="utf-8"
     )
