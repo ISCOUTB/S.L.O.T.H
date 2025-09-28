@@ -44,7 +44,14 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python Debugger: Workers",
+            "name": "Python Debugger: Messaging Connection Server",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.server",
+            "cwd": "${workspaceFolder}/apps/connections/messaging"
+        },
+        {
+            "name": "Python Debugger: Typechecking",
             "type": "debugpy",
             "request": "launch",
             "module": "src.main",

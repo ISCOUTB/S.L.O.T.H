@@ -88,6 +88,7 @@
         "postcss"
     ],
     "cSpell.words": [
+        "addopts",
         "asyncio",
         "asyncpg",
         "autouse",
@@ -132,6 +133,7 @@
         "Serde",
         "setuptools",
         "signum",
+        "testpaths",
         "VARCHAR",
         "wscript",
         "xdist",
