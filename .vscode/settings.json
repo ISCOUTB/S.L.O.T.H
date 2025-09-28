@@ -142,6 +142,7 @@
     ],
     "cSpell.language": "en,es-ES",
     "python.analysis.extraPaths": [
-        "packages/proto-utils-py/src"
+        "packages/proto-utils/proto-utils-py/src",
+        "packages/messaging-utils/messaging-utils-py/src"
     ]
 }
