@@ -31,14 +31,10 @@ tasks:
             - run
             - pytest
             - -v
-            - -n
-            - auto
             - --cov=src
             - --cov-report=term-missing
             - --cov-report=html
             - --cov-report=xml
-            - -v
-            - -n0
         options:
             runFromWorkspaceRoot: false
 

@@ -24,8 +24,9 @@ from messaging_utils.messaging.connection_factory import (
 )
 from messaging_utils.messaging.publishers import Publisher
 from messaging_utils.schemas.connection import ConnectionParams
+from proto_utils.database.dtypes import JsonSchema, Properties
 from proto_utils.generated.messaging import messaging_pb2, messaging_pb2_grpc
-from proto_utils.messaging.dtypes import JsonSchema, Metadata
+from proto_utils.messaging.dtypes import Metadata
 
 from src.core.config import settings
 
@@ -265,8 +266,8 @@ class MessagingTestClient:
                     schema="https://json-schema.org/draft/2020-12/schema",
                     type="object",
                     properties={
-                        f"field_{i}": {"type": "string"},
-                        "id": {"type": "integer"},
+                        f"field_{i}": Properties(type="string"),
+                        "id": Properties(type="integer"),
                     },
                     required=[f"field_{i}"],
                 )
