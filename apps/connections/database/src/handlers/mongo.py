@@ -1,4 +1,4 @@
-from services.mongo import MongoSchemasService
+from src.services.mongo import MongoSchemasService
 from proto_utils.generated.database import mongo_pb2
 from proto_utils.database.mongo_serde import MongoSerde
 

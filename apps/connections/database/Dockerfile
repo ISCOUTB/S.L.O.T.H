@@ -44,4 +44,4 @@ COPY ./apps/connections/database/src ./src
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
-CMD ["python", "src/server.py"]
+CMD ["python", "-m", "src.server"]

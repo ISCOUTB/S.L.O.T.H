@@ -17,7 +17,9 @@ tasks:
         command: uv
         args:
             - run
-            - src/server.py
+            - python
+            - -m
+            - src.server
         toolchain: python
         local: true
         options:

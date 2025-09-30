@@ -12,8 +12,8 @@ and data consistency management between the two storage systems.
 from typing import Dict, Any, List, Optional
 
 from proto_utils.database import dtypes
-from core.database_redis import redis_db
-from core.database_mongo import mongo_tasks_connection
+from src.core.database_redis import redis_db
+from src.core.database_mongo import mongo_tasks_connection
 
 
 class DatabaseTasksService:

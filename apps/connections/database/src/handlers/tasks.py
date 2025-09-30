@@ -1,4 +1,4 @@
-from services.tasks import DatabaseTasksService
+from src.services.tasks import DatabaseTasksService
 from proto_utils.generated.database import database_pb2
 from proto_utils.database.database_serde import DatabaseSerde
 

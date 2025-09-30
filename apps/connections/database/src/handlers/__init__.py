@@ -1,7 +1,7 @@
-from handlers import redis, mongo, tasks
-from handlers.redis import RedisHandler
-from handlers.mongo import MongoHandler
-from handlers.tasks import DatabaseTasksHandler
+from src.handlers import redis, mongo, tasks
+from src.handlers.redis import RedisHandler
+from src.handlers.mongo import MongoHandler
+from src.handlers.tasks import DatabaseTasksHandler
 
 
 __all__ = [

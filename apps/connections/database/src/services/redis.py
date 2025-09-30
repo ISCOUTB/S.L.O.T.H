@@ -11,7 +11,7 @@ for basic Redis operations like get, set, delete, and cache management.
 
 import json
 from proto_utils.database import dtypes
-from core.database_redis import redis_db
+from src.core.database_redis import redis_db
 
 
 class RedisService:

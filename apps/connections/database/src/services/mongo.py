@@ -15,7 +15,7 @@ import pymongo
 from typing import Dict
 
 from proto_utils.database import dtypes
-from core.database_mongo import mongo_schemas_connection
+from src.core.database_mongo import mongo_schemas_connection
 
 
 class MongoSchemasService:
