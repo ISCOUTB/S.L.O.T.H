@@ -1,7 +1,7 @@
 import process from "node:process";
 import { Data, Effect } from "effect";
 import { z } from "zod";
-import { logger } from "../utils/logger.ts";
+import { logger } from "@/utils/logger.ts";
 
 export class EnvParseError extends Data.TaggedError("EnvParseError")<{ error: z.ZodError }> {}
 

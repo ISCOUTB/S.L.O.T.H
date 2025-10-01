@@ -3,7 +3,7 @@ import type { Token } from "excel-formula-tokenizer";
 import { Effect } from "effect";
 import { buildTree } from "excel-formula-ast";
 import { tokenize } from "excel-formula-tokenizer";
-import { BuildTreeError, TokenizeError } from "../core/index.ts";
+import { BuildTreeError, TokenizeError } from "@/core/index.ts";
 
 interface ParseFormulaReturnType {
     formula: string;

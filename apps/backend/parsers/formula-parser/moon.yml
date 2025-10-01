@@ -34,7 +34,7 @@ tasks:
             - --env-file=.env
             - dist/server.cjs
         deps:
-            - ^:build
+            - formula-parser:build
         local: true
         toolchain: node
 

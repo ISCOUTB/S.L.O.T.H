@@ -1,8 +1,8 @@
 import { formula_parser } from "@etl-design/packages-proto-utils-js";
 import { Effect } from "effect";
-import { settings } from "../core/index.ts";
-import { parseFormula } from "../services/parse.ts";
-import { Convert, logger } from "../utils/index.ts";
+import { settings } from "@/core/index.ts";
+import { parseFormula } from "@/services/parse.ts";
+import { Convert, logger } from "@/utils/index.ts";
 
 export function handler(formula: string) {
     return Effect.gen(function* () {

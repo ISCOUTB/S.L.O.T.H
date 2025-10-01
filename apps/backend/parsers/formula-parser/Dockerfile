@@ -1,3 +1,6 @@
+# TODO: There's no need anymore to maintain the same directory structure
+# Since node will resolve the deps based on package.json -> name
+
 FROM alpine:latest AS workspace
 
 WORKDIR /workspace
