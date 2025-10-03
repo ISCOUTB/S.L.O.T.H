@@ -7,13 +7,12 @@ export default defineConfig(() => {
     return {
         entry: ["src/index.ts"],
         outDir: "dist",
-        format: ["esm", "cjs"],
+        format: ["cjs", "esm"],
         clean: true,
         dts: !isProduction,
         sourcemap: !isProduction,
         minify: isProduction,
-        bundle: true,
-        splitting: false,
-        noExternal: [/.*/],
+        platform: "node",
+        external: ["@grpc/grpc-js", "google-protobuf"],
     };
 });

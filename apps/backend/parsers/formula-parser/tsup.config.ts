@@ -12,10 +12,7 @@ export default defineConfig(() => {
         dts: !isProduction,
         sourcemap: !isProduction,
         minify: isProduction,
-        bundle: true,
-        splitting: false,
-        treeshake: true,
-        noExternal: [/.*/],
         platform: "node",
+        external: ["@grpc/grpc-js", "google-protobuf"],
     };
 });

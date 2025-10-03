@@ -1,9 +1,10 @@
 {
-    // ! this is too stict for the generated files
     // "extends": "@etl-design/tools-tsconfig/tsconfig.json",
     "compilerOptions": {
+        "target": "es2022",
         "module": "nodenext",
-        "moduleResolution": "nodenext",
-        "strict": true
+        "moduleResolution": "node16",
+        "esModuleInterop": true,
+        "skipLibCheck": true
     }
 }

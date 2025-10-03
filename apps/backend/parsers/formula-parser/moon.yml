@@ -32,11 +32,19 @@ tasks:
         command: node
         args:
             - --env-file=.env
-            - dist/server.cjs
+            - dist/server.js
         deps:
             - formula-parser:build
         local: true
         toolchain: node
+
+    client-run:
+        command: node
+        args:
+            - src/client.js
+        toolchain: node
+        options:
+            runFromWorkspaceRoot: false
 
     build:
         command: npx

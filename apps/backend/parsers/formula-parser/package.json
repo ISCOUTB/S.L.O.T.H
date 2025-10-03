@@ -1,6 +1,5 @@
 {
     "name": "@etl-design/apps-formula-parser",
-    "type": "module",
     "version": "1.0.0",
     "license": "ISC",
     "dependencies": {
