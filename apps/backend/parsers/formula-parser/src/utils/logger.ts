@@ -2,10 +2,10 @@ import winston from "winston";
 
 export const logger = winston.createLogger({
     levels: {
-        info: 0,
+        error: 0,
         warn: 1,
-        error: 2,
-        critical: 3,
+        info: 2,
+        debug: 3,
     },
     format: winston.format.combine(
         winston.format.colorize(),

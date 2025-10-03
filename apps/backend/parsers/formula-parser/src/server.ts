@@ -13,7 +13,7 @@ import { BindPortError, settings } from "@/core/index.ts";
 import { handler } from "@/handlers/handler.ts";
 import { logger } from "@/utils/index.ts";
 
-function parseFormula(
+export function parseFormula(
     call: ServerUnaryCall<
         formula_parser.FormulaParserRequest,
         formula_parser.FormulaParserResponse
@@ -28,7 +28,7 @@ function parseFormula(
         });
 }
 
-function getServer() {
+export function getServer() {
     return Effect.sync(() => {
         const server = new Server();
 
