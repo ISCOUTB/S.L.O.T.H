@@ -14,3 +14,12 @@ tasks:
             - sql-builder:run
             - excel-reader:run
         local: true
+
+    test:
+        command: noop
+        deps:
+            - formula-parser:test
+            - ddl-generator:test
+            - sql-builder:test
+            - excel-reader:test
+        local: true
