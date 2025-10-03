@@ -1,5 +1,6 @@
 import type { formula_parser } from "@etl-design/packages-proto-utils-js";
 import type { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
+import process from "node:process";
 import {
     requestDeserialize,
     requestSerialize,
@@ -54,7 +55,20 @@ function main() {
     return Effect.gen(function* () {
         const server = yield* getServer();
 
-        const { FORMULA_PARSER_HOST, FORMULA_PARSER_PORT, DEBUG_FORMULA_PARSER } = yield* settings;
+        const { FORMULA_PARSER_HOST, FORMULA_PARSER_PORT, DEBUG_FORMULA_PARSER } =
+            yield* settings.pipe(
+                // eslint-disable-next-line antfu/consistent-list-newline
+                Effect.catchTag("EnvParseError", (error) =>
+                    Effect.gen(function* () {
+                        yield* Effect.sync(() => {
+                            logger.crit(`[server] failed to parse .env variables: ${error.error}`);
+                            process.exit(1);
+                        });
+
+                        return yield* Effect.die("Failed to parse environment");
+                    }),
+                ),
+            );
 
         yield* Effect.async<void, BindPortError>((resume) => {
             server.bindAsync(

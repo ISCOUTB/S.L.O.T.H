@@ -33,11 +33,11 @@
             "path": "../packages/proto-utils/proto-utils-py"
         },
         {
-            "name": "[ Tool ] eslint",
+            "name": "[ Tool ] Eslint",
             "path": "../tools/eslint"
         },
         {
-            "name": "[ Tool ] typescript",
+            "name": "[ Tool ] TS-Config",
             "path": "../tools/tsconfig"
         }
     ],
