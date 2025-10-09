@@ -5,7 +5,6 @@ import { credentials } from "@grpc/grpc-js";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock de dependencias
 vi.mock("@/handlers/handler.ts", () => ({
     handler: vi.fn(),
 }));
