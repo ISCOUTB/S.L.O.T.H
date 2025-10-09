@@ -28,6 +28,14 @@ tasks:
         options:
             cache: false
 
+    lint:
+        command: npx
+        args:
+            - eslint
+            - .
+            - --fix
+        toolchain: node
+
     run:
         command: node
         args:

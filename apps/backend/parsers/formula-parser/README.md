@@ -184,8 +184,7 @@ function parseFormula(formula) {
         tokens = tokenize(formula);
         ast = buildTree(tokens);
         return { formula, tokens, ast, error: "" };
-    }
-    catch (error) {
+    } catch (error) {
         return { formula, tokens, ast, error: error.message };
     }
 }
