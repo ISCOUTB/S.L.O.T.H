@@ -1,0 +1,18 @@
+{
+    "extends": "@etl-design/tools-tsconfig/tsconfig.json",
+    "compilerOptions": {
+        "target": "es2022",
+        "module": "nodenext",
+        "moduleResolution": "node16",
+        "paths": {
+            "@/*": ["./src/*"],
+            "@@/*": ["./*"]
+        },
+        "types": ["node"],
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
+    },
+    "exclude": ["tsup.config.ts"]
+}

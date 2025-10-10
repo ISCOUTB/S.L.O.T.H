@@ -1,0 +1,53 @@
+{
+    "folders": [
+        {
+            "name": "ROOT",
+            "path": "../"
+        },
+        {
+            "name": "[ App ] Excel-Reader",
+            "path": "../apps/backend/parsers/excel-reader"
+        },
+        {
+            "name": "[ App ] Formula-Parser",
+            "path": "../apps/backend/parsers/formula-parser"
+        },
+        {
+            "name": "[ App ] DDL-Generator",
+            "path": "../apps/backend/parsers/ddl-generator"
+        },
+        {
+            "name": "[ App ] SQL-Builder",
+            "path": "../apps/backend/parsers/sql-builder"
+        },
+        {
+            "name": "[ App ] Typechecking",
+            "path": "../apps/backend/typechecking"
+        },
+        {
+            "name": "[ Package ] Proto-Javascript",
+            "path": "../packages/proto-utils/proto-utils-js"
+        },
+        {
+            "name": "[ Package ] Proto-Python",
+            "path": "../packages/proto-utils/proto-utils-py"
+        },
+        {
+            "name": "[ Tool ] Eslint",
+            "path": "../tools/eslint"
+        },
+        {
+            "name": "[ Tool ] TS-Config",
+            "path": "../tools/tsconfig"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true
+        }
+    }
+}

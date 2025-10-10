@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+import "database/utils.proto";
+
+package mongo;
+
+// MongoDB service definitions for schema management operations
+// This file contains Protocol Buffer definitions for MongoDB operations
+// specifically focused on JSON schema storage, retrieval, and management.
+
+// ================== Mongo - Related to schemas ==================
+
+// Request message for inserting a new schema document into MongoDB
+// Used to store JSON schema definitions with version history
+message MongoInsertOneSchemaRequest {
+    string import_name = 1; // Unique identifier for the schema (e.g., "user_table", "product_schema")
+    string created_at = 2; // ISO timestamp when the schema was created
+    utils.JsonSchema active_schema = 3; // The currently active/latest version of the schema
+    repeated utils.JsonSchema schemas_releases = 4; // Historical versions of the schema for versioning
+}
+
+// Response message for schema insertion operation
+message MongoInsertOneSchemaResponse {
+    string status = 1;  // Status of the insertion operation ("success", "error", etc.)
+    map<string, string> result = 2; // Generic result data from the insertion operation
+}
+
+// Request message for counting all documents in the schema collection
+// Used for statistics and monitoring purposes
+message MongoCountAllDocumentsRequest {}
+
+// Response message containing the total count of schema documents
+message MongoCountAllDocumentsResponse {
+    int32 amount = 1; // Total number of schema documents in the collection
+}
+
+// Request message for finding a JSON schema by its import name
+message MongoFindJsonSchemaRequest {
+    string import_name = 1; // The unique identifier of the schema to find
+}
+
+// Response message containing the found schema information
+message MongoFindJsonSchemaResponse {
+    string status = 1; // Status of the find operation ("found", "not_found", "error")
+    map<string, string> extra = 2; // Additional metadata or error information
+    optional utils.JsonSchema schema = 3; // The found schema definition (null if not found)
+}
+
+// Request message for updating an existing JSON schema
+// Used to modify schema definitions and add new versions
+message MongoUpdateOneJsonSchemaRequest {
+    string import_name = 1; // Unique identifier of the schema to update
+    utils.JsonSchema schema = 2; // The new schema definition to set as active
+    string created_at = 3; // ISO timestamp when this update was created
+}
+
+// Response message for schema update operation
+message MongoUpdateOneJsonSchemaResponse {
+    string status = 1; // Status of the update operation ("success", "not_found", "error")
+    map<string, string> result = 2; // Generic result data from the update operation
+}
+
+// Request message for deleting a JSON schema by its import name
+message MongoDeleteOneJsonSchemaRequest {
+    string import_name = 1; // Unique identifier of the schema to delete
+}
+
+// Response message for schema deletion operation
+message MongoDeleteOneJsonSchemaResponse {
+    bool success = 1; // Indicates if the deletion was successful
+    string message = 2; // Descriptive message about the operation result or any errors
+    string status = 3;  // Status of the deletion operation ("deleted", "error", "reverted")
+    map<string, string> extra = 4; // Generic result data from the deletion operation
+}
+
+// Request message for deleting all schemas associated with a specific import name
+message MongoDeleteImportNameRequest {
+    string import_name = 1; // Unique identifier of the import name to delete associated schemas
+}
+
+// Response message for deleting schemas by import name
+message MongoDeleteImportNameResponse {
+    bool success = 1; // Indicates if the deletion was successful
+    string message = 2; // Descriptive message about the operation result or any errors
+    string status = 3;  // Status of the deletion operation ("deleted", "error", "reverted")
+    map<string, string> extra = 4; // Generic result data from the deletion operation
+}

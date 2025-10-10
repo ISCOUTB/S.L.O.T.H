@@ -1,0 +1,49 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
+project:
+    name: Messaging Connection
+    description: A Python gRPC server used to receive messages directly from the messaging queue. Currently implemented for RabbitMQ, but can be migrated to Kafka or other messaging services.
+
+type: application
+
+language: python
+
+toolchain:
+    python:
+        version: "3.12.10"
+
+tasks:
+    run:
+        command: uv
+        args:
+            - run
+            - python
+            - -m
+            - src.server
+        toolchain: python
+        local: true
+        options:
+            runFromWorkspaceRoot: false
+
+    test:
+        command: uv
+        args:
+            - run
+            - pytest
+            - -v
+            - --cov=src
+            - --cov-report=term-missing
+            - --cov-report=html
+            - --cov-report=xml
+        options:
+            runFromWorkspaceRoot: false
+
+    format:
+        command: uv
+        args:
+            - run
+            - ruff
+            - format
+            - .
+        options:
+            runFromWorkspaceRoot: false

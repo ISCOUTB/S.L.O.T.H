@@ -1,0 +1,12 @@
+[project]
+name = "test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "proto_utils",
+]
+
+[tool.uv.sources]
+proto_utils = { path = "../proto-utils-py", editable =  true }

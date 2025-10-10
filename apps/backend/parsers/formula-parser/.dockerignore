@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+README.md
+TODO.md
+tests/
+.gitignore
+**/.gitkeep

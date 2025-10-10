@@ -1,0 +1,150 @@
+{
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit",
+            "source.sort.json": "explicit"
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true
+    },
+    "cSpell.language": "en,es-ES",
+    "cSpell.words": [
+        "addopts",
+        "asyncio",
+        "asyncpg",
+        "autouse",
+        "classpath",
+        "dtypes",
+        "eslintcache",
+        "fanout",
+        "fastapi",
+        "GENCODE",
+        "grpcio",
+        "healthcheck",
+        "hmset",
+        "hset",
+        "htmlcov",
+        "ipykernel",
+        "istanbul",
+        "jscoverage",
+        "jsonschema",
+        "jspm",
+        "levelname",
+        "lrange",
+        "matplotlib",
+        "MSVC",
+        "NOTSET",
+        "numpy",
+        "passlib",
+        "pids",
+        "poolclass",
+        "postgresql",
+        "protobuf",
+        "protobufs",
+        "psycopg",
+        "pydantic",
+        "pyjwt",
+        "pymongo",
+        "pytest",
+        "PYTHONUNBUFFERED",
+        "qualname",
+        "rpcs",
+        "sadd",
+        "serde",
+        "Serde",
+        "setuptools",
+        "signum",
+        "testpaths",
+        "VARCHAR",
+        "wscript",
+        "xdist",
+        "zrange",
+        "zset"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "explicit",
+        "source.sort.json": "explicit"
+    },
+    "eslint.rules.customizations": [
+        {
+            "fixable": true,
+            "rule": "style/*",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "format/*",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-indent",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-spacing",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-spaces",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-order",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-dangle",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*-newline",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*quotes",
+            "severity": "off"
+        },
+        {
+            "fixable": true,
+            "rule": "*semi",
+            "severity": "off"
+        }
+    ],
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "html",
+        "markdown",
+        "json",
+        "jsonc",
+        "yaml",
+        "toml",
+        "xml",
+        "gql",
+        "graphql",
+        "astro",
+        "svelte",
+        "css",
+        "less",
+        "scss",
+        "pcss",
+        "postcss"
+    ],
+    "python.analysis.extraPaths": [
+        "packages/proto-utils/proto-utils-py/src",
+        "packages/messaging-utils/messaging-utils-py/src"
+    ],
+    "ruff.organizeImports": true
+}

@@ -1,0 +1,64 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
+project:
+    name: typechecking
+    description: A high-performance, enterprise-grade data validation system designed for ETL processes that validates spreadsheet files (CSV, XLSX, XLS) against JSON schemas using parallel processing, message queuing, and modern distributed architecture patterns.
+
+type: application
+
+language: python
+
+toolchain:
+    python:
+        version: 3.12.10
+
+tasks:
+    test:
+        command: uv
+        args:
+            - run
+            - pytest
+            - -v
+            - -n
+            - auto
+            - --cov=src
+            - --cov-report=term-missing
+            - --cov-report=html
+            - --cov-report=xml
+        toolchain: python
+
+    format:
+        command: uv
+        args:
+            - run
+            - ruff
+            - format
+            - .
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+
+    run:
+        command: uv
+        args:
+            - run
+            - python
+            - -m
+            - src.main
+        toolchain: python
+        local: true
+        options:
+            runFromWorkspaceRoot: false
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -f
+            - apps/backend/typechecking/Dockerfile
+            - .
+            - -t
+            - typechecking:1.0
+        options:
+            runFromWorkspaceRoot: true
+            cache: false

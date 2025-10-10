@@ -1,0 +1,12 @@
+.env
+.venv
+**/__pycache__
+**/*.pyc
+.ruff_cache
+logs/
+
+# Test and coverage files
+coverage.*
+.coverage*
+htmlcov/
+.pytest_cache/

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package dtypes;
+
+// Data types and structures for Excel formula parsing and Abstract Syntax Tree (AST) representation
+// This file contains Protocol Buffer definitions for parsing Excel formulas into structured
+// AST nodes and tokens, supporting various cell references, functions, and data types.
+
+// Types of nodes in the Abstract Syntax Tree (AST)
+// for representing Excel expressions
+enum AstType {
+    AST_UNKNOWN = 0;           // Unknown or unrecognized node
+    AST_BINARY_EXPRESSION = 1;  // Binary expressions like +, -, *, /
+    AST_CELL_RANGE = 2;         // Cell ranges like A1:B5
+    AST_FUNCTION = 3;           // Functions like SUM(), AVERAGE()
+    AST_CELL = 4;               // Individual cell references like A1
+    AST_NUMBER = 5;             // Literal numeric values
+    AST_LOGICAL = 6;            // Boolean values (TRUE/FALSE)
+    AST_TEXT = 7;               // Literal text strings
+    AST_UNARY_EXPRESSION = 8;  // Unary expressions like -1 (negation)
+}
+
+// Reference types for Excel cells
+// Defines how cell references behave when formulas are copied or moved
+enum RefType {
+    REF_UNKNOWN = 0;   // Unknown or unrecognized reference
+    REF_RELATIVE = 1;  // Relative references like A1 (adjust when copied)
+    REF_ABSOLUTE = 2;  // Absolute references like $A$1 (fixed when copied)
+    REF_MIXED = 3;     // Mixed references like $A1 or A$1 (partially fixed)
+}
+
+// Abstract Syntax Tree node for Excel expressions
+// Represents the hierarchical structure of a parsed formula
+// This is the core data structure for representing Excel formulas in tree form
+message AST {
+    AstType type = 1;                // Type of AST node
+    optional string operator = 2;    // Operator for binary expressions (+, -, *, /, etc.)
+    optional AST left = 3;           // Left child for binary expressions
+    optional AST right = 4;          // Right child for binary expressions
+    repeated AST arguments = 5;      // List of arguments for functions
+    optional string name = 6;        // Function name or cell identifier
+    optional RefType refType = 7;    // Reference type for cells
+    optional string key = 8;         // Unique identifier key
+    optional AST operand = 9;        // Operand for unary expressions
+    oneof value {
+        float number_value = 10;      // Numeric value for literals
+        string text_value = 11;       // Text value for string literals
+        bool logical_value = 12;      // Logical value (TRUE/FALSE) for boolean literals
+    }
+}
+
+// Represents tokens generated during Excel formula parsing
+// Tokens are the building blocks of formulas, representing individual elements
+// like numbers, operators, functions, and cell references
+message Tokens {
+    // Represents an individual token in the formula
+    // Each token contains information about its value, type, and subtype
+    // for proper classification and processing during parsing
+    message Token {
+        string value = 1;       // Token value (e.g., "SUM", "+", "A1", "123")
+        string type = 2;        // Token type (e.g., "function", "operator", "operand")
+        string subtype = 3;     // Token subtype (e.g., "math", "logical", "reference")
+    }
+    repeated Token tokens = 1;  // Ordered list of tokens in the formula
+}

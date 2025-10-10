@@ -1,0 +1,37 @@
+version: 2
+updates:
+    - package-ecosystem: "npm"
+      directory: "/apps/backend/parsers/formula-parser"
+      schedule:
+          interval: "weekly"
+      allow:
+          - dependency-type: direct
+      versioning-strategy: increase
+      groups:
+          dependencies:
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "npm"
+      directory: "/packages/proto-utils/proto-utils-js"
+      schedule:
+          interval: "weekly"
+      allow:
+          - dependency-type: direct
+      versioning-strategy: increase
+      groups:
+          dependencies:
+              patterns:
+                  - "*"
+
+    - package-ecosystem: "npm"
+      directory: "/tools/eslint"
+      schedule:
+          interval: "weekly"
+      allow:
+          - dependency-type: direct
+      versioning-strategy: increase
+      groups:
+          dependencies:
+              patterns:
+                  - "*"

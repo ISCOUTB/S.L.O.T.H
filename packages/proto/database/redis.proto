@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package redis;
+
+// Redis service definitions for general-purpose operations and cache management
+// This file contains Protocol Buffer definitions for Redis operations including
+// key-value storage, retrieval, deletion, and cache management functionality.
+
+// =================== Redis - General Purpose ===================
+
+// Request message for retrieving keys that match a specific pattern
+message RedisGetKeysRequest {
+    string pattern = 1; // Pattern to match keys (e.g., "user:*", "session:*", "*:temp")
+}
+
+// Response message containing all keys that match the requested pattern
+message RedisGetKeysResponse {
+    repeated string keys = 1; // List of keys matching the pattern
+}
+
+// Request message for setting a key-value pair in Redis
+message RedisSetRequest {
+    string key = 1; // Key to set (must be non-empty)
+    string value = 2; // Value to associate with the key
+    optional int32 expiration = 3; // Expiration time in seconds. Optional
+}
+
+// Response message indicating the success of a SET operation
+message RedisSetResponse {
+    bool success = 1; // Indicates if the operation was successful
+}
+
+// Request message for retrieving a value by its key
+message RedisGetRequest {
+    string key = 1; // Key to retrieve (must be non-empty)
+}
+
+// Response message containing the value associated with the requested key
+message RedisGetResponse {
+    optional string value = 1; // Value associated with the key (null if key doesn't exist)
+    bool found = 2; // Indicates if the key was found in the database
+}
+
+// Request message for deleting one or more keys from Redis
+message RedisDeleteRequest {
+    repeated string keys = 1; // List of keys to delete (can be empty list)
+}
+
+// Response message indicating how many keys were successfully deleted
+message RedisDeleteResponse {
+    int32 count = 1; // Number of keys that were actually deleted
+}
+
+// Request message for checking Redis server connectivity
+message RedisPingRequest {
+    // No fields needed for ping operation
+}
+
+// Response message for ping operation
+message RedisPingResponse {
+    bool pong = 1; // Should always be true if the Redis server is reachable and responsive
+}
+
+// =================== Redis - Manage all cache ===================
+
+// Request message for retrieving the entire Redis cache
+// Warning: This operation can be expensive on large datasets
+message RedisGetCacheRequest {
+    // No fields needed for getting the entire cache
+}
+
+// Response message containing all key-value pairs in the Redis cache
+message RedisGetCacheResponse {
+    map<string, string> cache = 1; // Key-value pairs representing the entire cache contents
+}
+
+// Request message for clearing all data from the Redis cache
+// Warning: This operation is irreversible and will delete all data
+message RedisClearCacheRequest {
+    // No fields needed for clearing the cache
+}
+
+// Response message indicating the success of cache clearing operation
+message RedisClearCacheResponse {
+    bool success = 1; // Indicates if the cache was successfully cleared
+}

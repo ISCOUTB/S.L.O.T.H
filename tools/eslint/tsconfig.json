@@ -1,0 +1,7 @@
+{
+    "extends": "@etl-design/tools-tsconfig/tsconfig.json",
+    "compilerOptions": {
+        "module": "nodenext",
+        "moduleResolution": "nodenext"
+    }
+}

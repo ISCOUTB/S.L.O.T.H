@@ -1,0 +1,78 @@
+project:
+    name: formula-parser
+    description: A Node.js gRPC service that parses Excel formulas into Abstract Syntax Trees (AST) and token representations. This service is responsible for analyzing Excel formula syntax and providing structured data that can be consumed by other services in the Excel Parsing system.
+
+type: application
+
+language: typescript
+
+toolchain:
+    node:
+
+tasks:
+    test:
+        command: node
+        args:
+            - --env-file=.env
+            - node_modules/vitest/vitest.mjs
+            - --run
+            - --coverage
+        toolchain: node
+
+    pnpm:
+        command: pnpm
+        args:
+            - --filter
+            - "@etl-design/apps-formula-parser"
+        toolchain: node
+        options:
+            cache: false
+
+    lint:
+        command: npx
+        args:
+            - eslint
+            - .
+            - --fix
+        toolchain: node
+
+    run:
+        command: node
+        args:
+            - --env-file=.env
+            - dist/server.js
+        deps:
+            - formula-parser:build
+        local: true
+        toolchain: node
+
+    client-run:
+        command: node
+        args:
+            - src/client.js
+        toolchain: node
+        options:
+            runFromWorkspaceRoot: false
+
+    build:
+        command: npx
+        args:
+            - tsup
+        toolchain: node
+        options:
+            runFromWorkspaceRoot: false
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -f
+            - apps/backend/parsers/formula-parser/Dockerfile
+            - -t
+            - formula-parser:latest
+            - .
+            - --network=host
+        local: true
+        platform: system
+        options:
+            runFromWorkspaceRoot: true

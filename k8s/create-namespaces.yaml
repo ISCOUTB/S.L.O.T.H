@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.29.0-standalone-strict/namespace-v1.json
+
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: development
+    labels:
+        name: development
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: staging
+    labels:
+        name: staging
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: production
+    labels:
+        name: production

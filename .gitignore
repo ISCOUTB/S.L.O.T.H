@@ -1,0 +1,8 @@
+# Environment files
+.env
+
+# moon
+.moon/cache
+.moon/docker
+
+node_modules

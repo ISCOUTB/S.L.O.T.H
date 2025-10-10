@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package validation;
+
+// Validation task types for distributed file validation operations
+//
+// Defines the available validation operations that can be performed
+// in the distributed typechecking system. These tasks are used by
+// validation workers to process file validation requests from the message queue.
+//
+// Validation operations ensure data quality and consistency by validating
+// incoming files against predefined schemas and data structure requirements.
+enum ValidationTasks {
+    UNKNOWN = 0; // Unknown task type
+    SAMPLE_VALIDATION = 1; // Validate file content against a specified schema for data quality assurance
+}
+
+// File metadata for validation context and processing information
+//
+// Contains essential information about files being processed in the validation
+// system. This metadata helps workers make informed decisions about processing
+// priorities, validation strategies, and resource allocation.
+//
+// The metadata is used to provide context for validation operations and
+// can influence how files are processed based on their characteristics.
+message Metadata {
+    string filename = 1; // Original filename of the uploaded file
+    string content_type = 2; // MIME type of the file (e.g., "text/csv", "application/vnd.ms-excel")
+    int64 size = 3; // File size in bytes for resource management and processing optimization
+}

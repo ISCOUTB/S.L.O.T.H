@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package utils;
+
+// Common utility message types used across database services
+// This file contains shared data structures and enums that are used
+// by multiple service definitions in the database package.
+
+// Standard API response structure used throughout the system
+// Provides consistent response format across all service operations
+message ApiResponse {
+    string status = 1; // The status of the response (e.g., "success", "error", "pending")
+    int32 code = 2;   // The HTTP status code associated with the response (200, 404, 500, etc.)
+    string message = 3; // A descriptive message providing additional information about the response
+    map<string, string> data = 4; // The actual data returned in the response (key-value pairs)
+}
+
+// Enumeration of supported property types for JSON schema validation
+// Used to define the data types that can be stored and validated
+enum PropertyType {
+    STRING = 0;  // Text/string values
+    INTEGER = 1; // Whole number values
+    NUMBER = 2;  // Decimal/floating point values
+    BOOLEAN = 3; // True/false values
+}
+
+// Message representing properties of a field in a JSON schema
+// Contains type information and additional metadata
+message Properties {
+    PropertyType type = 1; // The data type of this property
+    map<string, string> extra = 2; // Additional metadata or constraints for the property
+}
+
+// JSON Schema definition message for data validation and structure
+// Used to define the expected structure and types of JSON documents
+message JsonSchema {
+    string schema = 1; // The JSON schema version (e.g., "https://json-schema.org/draft/2020-12/schema")
+    string type = 2; // The root type of the schema (typically "object")
+    repeated string required = 3; // List of required field names
+    map<string, Properties> properties = 4; // Definition of all properties in the schema
+}

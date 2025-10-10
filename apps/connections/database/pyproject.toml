@@ -1,0 +1,27 @@
+[project]
+name = "database"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "proto-utils",
+    "pydantic-settings>=2.10.1",
+    "pymongo>=4.15.0",
+    "redis>=6.4.0",
+]
+
+[tool.uv.sources]
+proto-utils = { path = "../../../packages/proto-utils/proto-utils-py", editable = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "pytest-sugar>=1.1.1",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.13.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
