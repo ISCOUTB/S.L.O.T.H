@@ -1,3 +1,7 @@
-from messaging_utils import messaging, schemas
+from messaging_utils import core, messaging, schemas
 
-__all__ = ["schemas", "messaging"]
+__all__ = [
+    "core",
+    "messaging",
+    "schemas",
+]

@@ -12,7 +12,7 @@ for reliable delivery and processing.
 import json
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 import pika
 from proto_utils.messaging.dtypes import (
@@ -26,6 +26,7 @@ from proto_utils.messaging.dtypes import (
     ValidationTasks,
 )
 
+from messaging_utils.core.connection_params import messaging_params
 from messaging_utils.messaging.connection_factory import (
     RabbitMQConnectionFactory,
 )
@@ -48,24 +49,39 @@ class Publisher:
         _channel: RabbitMQ channel obtained from the factory connection.
     """
 
-    # TODO: Maybe configure RabbitMQConnectionFactory it's unnecessary, since
-    # it's already configured in the worker initialization.
     def __init__(
         self,
-        params: ConnectionParams,
-        exchange_info: ExchangeInfo,
-        *args: Any,
-        **kwargs: Any,
+        params: Optional[ConnectionParams] = None,
+        exchange_info: Optional[ExchangeInfo] = None,
+        *_: Any,
+        **__: Any,
     ) -> None:
         """Initialize the ValidationPublisher.
 
         Sets up the publisher with a channel from the factory RabbitMQ
         connection. The channel is used for all message publishing operations.
         """
+        if params is None:
+            tmp = messaging_params.copy()
+            tmp.pop("exchange")
+            params = tmp
+
+        if exchange_info is None:
+            exchange_info = messaging_params["exchange"]
+
         self.exchange_info = exchange_info
-        RabbitMQConnectionFactory.configure(
-            GetMessagingParamsResponse(**params, exchange=self.exchange_info)
-        )
+
+        # If the connection factory is not configured, configure it
+        if (
+            not hasattr(RabbitMQConnectionFactory, "_params")
+            or not RabbitMQConnectionFactory._params
+        ):
+            RabbitMQConnectionFactory.configure(
+                GetMessagingParamsResponse(
+                    **params, exchange=self.exchange_info
+                )
+            )
+
         self._channel = RabbitMQConnectionFactory.get_thread_channel()
 
     def publish_validation_request(
