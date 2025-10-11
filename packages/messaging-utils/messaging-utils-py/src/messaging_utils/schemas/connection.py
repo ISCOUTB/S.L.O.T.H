@@ -1,4 +1,21 @@
-from typing import TypedDict
+from typing import List, TypedDict
+
+
+class QueueInfo(TypedDict):
+    queue: str
+    durable: bool
+    routing_key: str
+
+
+class ExchangeInfo(TypedDict):
+    exchange: str
+    type: str
+    durable: bool
+    queues: List[QueueInfo]
+
+
+class RoutingKey(TypedDict):
+    routing_key: str
 
 
 class ConnectionParams(TypedDict):
