@@ -56,7 +56,7 @@ class Publisher:
         *_: Any,
         **__: Any,
     ) -> None:
-        """Initialize the ValidationPublisher.
+        """Initialize the Publisher.
 
         Sets up the publisher with a channel from the factory RabbitMQ
         connection. The channel is used for all message publishing operations.

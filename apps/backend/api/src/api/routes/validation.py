@@ -1,12 +1,12 @@
-from fastapi import APIRouter, UploadFile, HTTPException
-from src.messaging.publishers import ValidationPublisher
-
+from fastapi import APIRouter, HTTPException, UploadFile
+from messaging_utils.core.config import settings as mq_settings
 from proto_utils.database import dtypes
+
 from src.core.database_client import database_client
+from src.messaging.publisher import publisher
 
 TASK = "validation"
 router = APIRouter()
-publisher = ValidationPublisher()
 
 
 @router.post("/upload/{import_name}")
@@ -21,7 +21,9 @@ async def validate(
 
     if not new and (
         cached_response := database_client.get_tasks_by_import_name(
-            dtypes.GetTasksByImportNameRequest(import_name=import_name, task=TASK)
+            dtypes.GetTasksByImportNameRequest(
+                import_name=import_name, task=TASK
+            )
         )
     ):
         return cached_response["tasks"]
@@ -40,6 +42,7 @@ async def validate(
         # Publish in RabbitMQ
         # file_content = UploadFile(file_content)
         task_id = publisher.publish_validation_request(
+            routing_key=mq_settings.RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS,
             file_data=file_content,
             import_name=import_name,
             metadata=metadata,
@@ -78,11 +81,15 @@ async def get_validation_status(
     Get the status of the file being validated.
     """
     if not task_id and not import_name:
-        raise HTTPException(400, "Either `task_id` or `import_name` must be provided.")
+        raise HTTPException(
+            400, "Either `task_id` or `import_name` must be provided."
+        )
 
     if import_name:
         cached_response = database_client.get_tasks_by_import_name(
-            dtypes.GetTasksByImportNameRequest(import_name=import_name, task=TASK)
+            dtypes.GetTasksByImportNameRequest(
+                import_name=import_name, task=TASK
+            )
         )
         return cached_response["tasks"]
 

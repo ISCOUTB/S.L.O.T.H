@@ -1,20 +1,18 @@
-from fastapi import APIRouter
-from fastapi import HTTPException
-
+from fastapi import APIRouter, HTTPException
+from messaging_utils.core.config import settings as mq_settings
 from proto_utils.database import dtypes
-from src.core.database_client import database_client
 
-from src.messaging.publishers import ValidationPublisher
+from src.core.database_client import database_client
+from src.messaging.publisher import publisher
 
 TASK = "schemas"
 router = APIRouter()
-publisher = ValidationPublisher()
 
 
 @router.post("/upload/{import_name}")
 async def upload_schema(
     import_name: str,
-    schema: dict,
+    schema: dtypes.JsonSchema,
     raw: bool = False,
     new: bool = False,
 ) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
@@ -37,7 +35,11 @@ async def upload_schema(
 
     try:
         task_id = publisher.publish_schema_update(
-            schema=schema, import_name=import_name, raw=raw, task="upload_schema"
+            routing_key=mq_settings.RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS,
+            schema=schema,
+            import_name=import_name,
+            raw=raw,
+            task="upload_schema",
         )
 
         response = dtypes.ApiResponse(
@@ -105,7 +107,9 @@ async def remove_schema(
 
     try:
         task_id = publisher.publish_schema_update(
-            import_name=import_name, task="remove_schema"
+            routing_key=mq_settings.RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS,
+            import_name=import_name,
+            task="remove_schema",
         )
 
         response = dtypes.ApiResponse(
