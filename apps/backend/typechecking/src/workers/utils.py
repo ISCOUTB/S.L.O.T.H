@@ -15,7 +15,6 @@ def update_task_status(
     data: dict | None = None,
     reset_data: bool = False,
 ) -> None:
-    # Update task in redis
     database_client.update_task_id(
         dtypes.UpdateTaskIdRequest(
             task_id=task_id,
