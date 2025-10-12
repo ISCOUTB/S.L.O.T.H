@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from src.api.main import router as api_router
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.main import router as api_router
 from src.core.config import settings
-
+from src.utils.uvicorn_logger import LOGGING_CONFIG
 
 app = FastAPI(
     title="ETL Design API",
@@ -30,4 +30,9 @@ if __name__ == "__main__":
         host=settings.SERVER_HOST,
         port=settings.SERVER_PORT,
         reload=settings.SERVER_DEBUG,
+        reload_dirs=["src"] if settings.SERVER_DEBUG else None,
+        reload_includes=["*.py"] if settings.SERVER_DEBUG else None,
+        log_config=LOGGING_CONFIG,
+        log_level="debug",
+        use_colors=True,
     )
