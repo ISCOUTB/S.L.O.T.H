@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from messaging_utils.core.config import settings as mq_settings
-from proto_utils.database import dtypes
+from proto_utils.database import dtypes, DatabaseClient
 
-from src.core.database_client import database_client
+from typing import Dict, Any
+
+from src.api.deps import get_db_client
 from src.messaging.publisher import publisher
 
 TASK = "schemas"
@@ -12,9 +14,10 @@ router = APIRouter()
 @router.post("/upload/{import_name}")
 async def upload_schema(
     import_name: str,
-    schema: dtypes.JsonSchema,
+    schema: Dict[str, Any],
     raw: bool = False,
     new: bool = False,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Upload a schema for validation.
@@ -69,7 +72,9 @@ async def upload_schema(
 
 @router.get("/status")
 async def get_schema_task(
-    task_id: str = "", import_name: str = ""
+    task_id: str = "",
+    import_name: str = "",
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> list[dtypes.ApiResponse] | dtypes.ApiResponse:
     """
     Get the status of a schema upload task.
@@ -95,7 +100,7 @@ async def get_schema_task(
 
 @router.delete("/remove/{import_name}")
 async def remove_schema(
-    import_name: str,
+    import_name: str, database_client: DatabaseClient = Depends(get_db_client)
 ) -> dtypes.ApiResponse:
     """
     Remove a schema by its import name.

@@ -7,6 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+from proto_utils.database.base_client import DatabaseClient
+
 from src.core import security
 from src.core.config import settings
 from src.core.database_sql import SessionLocal
@@ -19,7 +21,15 @@ reusable_oauth2 = OAuth2PasswordBearer(
 )
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db_client() -> Generator[DatabaseClient, None, None]:
+    db_client = DatabaseClient(settings.DATABASE_CONNECTION_CHANNEL)
+    try:
+        yield db_client
+    finally:
+        db_client.close()
+
+
+def get_sql_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
@@ -27,7 +37,7 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-SessionDep = Annotated[Session, Depends(get_db)]
+SessionDep = Annotated[Session, Depends(get_sql_db)]
 TokenDep = Annotated[Session, Depends(reusable_oauth2)]
 
 

@@ -1,20 +1,24 @@
 import json
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from src.api.deps import CurrentUser, Admin, SessionDep
 from src.api.utils import is_superuser, invalidate_user_cache
 
-from proto_utils.database import dtypes
-from src.core.database_client import database_client
-from src.controllers.users import ControllerUsers
+from proto_utils.database import dtypes, DatabaseClient
 
+from src.api.deps import get_db_client
+from src.controllers.users import ControllerUsers
 import src.schemas as schemas
 
 router = APIRouter()
 
 
 @router.get("/info")
-def get_user_info(current_user: CurrentUser, db: SessionDep) -> schemas.users.BaseUser:
+def get_user_info(
+    current_user: CurrentUser,
+    db: SessionDep,
+    database_client: DatabaseClient = Depends(get_db_client),
+) -> schemas.users.BaseUser:
     """
     Get current user information.
 
@@ -53,6 +57,7 @@ def get_user(
     all: bool = False,
     active: bool = True,
     use_cache: bool = True,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> schemas.users.AllUser | schemas.users.BaseUser:
     """
     Get user information by username and role.
@@ -97,6 +102,7 @@ def get_all_users(
     limit: int = 100,
     page: int = 1,
     use_cache: bool = True,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> schemas.api.Paginated[schemas.users.AllUser | schemas.users.BaseUser]:
     """
     Get all users with pagination and filtering options.
@@ -138,6 +144,7 @@ def create_user(
     user: schemas.users.CreateUser,
     db: SessionDep,
     admin: Admin,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse:
     """
     Create a new user.
@@ -158,7 +165,7 @@ def create_user(
             detail=response["message"],
         )
 
-    invalidate_user_cache(invalidate_lists=True)
+    invalidate_user_cache(database_client, invalidate_lists=True)
     return dtypes.ApiResponse(
         status="success",
         code=response["status"],
@@ -174,6 +181,7 @@ def update_user(
     rol: schemas.users.Roles,
     db: SessionDep,
     admin: Admin,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse:
     """
     Update user information.
@@ -202,7 +210,7 @@ def update_user(
             detail=response["message"],
         )
 
-    invalidate_user_cache(username=username, invalidate_lists=True)
+    invalidate_user_cache(database_client, username=username, invalidate_lists=True)
     return dtypes.ApiResponse(
         status="success",
         code=response["status"],
@@ -218,6 +226,7 @@ def delete_user(
     db: SessionDep,
     admin: Admin,
     complete: bool = False,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse:
     """
     Delete a user by username.
@@ -248,7 +257,7 @@ def delete_user(
             detail=response["message"],
         )
 
-    invalidate_user_cache(username=username, invalidate_lists=True)
+    invalidate_user_cache(database_client, username=username, invalidate_lists=True)
     return dtypes.ApiResponse(
         status="success",
         code=response["status"],
