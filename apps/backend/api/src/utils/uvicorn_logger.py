@@ -24,7 +24,8 @@ LOGGING_CONFIG: Dict[str, Any] = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "access_file": {
-            "format": '[%(asctime)s] [%(levelname)s] [server] [API] [access] %(client_addr)s - "%(request_line)s" %(status_code)s',
+            "()": "uvicorn.logging.AccessFormatter",
+            "fmt": '[%(asctime)s] [%(levelname)s] [server] [API] [access] %(client_addr)s - "%(request_line)s" %(status_code)s',
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
