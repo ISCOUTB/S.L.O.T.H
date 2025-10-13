@@ -40,8 +40,8 @@
             "name": "Python Debugger: Database Connection Server",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/apps/connections/database/src/server.py",
-            "console": "integratedTerminal"
+            "cwd": "${workspaceFolder}/apps/connections/database",
+            "module": "src.server"
         },
         {
             "name": "Python Debugger: Messaging Connection Server",
