@@ -24,3 +24,7 @@ class ConnectionParams(TypedDict):
     virtual_host: str
     username: str
     password: str
+
+
+class AllConnectionParams(ConnectionParams):
+    exchange: ExchangeInfo

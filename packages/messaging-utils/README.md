@@ -75,7 +75,7 @@ Type-safe publishers for different message types:
 
 ```python
 from messaging_utils.messaging.publishers import Publisher
-from proto_utils.messaging.dtypes import Metadata, ValidationTasks
+from messaging_utils.schemas.validation import Metadata
 
 publisher = Publisher()
 
@@ -86,9 +86,10 @@ task_id = publisher.publish_validation_request(
     import_name="user_schema_v1",
     metadata=Metadata(
         filename="data.csv",
-        priority=1
+        content_type="text/csv",
+        size=24
     ),
-    task=ValidationTasks.SAMPLE_VALIDATION
+    task="sample_validation"
 )
 ```
 
@@ -96,7 +97,6 @@ task_id = publisher.publish_validation_request(
 
 ```python
 from messaging_utils.messaging.publishers import Publisher
-from proto_utils.messaging.dtypes import SchemasTasks
 
 publisher = Publisher()
 
@@ -104,7 +104,7 @@ publisher = Publisher()
 task_id = publisher.publish_schema_update(
     routing_key="schema.update",
     import_name="user_schema_v1",
-    task=SchemasTasks.CREATE_SCHEMA,
+    task="upload_schema",
     schema_data=json_schema_dict
 )
 ```

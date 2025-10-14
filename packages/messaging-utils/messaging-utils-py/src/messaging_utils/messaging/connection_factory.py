@@ -15,13 +15,13 @@ from typing import Dict, Generator, Optional
 
 import pika
 from pika.adapters.blocking_connection import BlockingChannel
-from proto_utils.messaging.dtypes import (
-    ExchangeInfo,
-    GetMessagingParamsResponse,
-)
 
 from messaging_utils.core.connection_params import messaging_params
-from messaging_utils.schemas.connection import ConnectionParams
+from messaging_utils.schemas.connection import (
+    AllConnectionParams,
+    ConnectionParams,
+    ExchangeInfo,
+)
 
 
 class RabbitMQConnectionFactory:
@@ -49,7 +49,7 @@ class RabbitMQConnectionFactory:
 
     @classmethod
     def configure(
-        cls, connection_params: Optional[GetMessagingParamsResponse] = None
+        cls, connection_params: Optional[AllConnectionParams] = None
     ) -> None:
         """Configure the connection factory with connection parameters.
 
