@@ -104,7 +104,7 @@ client = DatabaseClient('localhost:50051')
 ```python
 # Python
 from messaging_utils.messaging.publishers import Publisher
-from proto_utils.messaging.dtypes import Metadata, ValidationTasks
+from messaging_utils.schemas.validation import Metadata, ValidationTasks
 
 publisher = Publisher()
 task_id = publisher.publish_validation_request(
@@ -112,7 +112,7 @@ task_id = publisher.publish_validation_request(
     file_data=file_content,
     import_name="user_schema_v1",
     metadata=Metadata(filename="data.csv", priority=1),
-    task=ValidationTasks.SAMPLE_VALIDATION
+    task="sample_validation"
 )
 )
 ```

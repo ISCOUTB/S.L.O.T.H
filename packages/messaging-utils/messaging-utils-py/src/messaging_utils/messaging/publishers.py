@@ -15,21 +15,22 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 import pika
-from proto_utils.messaging.dtypes import (
-    ExchangeInfo,
-    GetMessagingParamsResponse,
-    Metadata,
-    SchemaMessageResponse,
-    SchemasTasks,
-    ValidationMessageResponse,
-    ValidationTasks,
-)
 
 from messaging_utils.core.connection_params import messaging_params
 from messaging_utils.messaging.connection_factory import (
     RabbitMQConnectionFactory,
 )
-from messaging_utils.schemas.connection import ConnectionParams
+from messaging_utils.schemas.connection import (
+    AllConnectionParams,
+    ConnectionParams,
+    ExchangeInfo,
+)
+from messaging_utils.schemas.schemas import SchemaMessage, SchemasTasks
+from messaging_utils.schemas.validation import (
+    Metadata,
+    ValidationMessage,
+    ValidationTasks,
+)
 
 
 class Publisher:
@@ -76,7 +77,7 @@ class Publisher:
             or not RabbitMQConnectionFactory._params
         ):
             RabbitMQConnectionFactory.configure(
-                GetMessagingParamsResponse(
+                AllConnectionParams(
                     **params, exchange=self.exchange_info
                 )
             )
@@ -124,7 +125,7 @@ class Publisher:
         """
         task_id = str(uuid.uuid4())
 
-        message = ValidationMessageResponse(
+        message = ValidationMessage(
             id=task_id,
             task=task,
             file_data=file_data.hex(),
@@ -189,7 +190,7 @@ class Publisher:
         """
         task_id = str(uuid.uuid4())
 
-        message = SchemaMessageResponse(
+        message = SchemaMessage(
             id=task_id,
             schema=schema,
             import_name=import_name,
