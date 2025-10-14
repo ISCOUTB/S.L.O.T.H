@@ -41,7 +41,7 @@ The backend is designed as a distributed system with clear separation of concern
 ### 1. [API Service](./api/) - REST Interface & Orchestration
 
 **Technology**: Python + FastAPI  
-**Ports**: 8000 (main), 8001 (webhooks - planned)  
+**Ports**: 8000 (main)  
 **Purpose**: Primary interface for client applications and workflow orchestration
 
 **Key Features**:
@@ -310,7 +310,7 @@ SQL_BUILDER_PORT=50054
    # Formula Parser (Node.js)
    cd ../parsers/formula-parser
    npm install
-   npm run dev
+   moon run formula-parser:run
 
    # DDL Generator
    cd ../ddl-generator

@@ -93,9 +93,9 @@ apps/
 
 ### Operations & Deployment
 
-1. **Database Setup**: Use scripts in [`scripts/`](./scripts/)
+1. **Database Setup**: Deployment scripts are available in [`scripts/`](./scripts/)
 2. **Service Configuration**: Each service has its own `.env.example`
-3. **Health Monitoring**: All services expose health endpoints
+3. **Health Monitoring**: Health endpoints are planned for all services
 
 ## 🔄 Data Flow
 
@@ -120,15 +120,15 @@ User → Excel Reader → Formula Parser → DDL Generator → SQL Builder → R
 ### Development Mode
 
 ```bash
-# Start infrastructure first
-cd apps/
-bash ./scripts/deploy_postgres_docker.sh
-bash ./scripts/deploy_mongo_docker.sh
-bash ./scripts/deploy_redis_docker.sh
-bash ./scripts/deploy_rabbitmq_docker.sh
+# Start infrastructure first (from workspace root)
+cd apps/scripts/
+bash ./deploy_postgres_docker.sh
+bash ./deploy_mongo_docker.sh
+bash ./deploy_redis_docker.sh
+bash ./deploy_rabbitmq_docker.sh
 
 # Start backend services
-cd ./backend/api/
+cd ../backend/api/
 uv run python -m src.main
 
 cd ../typechecking/
@@ -145,10 +145,10 @@ uv run python src/server_rest.py
 
 | Service | Status | Technology | Port | Health Endpoint |
 |---------|--------|------------|------|----------------|
-| API Service | ✅ Active | FastAPI | 8000 | `/health` |
-| Typechecking | ✅ Active | Python + Polars | - | `/health` |
-| Database Service | ✅ Active | gRPC | 50051 | gRPC health |
-| Excel Reader | 🔄 Migrating | Python → gRPC | 8001 | `/health` |
+| API Service | ✅ Active | FastAPI | 8000 | Planned |
+| Typechecking | ✅ Active | Python + Polars | - | Planned |
+| Database Service | ✅ Active | gRPC | 50050 | gRPC health |
+| Excel Reader | 🔄 Migrating | Python → gRPC | 8001 | Planned |
 | Formula Parser | ✅ Active | Node.js | 50052 | gRPC health |
 | DDL Generator | ✅ Active | Python | 50053 | gRPC health |
 | SQL Builder | ✅ Active | Python | 50054 | gRPC health |
@@ -181,7 +181,7 @@ uv run python src/server_rest.py
 ### Common Issues
 
 1. **Service Dependencies**: Ensure infrastructure services (PostgreSQL, RabbitMQ, etc.) are running first
-2. **Port Conflicts**: Check that required ports (8000, 8001, 50051-50054) are available
+2. **Port Conflicts**: Check that required ports (8000, 8001, 50050, 50052-50054) are available
 3. **Environment Variables**: Each service requires proper `.env` configuration
 4. **gRPC Connections**: Verify network connectivity between parsing services
 

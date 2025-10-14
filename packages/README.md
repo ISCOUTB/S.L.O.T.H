@@ -89,13 +89,13 @@ messaging-utils ←──── proto-utils
 
 ```typescript
 // JavaScript/TypeScript
-import { DatabaseClient } from '@etl-design/packages-proto-utils-js';
-const client = new DatabaseClient('localhost:50051');
+import { DatabaseServiceClient } from '@etl-design/packages-proto-utils-js';
+const client = new DatabaseServiceClient('localhost:50051');
 ```
 
 ```python
 # Python
-from proto_utils import DatabaseClient
+from proto_utils.database import DatabaseClient
 client = DatabaseClient('localhost:50051')
 ```
 
@@ -103,13 +103,17 @@ client = DatabaseClient('localhost:50051')
 
 ```python
 # Python
-from messaging_utils.messaging.publishers import ValidationPublisher
+from messaging_utils.messaging.publishers import Publisher
+from proto_utils.messaging.dtypes import Metadata, ValidationTasks
 
-publisher = ValidationPublisher()
-await publisher.publish_validation_task(
-    task_id="unique_id",
-    file_data=content,
-    schema_id="schema_v1"
+publisher = Publisher()
+task_id = publisher.publish_validation_request(
+    routing_key="validation.request",
+    file_data=file_content,
+    import_name="user_schema_v1",
+    metadata=Metadata(filename="data.csv", priority=1),
+    task=ValidationTasks.SAMPLE_VALIDATION
+)
 )
 ```
 

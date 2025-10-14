@@ -167,142 +167,145 @@ The ETL Design platform is being designed with modern DevOps practices and cloud
 
 ### Prerequisites
 
-- **Docker & Docker Compose**: Latest versions
+- **Docker & Docker Compose**: Latest versions for infrastructure services
 - **Python**: 3.12+ with `uv` package manager
 - **Node.js**: 18+ with npm
 - **Git**: For cloning the repository
 
-### Option 1: Docker Deployment (Recommended)
+### 1. Clone and Setup
 
-1. **Clone the repository**:
+```bash
+git clone https://github.com/ISCOUTB/etl-design.git
+cd etl-design
+```
 
-   ```bash
-   git clone https://github.com/ISCOUTB/etl-design.git
-   cd etl-design
-   ```
+### 2. Start Infrastructure Services
 
-2. **Start the Typechecking System**:
+Deploy the required databases and message brokers:
 
-   ```bash
-   cd typechecking
-   cp .env.example .env
-   # Edit .env with your configuration
-   docker-compose up --build -d
-   ```
+```bash
+# Deploy all infrastructure services using provided scripts
+cd apps/scripts/
 
-3. **Start the Excel Parsing Services**:
+# Start databases
+bash ./deploy_postgres_docker.sh  # PostgreSQL for user data
+bash ./deploy_mongo_docker.sh     # MongoDB for schemas
+bash ./deploy_redis_docker.sh     # Redis for caching
 
-   ```bash
-   cd ../excel-parsing
-   cp .env.example .env
-   # Edit .env with your configuration
+# Start message broker
+bash ./deploy_rabbitmq_docker.sh  # RabbitMQ for async processing
+```
 
-   # Start each service (in separate terminals)
-   cd formula-parser && npm install && npm start
-   cd ddl-generator && uv sync && uv run python src/server.py
-   cd sql-builder && uv sync && uv run python src/server.py
-   cd excel-reader && uv sync && uv run python src/server_rest.py
-   ```
+### 3. Start Core Backend Services
 
-### Option 2: Manual Development Setup
+#### Database Service (gRPC)
 
-1. **Setup Excel Parsing Services**:
+Centralized database connection service for MongoDB and Redis:
 
-   ```bash
-   cd excel-parsing
+```bash
+cd apps/connections/database/
+cp .env.example .env
+# Edit .env with your database configuration
+uv sync
+uv run python -m src.server
+```
 
-   # Formula Parser (Node.js)
-   cd formula-parser
-   npm install
-   npm start
+#### API Service (REST + FastAPI)
 
-   # DDL Generator (Python)
-   cd ../ddl-generator
-   uv sync
-   uv run python src/server.py
+Main REST API with authentication and user management:
 
-   # SQL Builder (Python)
-   cd ../sql-builder
-   uv sync
-   uv run python src/server.py
+```bash
+cd apps/backend/api/
+cp .env.example .env
+# Edit .env with your configuration
+uv sync
+uv run python -m src.main
+```
 
-   # Excel Reader (Python)
-   cd ../excel-reader
-   uv sync
-   uv run python src/server_rest.py
-   ```
+#### Typechecking Service (Workers)
 
-2. **Setup Typechecking System**:
+Background workers for data validation:
 
-   ```bash
-   cd typechecking/backend
-   uv sync
-   # Configure databases (PostgreSQL, MongoDB, Redis, RabbitMQ)
-   # See typechecking/README.md for detailed setup
-   uv run python -m app.main
-   ```
+```bash
+cd apps/backend/typechecking/
+cp .env.example .env
+# Edit .env with your configuration
+uv sync
+uv run python -m src.main
+```
+
+### 4. Start Excel Parsing Services
+
+Start each parsing microservice (in separate terminals):
+
+```bash
+cd apps/backend/parsers/
+
+# Excel Reader (REST API)
+cd excel-reader
+cp .env.example .env
+uv sync
+uv run python src/server_rest.py
+
+# Formula Parser (Node.js gRPC)
+cd ../formula-parser
+cp .env.example .env
+npm install
+moon run formula-parser:run
+
+# DDL Generator (Python gRPC)
+cd ../ddl-generator
+cp .env.example .env
+uv sync
+uv run python src/server.py
+
+# SQL Builder (Python gRPC)
+cd ../sql-builder
+cp .env.example .env
+uv sync
+uv run python src/server.py
+```
+
+### 5. Verify Installation
+
+Once all services are running, verify the installation:
+
+- **API Documentation**: <http://localhost:8000/docs>
+- **Excel Reader**: <http://localhost:8001>
+- **Health Checks**: All services should respond to their respective health endpoints
+
+### Service Architecture Overview
+
+The system consists of several independent services that work together:
+
+1. **Infrastructure Layer**: PostgreSQL, MongoDB, Redis, RabbitMQ
+2. **Database Service**: gRPC proxy for MongoDB/Redis operations (Port: 50050)
+3. **API Service**: FastAPI REST server with authentication (Port: 8000)
+4. **Typechecking Workers**: RabbitMQ consumers for validation
+5. **Excel Parsing Services**: Microservices for Excel processing (Ports: 8001, 50052-50054)
 
 ## 🔧 Configuration
 
-### Excel Parsing Configuration
+### Environment Setup
 
-Create `.env` file in `excel-parsing/`:
+Each service requires configuration through environment variables. For each service, copy the provided `.env.example` file to `.env` and customize the values according to your environment:
 
-```env
-# Formula Parser
-FORMULA_PARSER_HOST="localhost"
-FORMULA_PARSER_PORT="50052"
-DEBUG_FORMULA_PARSER=true
+```bash
+# For database service
+cp apps/connections/database/.env.example apps/connections/database/.env
 
-# DDL Generator
-DDL_GENERATOR_HOST="localhost"
-DDL_GENERATOR_PORT="50053"
-DDL_GENERATOR_DEBUG=True
+# For backend services
+cp apps/backend/api/.env.example apps/backend/api/.env
+cp apps/backend/typechecking/.env.example apps/backend/typechecking/.env
 
-# SQL Builder
-SQL_BUILDER_HOST="localhost"
-SQL_BUILDER_PORT="50054"
-SQL_BUILDER_DEBUG=True
-
-# Excel Reader
-EXCEL_READER_HOST="localhost"
-EXCEL_READER_PORT="8001"
-EXCEL_READER_DEBUG=True
+# For parsing services  
+cp apps/backend/parsers/formula-parser/.env.example apps/backend/parsers/formula-parser/.env
+cp apps/backend/parsers/ddl-generator/.env.example apps/backend/parsers/ddl-generator/.env
+cp apps/backend/parsers/sql-builder/.env.example apps/backend/parsers/sql-builder/.env
+cp apps/backend/parsers/excel-reader/.env.example apps/backend/parsers/excel-reader/.env
 ```
 
-### Typechecking Configuration
-
-Create `.env` file in `typechecking/`:
-
-```env
-# Database Configuration
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=secure_password
-POSTGRES_DB=typechecking
-
-MONGO_HOST=localhost
-MONGO_PORT=27017
-MONGO_INITDB_ROOT_USERNAME=admin
-MONGO_INITDB_ROOT_PASSWORD=secure_password
-
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=secure_password
-
-# RabbitMQ Configuration
-RABBITMQ_HOST=localhost
-RABBITMQ_PORT=5672
-RABBITMQ_USER=admin
-RABBITMQ_PASSWORD=secure_password
-RABBITMQ_VHOST=/
-
-# Application Configuration
-SECRET_KEY=your-super-secret-key-here
-API_V1_STR=/api/v1
-CORS_ORIGINS=["http://localhost:3000"]
-```
+**Important**: Edit each `.env` file to match your local development environment, including database connections, ports, and security settings. See the individual service README files for detailed configuration options.
 
 ## 📚 Usage Examples
 
@@ -329,10 +332,9 @@ curl -X POST "http://localhost:8001/excel-parser" \
 
 ```bash
 # Validate a dataset against a schema
-curl -X POST "http://localhost:8000/api/v1/validate" \
+curl -X POST "http://localhost:8000/api/v1/validation/upload/user_schema_v1" \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@data.csv" \
-  -F "schema_id=user_schema_v1"
+  -F "spreadsheet_file=@data.csv"
 ```
 
 ## 📊 Performance
@@ -384,17 +386,19 @@ The system is designed for high performance and scalability:
 ## 📖 Documentation
 
 - **[Applications Overview](./apps/README.md)**: Complete service directory and navigation guide
-- **[Excel Parsing System](./excel-parsing/README.md)**: Complete microservices documentation
-- **[Typechecking System](./typechecking/backend/README.md)**: Data validation platform guide
+- **[Backend Services](./apps/backend/README.md)**: Backend architecture and service guide  
+- **[Excel Parsing System](./apps/backend/parsers/README.md)**: Complete microservices documentation
+- **[API Service](./apps/backend/api/README.md)**: REST API and authentication service
+- **[Typechecking System](./apps/backend/typechecking/README.md)**: Data validation platform guide
 - **[API Documentation](http://localhost:8000/docs)**: Interactive OpenAPI docs (when running)
-- **[Kubernetes Manifests](./infrastructure/k8s/README.md)**: Container orchestration configurations
+- **[Kubernetes Manifests](./infrastructure/k8s/README.md)**: Container orchestration configurations (planned)
 - **Research Papers**: Available in the `docs/` directory
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Port Conflicts**: Ensure ports 8000, 8001, 50052-50054 are available
+1. **Port Conflicts**: Ensure ports 8000, 8001, 50050, 50052-50054 are available
 2. **Docker Issues**: Run `docker-compose down && docker-compose up --build`
 3. **Database Connection**: Verify database services are running and accessible
 4. **Memory Issues**: Increase Docker memory allocation for large files
