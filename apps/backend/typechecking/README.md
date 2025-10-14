@@ -1,406 +1,340 @@
-# Typechecking ETL System
+# Typechecking Service
 
-A high-performance, enterprise-grade data validation system designed for ETL processes that validates spreadsheet files (CSV, XLSX, XLS) against JSON schemas using parallel processing, message queuing, and modern distributed architecture patterns.
+A high-performance background processing service that validates spreadsheet files (CSV, XLSX, XLS) against JSON schemas using parallel processing with Polars. This service operates as a collection of RabbitMQ consumer workers that process validation and schema management tasks asynchronously.
 
 ## 🚀 Overview
 
-This system provides a robust, scalable solution for validating large datasets in spreadsheet formats. Built with modern Python technologies, it employs a microservices architecture with RabbitMQ for asynchronous processing, MongoDB for schema management, Redis for caching, PostgreSQL for user management, and FastAPI for a high-performance REST API interface. The system uses Polars for high-performance data processing and supports comprehensive user authentication and authorization.
+The Typechecking Service is the computational backbone of the ETL Design system, responsible for all file validation and schema processing operations. It operates as a distributed worker system that consumes messages from RabbitMQ queues and processes them using parallel computation techniques.
 
 ## ✨ Key Features
 
-- **🔄 Multi-format Support**: Validates CSV, XLSX, and XLS files with intelligent parsing using Polars
-- **⚡ Parallel Processing**: Uses multi-threading and async operations for high-performance validation
-- **🔀 Asynchronous Processing**: RabbitMQ-based message queuing for scalable operations
-- **📋 Schema Management**: Dynamic JSON schema validation with versioning and rollback support
-- **� User Management**: Complete authentication system with JWT tokens and role-based access control
-- **�💾 Intelligent Caching**: Redis-based caching with TTL management for improved performance
-- **🌐 RESTful API**: FastAPI-based endpoints with automatic OpenAPI documentation
-- **🐳 Docker Support**: Containerized deployment with Docker Compose for easy setup
-- **📊 Performance Testing**: Built-in benchmarking and performance analysis tools with Jupyter notebooks
-- **🔒 Type Safety**: Comprehensive Pydantic models and TypedDict schemas
-- **📈 Real-time Monitoring**: Task progress tracking and system health monitoring
+- **🔄 Asynchronous Processing**: RabbitMQ-based message consumption for scalable background processing
+- **⚡ High-Performance Validation**: Polars-based data processing for fast file validation
+- **📊 Parallel Computing**: Multi-worker processing with configurable concurrency levels
+- **🏷️ Schema Management**: Automated JSON schema creation, versioning, and removal
+- **📄 Multi-Format Support**: Handles CSV, XLSX, and XLS files seamlessly
+- **🔍 Detailed Validation Reports**: Comprehensive error reporting with row-level validation results
+- **🏥 Robust Error Handling**: Graceful error recovery and detailed logging
+- **🔧 Thread-Safe Operations**: Multiple worker threads with proper resource management
+- **💊 Health Monitoring**: Optional REST endpoint for health checks and service status
 
 ## Architecture
 
-The system follows a modern microservices architecture with clear separation of concerns:
+The service runs as a collection of specialized workers that process different types of messages:
 
 ```text
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   FastAPI       │────▶│   RabbitMQ      │────▶│   Workers       │
-│   Web Server    │     │   Message Queue │     │   (Validation + │
-│   (REST API)    │     │   (Async Jobs)  │     │    Schema Mgmt) │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-         │                                                │
-         ▼                                                ▼
-┌─────────────────┐                              ┌─────────────────┐
-│   Redis         │                              │   MongoDB       │
-│   (Caching +    │                              │   (JSON Schemas │
-│   Task Status)  │                              │   + Metadata)   │
-└─────────────────┘                              └─────────────────┘
-         │                                                
-         ▼                                                
-┌─────────────────┐                              
-│   PostgreSQL    │                              
-│   (User Mgmt +  │                              
-│   Application   │                              
-│   Data)         │                              
-└─────────────────┘                              
+│   API Service   │────▶│   RabbitMQ      │────▶│  Typechecking   │
+│   (Publisher)   │     │   (Message      │     │   Workers       │
+└─────────────────┘     │    Broker)      │     └─────────────────┘
+                        └─────────────────┘              │
+                                 │                       │
+                        ┌────────▼────────┐              ▼
+                        │  Message Queues │     ┌─────────────────┐
+                        │                 │     │ Database Service│
+                        │ • Validation    │     │   (gRPC Proxy)  │
+                        │ • Schemas       │     └─────────────────┘
+                        │ • Results       │              │
+                        └─────────────────┘              ▼
+                                                ┌─────────────────┐
+                                                │ Redis + MongoDB │
+                                                │ (Schema Storage)│
+                                                └─────────────────┘
 ```
 
-### Component Responsibilities
+### Worker Types
 
-- **FastAPI Server**: HTTP API endpoints, request validation, response formatting, authentication
-- **RabbitMQ**: Message queuing, task distribution, async processing coordination
-- **Workers**: File validation, schema processing, parallel computation (ValidationWorker, SchemaWorker)
-- **Redis**: Result caching, task status tracking, session management
-- **MongoDB**: JSON schema storage, metadata persistence, version control
-- **PostgreSQL**: User management, authentication data, application configuration
+- **Validation Worker**: Processes file validation requests against JSON schemas
+- **Schema Worker**: Handles schema upload, update, and removal operations
+- **Worker Manager**: Coordinates worker lifecycle and handles graceful shutdown
 
-## 📋 Prerequisites
+### Data Processing Flow
 
-- **Python**: 3.12+ (with `uv` package manager recommended)
-- **Docker**: Latest version with Docker Compose
-- **MongoDB**: 7.0+ (provided via Docker)
-- **Redis**: 7.4+ (provided via Docker)
-- **RabbitMQ**: 4.0+ with management plugin (provided via Docker)
-- **PostgreSQL**: 17+ (provided via Docker)
+1. **Message Consumption**: Workers consume messages from dedicated RabbitMQ queues
+2. **File Processing**: Uploaded files are processed using Polars for high performance
+3. **Schema Validation**: Files are validated against JSON schemas using jsonschema library
+4. **Parallel Processing**: Large files are split across multiple worker processes
+5. **Result Publishing**: Validation results are published back to result queues
+6. **Status Updates**: Task status is updated in the database via gRPC
 
-## 🚀 Quick Start
+## 💊 Health Monitoring
 
-### Using Docker Compose (Recommended)
+The service optionally exposes a lightweight REST endpoint for health checks and monitoring:
 
-- Clone the repository:
+### Health Endpoint
 
-```bash
-git clone https://github.com/ISCOUTB/etl-design.git
-cd etl-design/typechecking
+```text
+GET /health
 ```
 
-- Edit environment file:
+**Response Example:**
 
-```bash
-cp .env.example .env
-# Edit .env with your specific configuration
-```
-
-- Start the services:
-
-```bash
-docker-compose up --build -d
-```
-
-### Manual Installation
-
-- Install dependencies:
-
-```bash
-uv sync
-
-# Activate Virtual Environment
-source .venv/bin/activate
-```
-
-- Start workers:
-
-```bash
-cd backend
-python -m app.workers.worker_manager
-```
-
-- Start the API server:
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-## 🔌 API Endpoints
-
-The system provides a comprehensive REST API with automatic OpenAPI documentation available at `/docs`.
-
-### 📄 File Validation
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/validation/upload/{import_name}` | Upload and validate spreadsheet files |
-| `GET` | `/api/v1/validation/status` | Check validation task status and progress |
-
-### 🏷️ Schema Management
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/schemas/upload/{import_name}` | Upload JSON schema with versioning |
-| `GET` | `/api/v1/schemas/status` | Get schema upload status and metadata |
-| `DELETE` | `/api/v1/schemas/remove/{import_name}` | Remove schema with rollback support |
-
-### 👥 User Management
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/users/info` | Get current user information |
-| `GET` | `/api/v1/users/search/{username}` | Get specific user details |
-| `GET` | `/api/v1/users/search` | List all users (paginated) |
-| `POST` | `/api/v1/users/create` | Create new user |
-| `PATCH` | `/api/v1/users/update/{username}` | Update user information |
-| `DELETE` | `/api/v1/users/delete/{username}` | Delete user |
-
-### 🔐 Authentication
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/login/access-token` | Login and get JWT access token |
-| `GET` | `/api/v1/login/test-token` | Test token validity |
-
-### 🏥 System Health & Monitoring
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/healthcheck` | Comprehensive health check of all services |
-| `GET` | `/api/v1/healthcheck/simple` | Basic API availability check |
-
-### 💾 Cache Management
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/cache` | Get cache statistics and stored keys |
-| `DELETE` | `/api/v1/cache/clear` | Clear all cached data |
-
-## 💡 Usage Examples
-
-### Complete Workflow Example
-
-#### 1. Authenticate and Get Access Token
-
-```bash
-# Login to get access token
-curl -X POST "http://localhost:8000/api/v1/login/access-token" \
-     -H "Content-Type: application/x-www-form-urlencoded" \
-     -d "username=admin&password=admin&rol=admin"
-```
-
-#### 2. Upload a JSON Schema
-
-```bash
-# Create a user schema
-cat > user_schema.json << EOF
+```json
 {
-  "type": "object",
-  "properties": {
-    "name": {"type": "string"},
-    "email": {"type": "string", "format": "email"},
-    "age": {"type": "integer", "minimum": 0}
+  "status": "healthy",
+  "service": "typechecking",
+  "timestamp": "2025-10-14T10:30:00Z",
+  "workers": {
+    "validation_worker": "running",
+    "schema_worker": "running"
   },
-  "required": ["name", "email"]
+  "connections": {
+    "rabbitmq": "connected",
+    "database_service": "connected"
+  },
+  "queues": {
+    "validation_queue_size": 0,
+    "schema_queue_size": 0
+  }
 }
-EOF
-
-# Upload the schema
-curl -X POST "http://localhost:8000/api/v1/schemas/upload/user_data" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer <your_token>" \
-     -d @user_schema.json
 ```
 
-#### 3. Validate a CSV File
+### Configuration
 
 ```bash
-# Create sample data
-cat > users.csv << EOF
-name,email,age
-John Doe,john@example.com,30
-Jane Smith,jane@example.com,25
-EOF
-
-# Validate the file
-curl -X POST "http://localhost:8000/api/v1/validation/upload/user_data" \
-     -H "Content-Type: multipart/form-data" \
-     -H "Authorization: Bearer <your_token>" \
-     -F "spreadsheet_file=@users.csv"
+# Optional Health Check Server
+HEALTH_CHECK_ENABLED=true
+HEALTH_CHECK_HOST="0.0.0.0"
+HEALTH_CHECK_PORT=8001
 ```
 
-#### 4. Check Validation Status
+**Note**: The health endpoint is completely optional and can be disabled for production deployments where monitoring is handled externally.
 
-```bash
-# Get status by task ID
-curl -H "Authorization: Bearer <your_token>" \
-     "http://localhost:8000/api/v1/validation/status?task_id=<task_id>"
+## 🔧 Workers
 
-# Or get status by import name
-curl -H "Authorization: Bearer <your_token>" \
-     "http://localhost:8000/api/v1/validation/status?import_name=user_data"
-```
+### Validation Worker
 
-### Advanced Features
+Processes file validation messages from the `typechecking.validations.queue`:
 
-#### User Management
+- **Input**: File data (as hex), import name, task ID
+- **Processing**: Multi-threaded validation using Polars dataframes
+- **Output**: Detailed validation results with error reports
+- **Performance**: Configurable worker concurrency and prefetch count
 
-```bash
-# Create a new user
-curl -X POST "http://localhost:8000/api/v1/users/create" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer <admin_token>" \
-     -d '{
-       "username": "newuser",
-       "password": "password123",
-       "rol": "user",
-       "is_active": true
-     }'
+### Schema Worker
 
-# Get user information
-curl -H "Authorization: Bearer <your_token>" \
-     "http://localhost:8000/api/v1/users/search/newuser"
-```
+Handles schema management messages from the `typechecking.schemas.queue`:
 
-#### Schema Versioning
-
-```bash
-# Upload new version of schema
-curl -X POST "http://localhost:8000/api/v1/schemas/upload/user_data?new=true" \
-     -H "Content-Type: application/json" \
-     -H "Authorization: Bearer <your_token>" \
-     -d @updated_schema.json
-
-# Remove schema (with rollback)
-curl -X DELETE "http://localhost:8000/api/v1/schemas/remove/user_data" \
-     -H "Authorization: Bearer <your_token>"
-```
-
-#### Performance Monitoring
-
-```bash
-# Check system health
-curl -H "Authorization: Bearer <your_token>" \
-     "http://localhost:8000/api/v1/healthcheck"
-
-# View cache statistics
-curl -H "Authorization: Bearer <your_token>" \
-     "http://localhost:8000/api/v1/cache"
-
-# Clear cache
-curl -X DELETE -H "Authorization: Bearer <your_token>" \
-     "http://localhost:8000/api/v1/cache/clear"
-```
+- **Input**: JSON schema data, import name, operation type
+- **Processing**: Schema validation, versioning, and storage
+- **Output**: Schema operation results with status updates
+- **Operations**: Create, update, remove schemas with rollback support
 
 ## ⚙️ Configuration
 
-The system uses environment variables for configuration with sensible defaults. Create a `.env` file based on `.env.example`.
-
-### Core Settings
-
-```bash
-# API Configuration
-API_V1_STR="/api/v1"
-CORS_ORIGINS="*"
-
-# Performance Settings
-MAX_WORKERS=8
-WORKER_CONCURRENCY=4
-WORKER_PREFETCH_COUNT=1
-```
+The service uses environment variables for configuration. Create a `.env` file based on `.env.example`.
 
 ### Database Configuration
 
 ```bash
-# MongoDB Settings
-MONGO_HOST="localhost"
-MONGO_PORT="27017"
-MONGO_INITDB_ROOT_USERNAME="admin"
-MONGO_INITDB_ROOT_PASSWORD="admin"
-MONGO_DB="json_schemas"
-MONGO_COLLECTION="schemas"
-
-# Redis Settings
-REDIS_HOST="localhost"
-REDIS_PORT="6379"
-REDIS_PASSWORD="root"
-REDIS_EXPIRE_SECONDS=300
-
-# RabbitMQ Settings
-RABBITMQ_HOST="localhost"
-RABBITMQ_PORT="5672"
-RABBITMQ_VHOST="/"
-RABBITMQ_USER="guest"
-RABBITMQ_PASSWORD="guest"
+# Database Service (gRPC Connection)
+DATABASE_CONNECTION_HOST="localhost"
+DATABASE_CONNECTION_PORT=50050
 ```
 
-## 🚀 Performance & Benchmarks
-
-The system is engineered for high-performance data validation with several optimization strategies.
-
-### Performance Features
-
-- **🔄 Parallel Processing**: Multi-threaded validation with configurable worker pools
-- **📦 Chunked Processing**: Memory-efficient handling of large files using Polars
-- **⚡ Asynchronous Architecture**: Non-blocking operations through aio-pika and message queuing
-- **💾 Intelligent Caching**: Redis-based caching with optimized data structures
-- **🔧 Connection Pooling**: Efficient database connection management
-- **📊 Real-time Monitoring**: Task progress tracking and performance metrics
-
-### Optimization Strategies
-
-#### Scaling Configuration
+### RabbitMQ Configuration
 
 ```bash
-# Increase worker threads for CPU-intensive tasks
-MAX_WORKERS=16
-WORKER_CONCURRENCY=8
+# RabbitMQ Connection
+RABBITMQ_HOST="localhost"
+RABBITMQ_PORT=5672
+RABBITMQ_VHOST="/"
+RABBITMQ_USER="admin"
+RABBITMQ_PASSWORD="admin"
+
+# Worker Performance
+MAX_WORKERS=4
+WORKER_CONCURRENCY=4
+WORKER_PREFETCH_COUNT=1
+
+# Exchange Configuration
+RABBITMQ_EXCHANGE="typechecking.exchange"
+RABBITMQ_EXCHANGE_TYPE="topic"
 ```
 
-#### Performance Tuning
+### Queue Configuration
 
-- **CPU Optimization**: Adjust `MAX_WORKERS` based on available cores (default: 8)
-- **Memory Optimization**: Configure worker concurrency for large file processing (default: 4)
-- **Network Optimization**: Use connection pooling and persistent connections
-- **Cache Optimization**: Fine-tune Redis TTL and eviction policies (default: 300 seconds)
-- **File Processing**: Polars-based processing for optimal memory usage and speed
+```bash
+# Input Queues (Workers consume from these)
+RABBITMQ_QUEUE_SCHEMAS="typechecking.schemas.queue"
+RABBITMQ_QUEUE_VALIDATIONS="typechecking.validations.queue"
 
-### Monitoring Metrics
+# Result Queues (Workers publish to these)
+RABBITMQ_QUEUE_RESULTS_SCHEMAS="typechecking.schemas.results.queue"
+RABBITMQ_QUEUE_RESULTS_VALIDATIONS="typechecking.validation.results.queue"
 
-The system provides comprehensive performance monitoring:
+# Routing Keys for Message Binding
+RABBITMQ_ROUTING_KEY_SCHEMAS="schemas.*"
+RABBITMQ_ROUTING_KEY_VALIDATIONS="validation.*"
+RABBITMQ_ROUTING_KEY_RESULTS_SCHEMAS="schemas.result.*"
+RABBITMQ_ROUTING_KEY_RESULTS_VALIDATIONS="validation.results.*"
 
-- **Processing Time**: Track validation duration per file
-- **Memory Usage**: Monitor peak memory consumption
-- **Queue Depth**: RabbitMQ queue length monitoring
-- **Cache Hit Rate**: Redis cache effectiveness metrics
-- **Error Rates**: Track validation success/failure ratios
+# Publishing Routing Keys
+RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS="schemas.update"
+RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS="validation.request"
+RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_SCHEMAS="schemas.results.publish"
+RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_VALIDATIONS="validation.results.publish"
+```
 
 ## 🛠️ Development
 
-### Project Structure
+### Prerequisites
+
+- Python 3.12.10
+- RabbitMQ 4.0+
+- Database Service running (for gRPC operations)
+
+### Installation
+
+```bash
+# Install dependencies
+uv sync
+
+# Install development dependencies
+uv sync --group dev
+```
+
+### Running the Service
+
+```bash
+# Start all workers
+uv run python -m src.main
+
+# Run with custom configuration
+MAX_WORKERS=8 uv run python -m src.main
+```
+
+### Testing
+
+```bash
+# Run tests
+uv run pytest
+
+# Run with coverage
+uv run pytest --cov=src --cov-report=html
+
+# Run parallel tests
+uv run pytest -n auto
+```
+
+## 🏗️ Project Structure
 
 ```text
-typechecking/backend/
-├── app/                     # Main application code
-│   ├── api/                # FastAPI routes and endpoints
-│   │   ├── main.py         # API router configuration
-│   │   ├── deps.py         # Dependency injection
-│   │   ├── utils.py        # API utilities
-│   │   └── routes/         # Route definitions
-│   │       ├── validation.py   # File validation endpoints
-│   │       ├── schemas.py      # Schema management endpoints
-│   │       ├── users.py        # User management endpoints
-│   │       ├── login.py        # Authentication endpoints
-│   │       ├── healthcheck.py  # Health check endpoints
-│   │       └── cache.py        # Cache management endpoints
-│   ├── controllers/        # Business logic layer
-│   ├── core/              # Configuration and database connections
-│   ├── messaging/         # RabbitMQ message handling
-│   ├── models/            # SQLAlchemy database models
-│   ├── schemas/           # Pydantic models and type definitions
-│   ├── services/          # Reusable business services
-│   │   ├── file_processor.py   # Polars-based file processing
-│   │   └── healthcheck.py      # System health checks
-│   └── workers/           # Background processing workers
-│       ├── validation_workers.py   # File validation workers
-│       ├── schema_workers.py       # Schema processing workers
-│       ├── worker_manager.py       # Worker lifecycle management
-│       └── utils.py               # Worker utilities
-├── tests/                 # Test files and performance benchmarks
-│   ├── testing_typechecking.ipynb # Performance testing notebook
-│   ├── testing_typechecking.py    # Performance test implementation
-│   ├── data/              # Test data files (CSV, Excel)
-│   └── figures/           # Performance visualization results
-├── static/               # Sample data files for testing
-├── docker-compose.yml    # Docker services configuration
-├── pyproject.toml        # Python project configuration
-└── README.md            # This documentation
+typechecking/
+├── src/
+│   ├── core/              # Configuration and shared components
+│   │   ├── config.py      # Environment variable settings
+│   │   └── database_client.py  # gRPC client for database service
+│   ├── handlers/          # Business logic for processing
+│   │   ├── validation.py  # File validation logic
+│   │   └── schemas.py     # Schema management logic
+│   ├── schemas/           # Pydantic models
+│   │   ├── handlers.py    # Data models for handlers
+│   │   └── workers.py     # Message schemas for workers
+│   ├── services/          # External service integrations
+│   │   └── file_processor.py  # File processing utilities
+│   ├── utils/             # Utility functions
+│   │   └── __init__.py    # Logging and datetime utilities
+│   ├── workers/           # RabbitMQ consumer workers
+│   │   ├── validation.py  # Validation message processor
+│   │   ├── schemas.py     # Schema message processor
+│   │   └── utils.py       # Worker utility functions
+│   └── main.py            # Worker manager and entry point
+├── tests/                 # Test suite
+├── logs/                  # Application logs
+└── pyproject.toml         # Project configuration
 ```
+
+## 📊 Performance
+
+### Validation Performance
+
+- **Polars Integration**: Ultra-fast dataframe operations for large files
+- **Parallel Processing**: Configurable worker processes for CPU-intensive validation
+- **Memory Efficiency**: Streaming file processing to handle large datasets
+- **Batch Processing**: Multiple files can be processed concurrently
+
+### Scalability Features
+
+- **Horizontal Scaling**: Multiple worker instances can run on different machines
+- **Queue-Based Architecture**: Natural load balancing through RabbitMQ
+- **Resource Control**: Configurable concurrency and prefetch limits
+- **Graceful Degradation**: Individual worker failures don't affect others
+
+## 🔄 Message Processing
+
+### Validation Message Flow
+
+```text
+1. API Service publishes ValidationMessage to 'validation.request'
+2. Validation Worker consumes message from 'typechecking.validations.queue'
+3. Worker processes file using Polars and validates against schema
+4. Worker publishes results to 'validation.results.publish'
+5. Worker updates task status in database via gRPC
+```
+
+### Schema Message Flow
+
+```text
+1. API Service publishes SchemaMessage to 'schemas.update'
+2. Schema Worker consumes message from 'typechecking.schemas.queue'
+3. Worker validates and stores schema in database
+4. Worker publishes results to 'schemas.results.publish'
+5. Worker updates task status in database via gRPC
+```
+
+## 💡 Usage Examples
+
+### Worker Management
+
+```python
+from src.main import WorkerManager
+
+# Create and start workers
+manager = WorkerManager()
+await manager.start_workers()  # Blocks until shutdown
+
+# Graceful shutdown
+manager.stop_workers()
+```
+
+### Custom Worker Configuration
+
+```python
+from src.workers.validation import ValidationWorker
+
+# Create validation worker with custom settings
+worker = ValidationWorker()
+worker.start_consuming()  # Process validation messages
+```
+
+## 🔌 Integration Points
+
+- **API Service**: Receives validation and schema messages via RabbitMQ
+- **Database Service**: Stores schemas and results via gRPC protocol
+- **RabbitMQ**: Message broker for asynchronous task processing
+- **Protocol Buffers**: Typed interfaces for database operations
+
+## 🤝 Dependencies
+
+### Core Dependencies
+
+- **polars**: High-performance dataframe library for file processing
+- **jsonschema**: JSON schema validation library
+- **pika**: RabbitMQ client for message consumption
+- **fastapi**: For UploadFile compatibility and utilities
+- **messaging-utils**: Internal library for RabbitMQ connections
+- **proto-utils**: Internal library for gRPC database operations
+
+### File Format Support
+
+- **openpyxl**: Excel file processing (.xlsx, .xls)
+- **polars[xlsx]**: Excel integration for Polars dataframes
+- **CSV support**: Built-in Polars CSV reading capabilities
+
+## Related Documentation
+
+- [API Service](../api/): REST API that publishes messages to this service
+- [Database Service](../../connections/database/): gRPC service for data storage
+- [Messaging Utils](../../../packages/messaging-utils/): RabbitMQ connection library
+- [Protocol Definitions](../../../packages/proto/): Shared interface specifications
