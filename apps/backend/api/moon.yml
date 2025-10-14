@@ -34,3 +34,15 @@ tasks:
 
     test:
         command: echo "No tests defined"
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -f
+            - ./apps/backend/api/Dockerfile
+            - .
+            - -t
+            - typechecking-api-service:1.0
+        options:
+            runFromWorkspaceRoot: true
