@@ -34,7 +34,6 @@ ENV PYTHONPATH=.
 
 COPY ./apps/connections/database/pyproject.toml \
     ./apps/connections/database/uv.lock \
-    ././apps/connections/database/.env \
     ./
 
 COPY ./apps/connections/database/src ./src
