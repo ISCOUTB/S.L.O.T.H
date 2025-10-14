@@ -12,13 +12,12 @@ for reliable delivery and processing.
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import pika
 from proto_utils.messaging.dtypes import (
     ExchangeInfo,
     GetMessagingParamsResponse,
-    JsonSchema,
     Metadata,
     SchemaMessageResponse,
     SchemasTasks,
@@ -151,7 +150,7 @@ class Publisher:
     def publish_schema_update(
         self,
         routing_key: str,
-        schema: JsonSchema = None,
+        schema: Dict[str, Any] = None,
         import_name: str = None,
         raw: bool = False,
         task: SchemasTasks = None,
