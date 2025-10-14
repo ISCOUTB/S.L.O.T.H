@@ -15,6 +15,7 @@ The API Service is the primary entry point for users and external applications t
 - **🏗️ Excel Parsing Workflow**: Orchestrates complete ETL process from validation to SQL generation
 - **💾 Intelligent Caching**: Redis-based response caching for improved performance
 - **🔄 Asynchronous Processing**: RabbitMQ integration for background task processing
+- **🔔 Real-time Notifications**: Webhook server for task completion notifications
 - **🌐 REST API**: Comprehensive endpoints with automatic OpenAPI documentation
 - **🏥 Health Monitoring**: System health checks and status endpoints
 - **🔒 Type Safety**: Full Pydantic model validation and type checking
@@ -28,86 +29,80 @@ The API Service acts as the communication layer between users and the processing
 │   Client Apps   │────▶│   API Service   │────────────▶│   RabbitMQ      │
 │   (Web/Mobile)  │     │   (FastAPI)     │             │   (Publisher)   │
 └─────────────────┘     └─────────────────┘             └─────────────────┘
-                                │                                 │
-                        ┌───────┼───────────┐                     ▼
-                        ▼                   ▼                ┌─────────────────┐
-                ┌─────────────────┐ ┌─────────────────┐  │  Typechecking   │
-                │  Database Svc   │ │   PostgreSQL    │  │   Workers       │
-                │  (gRPC Proxy)   │ │ (Direct SQLAlch)│  └─────────────────┘
-                └─────────────────┘ └─────────────────┘
-                        │                    ▲
-                        ▼                    │
-                ┌─────────────────┐          │
-                │ Redis + MongoDB │          │
-                └─────────────────┘          │
-                                             │
-                                   ┌─────────┴─────────┐
-                                   │ User Management,  │
-                                   │ Authentication,   │
-                                   │ Application Data  │
-                                   └───────────────────┘
+         ▲                      │                                 │
+         │              ┌───────┼───────────┐                     ▼
+         │              ▼                   ▼            ┌─────────────────┐
+         │      ┌─────────────────┐ ┌─────────────────┐  │  Typechecking   │
+         │      │  Database Svc   │ │   PostgreSQL    │  │   Workers       │
+         │      │  (gRPC Proxy)   │ │ (Direct SQLAlch)│  └─────────────────┘
+         │      └─────────────────┘ └─────────────────┘           │
+         │              │                    ▲                    │ Results
+         │              ▼                    │                    ▼
+         │      ┌─────────────────┐          │              ┌─────────────────┐
+         │      │ Redis + MongoDB │          │              │ Webhook Server  │
+         │      └─────────────────┘          │              │  (Notifications)│
+         │                                   │              └─────────────────┘
+         │                         ┌─────────┴─────────┐           │
+         │                         │ User Management,  │           │ Webhooks
+         │                         │ Authentication,   │           │
+         │                         │ Application Data  │           │
+         │                         └───────────────────┘           │
+         └─────────────────────────────────────────────────────────┘
 ```
+
+### Service Components
+
+- **Main API Server**: REST endpoints for user interaction (Port 8000)
+- **Webhook Server**: *(Planned)* Dedicated server for task completion notifications
+- **Proxy Integration**: *(Future)* Proxy layer for webhook routing
 
 ### Data Flow Separation
 
 - **Cache & Schemas**: API ↔ Database Service (gRPC) ↔ Redis/MongoDB  
 - **Users & Auth**: API ↔ PostgreSQL (Direct SQLAlchemy)
+- **Task Notifications**: Workers → Webhook Server → Client notifications
 
 ## 🏗️ ETL Workflow Orchestration
 
-The API Service orchestrates the complete ETL process from file validation to SQL generation. This workflow integrates typechecking validation with excel parsing services to provide end-to-end data transformation.
+The API Service orchestrates different ETL workflows that can be executed independently or in combination based on user needs. The exact implementation and flow details are currently being designed.
 
-### Complete ETL Pipeline
+### Available Workflows
 
-```text
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   File Upload   │───▶│   Validation    │───▶│ Excel Parsing   │
-│   (API Service) │    │ (Typechecking)  │    │   (Parsers)     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  Schema Check   │    │ Data Validation │    │ SQL Generation  │
-│  (Database Svc) │    │  (Polars/JSON)  │    │ (DDL + INSERT)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+**Data Validation**: File validation against JSON schemas via the Typechecking service
 
-### Workflow Stages
+- Requires pre-defined JSON schema
+- Uses RabbitMQ for asynchronous processing
+- Provides detailed validation reports
 
-1. **📄 File Upload & Schema Validation**
-   - API receives Excel/CSV file upload
-   - Validates file format and basic structure
-   - Checks if corresponding JSON schema exists
+**Excel Parsing**: *(Planned Integration)* Excel file processing to SQL generation via Parser services
 
-2. **🔍 Data Validation (via Typechecking)**
-   - API publishes validation message to RabbitMQ
-   - Typechecking workers validate data against schema
-   - Results include detailed validation reports
+- Independent of validation workflow
+- Processes Excel formulas and data structure
+- Generates SQL DDL and INSERT statements
 
-3. **🏗️ Excel Parsing Pipeline** *(Planned Integration)*
-   - **Formula Extraction**: Parse Excel formulas and dependencies
-   - **DDL Generation**: Create table definitions from validated data
-   - **SQL Building**: Generate INSERT statements from clean data
-   - **Result Consolidation**: Return complete SQL package
+**Combined Processing**: *(Future)* Flexible combination of validation and parsing workflows
 
-### Future ETL Endpoints
+- User-configurable workflow selection
+- Can execute workflows independently or together
+- Results delivered separately or combined based on requirements
+
+### Future Workflow Endpoints *(Design in Progress)*
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/v1/etl/process/{import_name}` | Complete ETL: validation + parsing + SQL |
-| `GET` | `/api/v1/etl/status/{task_id}` | Track ETL pipeline progress |
-| `GET` | `/api/v1/etl/results/{task_id}` | Download generated SQL files |
-| `POST` | `/api/v1/etl/validate-and-parse` | Two-stage validation then parsing |
+| `POST` | `/api/v1/workflows/*` | Workflow execution endpoints (design TBD) |
+| `GET` | `/api/v1/workflows/status/{task_id}` | Track workflow progress |
+| `GET` | `/api/v1/workflows/results/{task_id}` | Download workflow results |
 
 ### Integration Points
 
 - **Typechecking Service**: Data validation and schema compliance
-- **Excel Reader**: Formula extraction and data processing
-- **Formula Parser**: Complex formula dependency analysis  
-- **DDL Generator**: Database schema generation
-- **SQL Builder**: INSERT statement generation
+- **Excel Reader Service**: *(Current: REST API, Future: gRPC)* Excel file processing coordination
+- **Formula Parser Service**: *(Planned)* Complex formula analysis integration
+- **DDL Generator Service**: *(Planned)* Database schema generation
+- **SQL Builder Service**: *(Planned)* INSERT statement generation
 
-**Note**: The excel parsing integration is currently in development. The API Service will serve as the orchestration layer that coordinates the workflow between validation (typechecking) and parsing (excel-reader) services.
+**Note**: The specific workflow implementation and API design are currently being developed. The Excel Reader service currently operates as a REST API but will be migrated to gRPC for consistency with other parsing services. The exact endpoints and flow will be determined based on user requirements and system architecture decisions.
 
 ## 🔌 API Endpoints
 
@@ -160,6 +155,16 @@ The API provides comprehensive REST endpoints with automatic OpenAPI documentati
 | `GET` | `/health` | Basic health check with service status |
 | `GET` | `/health/detailed` | Detailed health info including dependencies |
 | `GET` | `/metrics` | Application metrics for monitoring systems |
+
+### 🔔 Webhook Endpoints *(Planned)*
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/webhooks/task-completed` | Receive task completion notifications |
+| `POST` | `/webhooks/validation-results` | Receive validation task results |
+| `POST` | `/webhooks/parsing-results` | Receive parsing task results |
+
+**Note**: Webhook server will run on a separate port and be used exclusively for receiving task completion notifications from background workers. Client notifications will be implemented via WebSockets, Server-Sent Events, or similar real-time mechanisms.
 
 ## 💡 Usage Examples
 
@@ -253,6 +258,12 @@ FIRST_SUPERUSER_PASSWORD="admin_password"
 # Health Monitoring
 HEALTH_CHECK_ENABLED=true
 HEALTH_ENDPOINTS_INCLUDE_DETAILED=true
+
+# Webhook Server (Planned)
+WEBHOOK_SERVER_ENABLED=false
+WEBHOOK_SERVER_HOST="localhost"
+WEBHOOK_SERVER_PORT=8001
+WEBHOOK_SECRET_KEY="webhook_secret_key"
 ```
 
 ### Database Configuration
@@ -380,24 +391,46 @@ api/
 3. **Status Updates**: Workers update task status via Database Service
 4. **Result Retrieval**: Clients poll status endpoints for completion
 
-### ETL Pipeline Processing *(Future)*
+### Real-time Notifications *(Planned)*
 
-1. **File Upload**: Client uploads Excel/CSV file with schema reference
-2. **Validation Stage**: API coordinates validation via Typechecking service
-3. **Parsing Stage**: API coordinates Excel parsing via Parser services
-4. **SQL Generation**: DDL Generator and SQL Builder create database scripts
-5. **Result Delivery**: Complete SQL package returned to client
+1. **Task Completion**: Workers publish results to temporary result queues
+2. **Webhook Delivery**: Background process sends webhook to dedicated webhook server
+3. **Client Notification**: Webhook server notifies clients via real-time mechanisms
+4. **Proxy Integration**: *(Future)* Proxy layer for webhook routing and management
+
+**Note**: The current implementation uses polling for status updates. Real-time notifications via webhooks are planned for improved user experience.
+
+### Workflow Processing *(Future)*
+
+**Current**: Data validation workflow fully implemented via Typechecking service
+
+**Planned**: Excel parsing workflows and flexible workflow orchestration
+
+**Design Goals**:
+
+- Independent workflow execution options
+- User-configurable processing requirements  
+- Flexible result delivery (separate or combined)
+
+**Note**: Specific workflow implementations and integration patterns are currently being designed.
 
 ## 🤝 Integration Points
 
 - **Database Service**: gRPC client for Redis/MongoDB operations
 - **Typechecking Service**: RabbitMQ message publishing for async processing
-- **Excel Reader Service**: *(Planned)* REST/gRPC communication for file parsing
+- **Excel Reader Service**: *(Current: REST, Future: gRPC)* Excel file processing coordination
 - **Formula Parser Service**: *(Planned)* Complex formula analysis integration
 - **DDL Generator Service**: *(Planned)* Database schema generation
 - **SQL Builder Service**: *(Planned)* INSERT statement generation
+- **Webhook Notifications**: *(Planned)* Real-time task completion notifications
 - **Frontend Applications**: REST API endpoints for UI integration
 - **External Systems**: Authentication and user management for third-party apps
+
+**Migration Notes**:
+
+- Excel Reader currently uses REST API but will be migrated to gRPC for consistency
+- Webhook system is planned to replace polling-based status checking
+- Proxy integration for webhook routing will be implemented in future iterations
 
 ## Related Documentation
 
