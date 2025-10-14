@@ -228,6 +228,9 @@ class ValidationWorker:
         results = await validate_file_against_schema(
             file=upload_file, import_name=message["import_name"]
         )
+
+        logger.debug(f"Results: {json.dumps(results, indent=4)}")
+
         summary = get_validation_summary(results)
 
         update_task_status(
@@ -235,7 +238,7 @@ class ValidationWorker:
             field="status",
             value=summary["status"],
             task=self.TASK,
-            data={"results": summary, "update_date": get_datetime_now()},
+            data={"results": json.dumps(summary), "update_date": get_datetime_now()},
         )
 
         return DataValidated(

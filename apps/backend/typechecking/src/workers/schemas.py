@@ -175,7 +175,6 @@ class SchemaWorker:
             # And, maybe, not use another queue of results for that.
             self._publish_result(task_id, result)  # Meanwhile
 
-            self._publish_result(task_id, result)
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
             logger.info(f"Schema update completed for task: {task_id}")

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict, Optional
 
 from proto_utils.database import dtypes
 
@@ -12,7 +12,7 @@ def update_task_status(
     task: str,
     *,
     message: str = "",
-    data: dict | None = None,
+    data: Optional[Dict[str, str]] = None,
     reset_data: bool = False,
 ) -> None:
     database_client.update_task_id(
