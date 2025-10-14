@@ -2,17 +2,30 @@
 
 A FastAPI-based REST service that serves as the main entry point for the Excel Parsing system. This service processes Excel files, extracts formulas and data, and orchestrates communication with other microservices to generate SQL statements.
 
+**Migration Note**: This service currently uses REST API for client communication but is planned to be migrated to gRPC to maintain consistency with other parsing services in the system.
+
 ## Overview
 
 The Excel Reader service is responsible for:
 
-- Accepting Excel file uploads via REST API
+- Accepting Excel file uploads via REST API *(Current implementation)*
 - Extracting data and formulas from Excel worksheets
 - Coordinating with Formula Parser, DDL Generator, and SQL Builder services
 - Processing Excel files in various formats (.xlsx, .xls, .csv)
 - Returning generated SQL CREATE and INSERT statements
 
+### Migration to gRPC
+
+This service will be migrated from REST API to gRPC to align with the architecture of other parsing services:
+
+- **Current**: FastAPI REST server with HTTP endpoints
+- **Future**: gRPC server with protocol buffer definitions
+- **Benefits**: Improved performance, type safety, and consistency with other microservices
+- **Timeline**: Migration planned as part of system architecture standardization
+
 ## Architecture
+
+### Current Implementation (REST API)
 
 ```text
 ┌─────────────────┐
@@ -27,6 +40,29 @@ The Excel Reader service is responsible for:
 │                 │◄──► SQL Builder (gRPC)
 └─────────────────┘
 ```
+
+### Future Implementation (gRPC)
+
+```text
+┌─────────────────┐
+│   Client        │
+│                 │
+└─────────┬───────┘
+          │ gRPC
+          ▼
+┌─────────────────┐
+│  Excel Reader   │◄──► Formula Parser (gRPC)
+│   (gRPC Server) │◄──► DDL Generator (gRPC)
+│                 │◄──► SQL Builder (gRPC)
+└─────────────────┘
+```
+
+**Migration Benefits**:
+
+- Consistent communication protocol across all parsing services
+- Improved performance with binary protocol
+- Strong typing with Protocol Buffers
+- Better error handling and status codes
 
 ## Features
 
@@ -217,3 +253,36 @@ The service handles various error conditions:
 - **Performance Tracking**: Built-in timing for operations
 - **Request Logging**: Logs incoming requests and processing status
 - **Error Reporting**: Detailed error messages for debugging
+
+## Migration Planning
+
+### REST to gRPC Migration
+
+**Current State**:
+
+- FastAPI REST server handling file uploads via multipart/form-data
+- HTTP endpoints for client communication
+- JSON response format
+
+**Target State**:
+
+- gRPC server with Protocol Buffer definitions
+- Binary file transfer via gRPC streaming
+- Structured protobuf responses
+- Integration with existing gRPC parsing services
+
+**Migration Considerations**:
+
+- Protocol Buffer schema design for file upload and response structures
+- gRPC streaming for large file uploads
+- Client adaptation for gRPC communication
+- Backward compatibility during transition period
+- Testing and validation of gRPC implementation
+
+**Dependencies**:
+
+- Protocol Buffer definitions for Excel Reader service
+- gRPC client libraries for consuming applications
+- Migration of dependent services that currently use REST endpoints
+
+**Timeline**: Migration will be coordinated with overall system architecture standardization to ensure minimal disruption to existing integrations.

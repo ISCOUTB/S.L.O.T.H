@@ -2,7 +2,7 @@
 
 A comprehensive, enterprise-grade ETL (Extract, Transform, Load) system designed to transform Excel spreadsheets into structured databases with formula parsing, data validation, and automated SQL generation capabilities.
 
-> **⚠️ MVP Notice**: This is a Minimum Viable Product developed for academic research. The system is functional but requires significant refactoring and optimization before production use. See [MVP Status & Future Development](#️-mvp-status--future-development) for details.
+> **⚠️ MVP Notice**: This is a Minimum Viable Product developed for academic research. The system is functional but requires significant refactoring and optimization before production use. See [MVP Status &amp; Future Development](#️-mvp-status--future-development) for details.
 
 ## 🚀 Overview
 
@@ -32,6 +32,8 @@ ETL Design is a sophisticated data transformation platform that bridges the gap 
   - **Data Processing**: Consider specialized languages like Scala for big data scenarios
 - **Database Strategy**: Potential migration to more specialized databases (e.g., TimescaleDB, ClickHouse)
 - **Cloud Native**: Kubernetes deployment and cloud-native architecture patterns
+- **Infrastructure as Code**: Terraform implementation for reproducible cloud deployments
+- **CI/CD Pipeline**: Automated testing, building, and deployment workflows
 - **API Evolution**: GraphQL integration and improved REST API design
 - **Real-time Processing**: Stream processing capabilities with Apache Kafka or similar
 
@@ -39,8 +41,10 @@ ETL Design is a sophisticated data transformation platform that bridges the gap 
 
 - 🔄 **Phase 1**: Code refactoring and test coverage improvement
 - 🏗️ **Phase 2**: Architecture redesign and technology stack evaluation
-- ⚡ **Phase 3**: Performance optimization and scalability enhancements
-- 🚀 **Phase 4**: Production deployment and enterprise features
+- ☁️ **Phase 3**: Cloud-native implementation with Kubernetes orchestration and Terraform IaC
+- 🚀 **Phase 4**: CI/CD pipeline implementation and automated deployment workflows
+- ⚡ **Phase 5**: Performance optimization and scalability enhancements
+- 🎯 **Phase 6**: Production deployment and enterprise features
 
 **Note**: The current implementation serves as a proof of concept and research foundation. Future versions will focus on production readiness, scalability, and enterprise-grade features.
 
@@ -107,161 +111,201 @@ The system follows a modern microservices architecture with clear separation of 
 ```text
 ETL-Design/
 ├── docs/                           # Project documentation
-├── excel-parsing/                  # Excel parsing microservices
-│   ├── excel-reader/               # Main REST API service
-│   ├── formula-parser/             # Excel formula parsing (Node.js)
-│   ├── ddl-generator/              # AST to SQL conversion (Python)
-│   ├── sql-builder/                # Final SQL assembly (Python)
-│   ├── proto/                      # Protocol Buffer definitions
-│   └── README.md                   # Excel parsing documentation
-├── typechecking/                   # Data validation system
-│   ├── backend/                    # FastAPI application
+├── apps/                           # Application services
+│   ├── backend/                    # Core backend services
+│   ├── connections/                # Database infrastructure
 │   ├── scripts/                    # Deployment scripts
-│   ├── docker-compose.yml          # Container orchestration
-│   └── .env.example                # Environment configuration
+│   └── web/                        # Frontend applications (planned)
+├── packages/                       # Shared packages and utilities
+├── infrastructure/                 # DevOps and infrastructure (planned)
+│   ├── terraform/                  # Infrastructure as Code
+│   ├── k8s/                        # Kubernetes manifests
+│   ├── monitoring/                 # Observability configurations
+│   └── scripts/                    # Infrastructure automation
+├── tools/                          # Development tools and benchmarks
 └── README.md                       # This file
 ```
+
+## ☁️ DevOps & Cloud Infrastructure
+
+The ETL Design platform is being designed with modern DevOps practices and cloud-native architectures in mind:
+
+### 🚀 Infrastructure as Code (IaC)
+
+- **Terraform Modules**: Planned implementation for reproducible cloud infrastructure
+  - **Cloud Providers**: Multi-cloud support (AWS, Azure, GCP) with provider-specific optimizations
+  - **Resource Management**: Automated provisioning of databases, message queues, and compute resources
+  - **Environment Isolation**: Separate infrastructure configurations for development, staging, and production
+  - **Cost Optimization**: Intelligent resource scaling and cost monitoring integration
+
+### ⚙️ Container Orchestration
+
+- **Kubernetes Deployment**: Cloud-native orchestration with the following components:
+  - **Microservices Pods**: Each service containerized with health checks and resource limits
+  - **Service Mesh**: Istio integration for advanced traffic management and security
+  - **Auto-scaling**: Horizontal Pod Autoscaler (HPA) and Vertical Pod Autoscaler (VPA)
+  - **Storage**: Persistent volumes for databases with automated backup strategies
+  - **Monitoring**: Prometheus + Grafana stack for comprehensive observability
+
+### 🔄 CI/CD Pipeline
+
+- **Automated Workflows**: GitHub Actions / GitLab CI integration
+  - **Multi-stage Testing**: Unit tests, integration tests, and end-to-end validation
+  - **Code Quality**: SonarQube integration for code coverage and security scanning
+  - **Container Security**: Vulnerability scanning with Trivy and admission controllers
+  - **Progressive Deployment**: Blue-green and canary deployment strategies
+  - **Rollback Capabilities**: Automated rollback triggers based on health metrics
+
+### 📊 Observability & Monitoring
+
+- **Logging**: Centralized logging with ELK stack (Elasticsearch, Logstash, Kibana)
+- **Metrics**: Custom application metrics with Prometheus and alerting rules
+- **Tracing**: Distributed tracing with Jaeger for microservices communication analysis
+- **Health Monitoring**: Advanced health checks with dependency validation
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Docker & Docker Compose**: Latest versions
+- **Docker & Docker Compose**: Latest versions for infrastructure services
 - **Python**: 3.12+ with `uv` package manager
 - **Node.js**: 18+ with npm
 - **Git**: For cloning the repository
 
-### Option 1: Docker Deployment (Recommended)
+### 1. Clone and Setup
 
-1. **Clone the repository**:
+```bash
+git clone https://github.com/ISCOUTB/etl-design.git
+cd etl-design
+```
 
-   ```bash
-   git clone https://github.com/ISCOUTB/etl-design.git
-   cd etl-design
-   ```
+### 2. Start Infrastructure Services
 
-2. **Start the Typechecking System**:
+Deploy the required databases and message brokers:
 
-   ```bash
-   cd typechecking
-   cp .env.example .env
-   # Edit .env with your configuration
-   docker-compose up --build -d
-   ```
+```bash
+# Deploy all infrastructure services using provided scripts
+cd apps/scripts/
 
-3. **Start the Excel Parsing Services**:
+# Start databases
+bash ./deploy_postgres_docker.sh  # PostgreSQL for user data
+bash ./deploy_mongo_docker.sh     # MongoDB for schemas
+bash ./deploy_redis_docker.sh     # Redis for caching
 
-   ```bash
-   cd ../excel-parsing
-   cp .env.example .env
-   # Edit .env with your configuration
-   
-   # Start each service (in separate terminals)
-   cd formula-parser && npm install && npm start
-   cd ddl-generator && uv sync && uv run python src/server.py
-   cd sql-builder && uv sync && uv run python src/server.py
-   cd excel-reader && uv sync && uv run python src/server_rest.py
-   ```
+# Start message broker
+bash ./deploy_rabbitmq_docker.sh  # RabbitMQ for async processing
+```
 
-### Option 2: Manual Development Setup
+### 3. Start Core Backend Services
 
-1. **Setup Excel Parsing Services**:
+#### Database Service (gRPC)
 
-   ```bash
-   cd excel-parsing
-   
-   # Formula Parser (Node.js)
-   cd formula-parser
-   npm install
-   npm start
-   
-   # DDL Generator (Python)
-   cd ../ddl-generator
-   uv sync
-   uv run python src/server.py
-   
-   # SQL Builder (Python)
-   cd ../sql-builder
-   uv sync
-   uv run python src/server.py
-   
-   # Excel Reader (Python)
-   cd ../excel-reader
-   uv sync
-   uv run python src/server_rest.py
-   ```
+Centralized database connection service for MongoDB and Redis:
 
-2. **Setup Typechecking System**:
+```bash
+cd apps/connections/database/
+cp .env.example .env
+# Edit .env with your database configuration
+uv sync
+uv run python -m src.server
+```
 
-   ```bash
-   cd typechecking/backend
-   uv sync
-   # Configure databases (PostgreSQL, MongoDB, Redis, RabbitMQ)
-   # See typechecking/README.md for detailed setup
-   uv run python -m app.main
-   ```
+#### API Service (REST + FastAPI)
+
+Main REST API with authentication and user management:
+
+```bash
+cd apps/backend/api/
+cp .env.example .env
+# Edit .env with your configuration
+uv sync
+uv run python -m src.main
+```
+
+#### Typechecking Service (Workers)
+
+Background workers for data validation:
+
+```bash
+cd apps/backend/typechecking/
+cp .env.example .env
+# Edit .env with your configuration
+uv sync
+uv run python -m src.main
+```
+
+### 4. Start Excel Parsing Services
+
+Start each parsing microservice (in separate terminals):
+
+```bash
+cd apps/backend/parsers/
+
+# Excel Reader (REST API)
+cd excel-reader
+cp .env.example .env
+uv sync
+uv run python src/server_rest.py
+
+# Formula Parser (Node.js gRPC)
+cd ../formula-parser
+cp .env.example .env
+npm install
+moon run formula-parser:run
+
+# DDL Generator (Python gRPC)
+cd ../ddl-generator
+cp .env.example .env
+uv sync
+uv run python src/server.py
+
+# SQL Builder (Python gRPC)
+cd ../sql-builder
+cp .env.example .env
+uv sync
+uv run python src/server.py
+```
+
+### 5. Verify Installation
+
+Once all services are running, verify the installation:
+
+- **API Documentation**: <http://localhost:8000/docs>
+- **Excel Reader**: <http://localhost:8001>
+- **Health Checks**: All services should respond to their respective health endpoints
+
+### Service Architecture Overview
+
+The system consists of several independent services that work together:
+
+1. **Infrastructure Layer**: PostgreSQL, MongoDB, Redis, RabbitMQ
+2. **Database Service**: gRPC proxy for MongoDB/Redis operations (Port: 50050)
+3. **API Service**: FastAPI REST server with authentication (Port: 8000)
+4. **Typechecking Workers**: RabbitMQ consumers for validation
+5. **Excel Parsing Services**: Microservices for Excel processing (Ports: 8001, 50052-50054)
 
 ## 🔧 Configuration
 
-### Excel Parsing Configuration
+### Environment Setup
 
-Create `.env` file in `excel-parsing/`:
+Each service requires configuration through environment variables. For each service, copy the provided `.env.example` file to `.env` and customize the values according to your environment:
 
-```env
-# Formula Parser
-FORMULA_PARSER_HOST="localhost"
-FORMULA_PARSER_PORT="50052"
-DEBUG_FORMULA_PARSER=true
+```bash
+# For database service
+cp apps/connections/database/.env.example apps/connections/database/.env
 
-# DDL Generator
-DDL_GENERATOR_HOST="localhost"
-DDL_GENERATOR_PORT="50053"
-DDL_GENERATOR_DEBUG=True
+# For backend services
+cp apps/backend/api/.env.example apps/backend/api/.env
+cp apps/backend/typechecking/.env.example apps/backend/typechecking/.env
 
-# SQL Builder
-SQL_BUILDER_HOST="localhost"
-SQL_BUILDER_PORT="50054"
-SQL_BUILDER_DEBUG=True
-
-# Excel Reader
-EXCEL_READER_HOST="localhost"
-EXCEL_READER_PORT="8001"
-EXCEL_READER_DEBUG=True
+# For parsing services  
+cp apps/backend/parsers/formula-parser/.env.example apps/backend/parsers/formula-parser/.env
+cp apps/backend/parsers/ddl-generator/.env.example apps/backend/parsers/ddl-generator/.env
+cp apps/backend/parsers/sql-builder/.env.example apps/backend/parsers/sql-builder/.env
+cp apps/backend/parsers/excel-reader/.env.example apps/backend/parsers/excel-reader/.env
 ```
 
-### Typechecking Configuration
-
-Create `.env` file in `typechecking/`:
-
-```env
-# Database Configuration
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=secure_password
-POSTGRES_DB=typechecking
-
-MONGO_HOST=localhost
-MONGO_PORT=27017
-MONGO_INITDB_ROOT_USERNAME=admin
-MONGO_INITDB_ROOT_PASSWORD=secure_password
-
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=secure_password
-
-# RabbitMQ Configuration
-RABBITMQ_HOST=localhost
-RABBITMQ_PORT=5672
-RABBITMQ_USER=admin
-RABBITMQ_PASSWORD=secure_password
-RABBITMQ_VHOST=/
-
-# Application Configuration
-SECRET_KEY=your-super-secret-key-here
-API_V1_STR=/api/v1
-CORS_ORIGINS=["http://localhost:3000"]
-```
+**Important**: Edit each `.env` file to match your local development environment, including database connections, ports, and security settings. See the individual service README files for detailed configuration options.
 
 ## 📚 Usage Examples
 
@@ -288,10 +332,9 @@ curl -X POST "http://localhost:8001/excel-parser" \
 
 ```bash
 # Validate a dataset against a schema
-curl -X POST "http://localhost:8000/api/v1/validate" \
+curl -X POST "http://localhost:8000/api/v1/validation/upload/user_schema_v1" \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@data.csv" \
-  -F "schema_id=user_schema_v1"
+  -F "spreadsheet_file=@data.csv"
 ```
 
 ## 📊 Performance
@@ -336,22 +379,31 @@ The system is designed for high performance and scalability:
 - **Error Handling**: Improved error management and recovery
 - **Testing**: Additional test coverage and testing strategies
 - **Documentation**: API documentation and usage examples
+- **DevOps & Infrastructure**: Kubernetes manifests, Terraform modules, and CI/CD pipeline improvements
+- **Cloud Architecture**: Multi-cloud deployment strategies and cost optimization
+- **Security**: Container security scanning, vulnerability assessment, and compliance frameworks
 
 ## 📖 Documentation
 
-- **[Excel Parsing System](./excel-parsing/README.md)**: Complete microservices documentation
-- **[Typechecking System](./typechecking/backend/README.md)**: Data validation platform guide
+- **[Applications Overview](./apps/README.md)**: Complete service directory and navigation guide
+- **[Backend Services](./apps/backend/README.md)**: Backend architecture and service guide  
+- **[Excel Parsing System](./apps/backend/parsers/README.md)**: Complete microservices documentation
+- **[API Service](./apps/backend/api/README.md)**: REST API and authentication service
+- **[Typechecking System](./apps/backend/typechecking/README.md)**: Data validation platform guide
 - **[API Documentation](http://localhost:8000/docs)**: Interactive OpenAPI docs (when running)
+- **[Kubernetes Manifests](./infrastructure/k8s/README.md)**: Container orchestration configurations (planned)
 - **Research Papers**: Available in the `docs/` directory
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Port Conflicts**: Ensure ports 8000, 8001, 50052-50054 are available
+1. **Port Conflicts**: Ensure ports 8000, 8001, 50050, 50052-50054 are available
 2. **Docker Issues**: Run `docker-compose down && docker-compose up --build`
 3. **Database Connection**: Verify database services are running and accessible
 4. **Memory Issues**: Increase Docker memory allocation for large files
+5. **Kubernetes Deployment**: Check pod status and logs using `kubectl get pods` and `kubectl logs`
+6. **Infrastructure Provisioning**: Verify Terraform state and cloud resource availability
 
 ## 🏆 Academic Context
 
@@ -368,15 +420,9 @@ This project is developed as part of an academic degree project at Universidad T
 
 ## 👥 Authors
 
-**Engineering Degree Project**  
+**Engineering Degree Project**
 Diederik Montaño  
+Mauro Gonzalez  
 Juan Perez  
 Universidad Tecnológica de Bolívar  
 Faculty of Engineering
-
----
-
-For detailed documentation of each subsystem, please refer to their respective README files:
-
-- [Excel Parsing Documentation](./excel-parsing/README.md)
-- [Typechecking Documentation](./typechecking/backend/README.md)

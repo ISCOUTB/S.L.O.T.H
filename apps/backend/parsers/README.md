@@ -88,7 +88,7 @@ The system uses Protocol Buffers for inter-service communication, defined in the
 
    ```bash
    # Start Formula Parser (Node.js)
-   cd formula-parser && npm install && npm start
+   cd formula-parser && npm install && moon run formula-parser:run
 
    # Start DDL Generator (Python)
    cd ddl-generator && uv sync && uv run python src/server.py

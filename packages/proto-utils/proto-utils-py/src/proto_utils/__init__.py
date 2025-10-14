@@ -1,9 +1,8 @@
-from proto_utils import database, generated, messaging, parsers
+from proto_utils import database, generated, parsers
 
 
 __all__ = [
     "database",
     "generated",
-    "messaging",
     "parsers",
 ]
