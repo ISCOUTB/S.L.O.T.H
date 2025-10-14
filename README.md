@@ -2,7 +2,7 @@
 
 A comprehensive, enterprise-grade ETL (Extract, Transform, Load) system designed to transform Excel spreadsheets into structured databases with formula parsing, data validation, and automated SQL generation capabilities.
 
-> **⚠️ MVP Notice**: This is a Minimum Viable Product developed for academic research. The system is functional but requires significant refactoring and optimization before production use. See [MVP Status & Future Development](#️-mvp-status--future-development) for details.
+> **⚠️ MVP Notice**: This is a Minimum Viable Product developed for academic research. The system is functional but requires significant refactoring and optimization before production use. See [MVP Status &amp; Future Development](#️-mvp-status--future-development) for details.
 
 ## 🚀 Overview
 
@@ -32,6 +32,8 @@ ETL Design is a sophisticated data transformation platform that bridges the gap 
   - **Data Processing**: Consider specialized languages like Scala for big data scenarios
 - **Database Strategy**: Potential migration to more specialized databases (e.g., TimescaleDB, ClickHouse)
 - **Cloud Native**: Kubernetes deployment and cloud-native architecture patterns
+- **Infrastructure as Code**: Terraform implementation for reproducible cloud deployments
+- **CI/CD Pipeline**: Automated testing, building, and deployment workflows
 - **API Evolution**: GraphQL integration and improved REST API design
 - **Real-time Processing**: Stream processing capabilities with Apache Kafka or similar
 
@@ -39,8 +41,10 @@ ETL Design is a sophisticated data transformation platform that bridges the gap 
 
 - 🔄 **Phase 1**: Code refactoring and test coverage improvement
 - 🏗️ **Phase 2**: Architecture redesign and technology stack evaluation
-- ⚡ **Phase 3**: Performance optimization and scalability enhancements
-- 🚀 **Phase 4**: Production deployment and enterprise features
+- ☁️ **Phase 3**: Cloud-native implementation with Kubernetes orchestration and Terraform IaC
+- 🚀 **Phase 4**: CI/CD pipeline implementation and automated deployment workflows
+- ⚡ **Phase 5**: Performance optimization and scalability enhancements
+- 🎯 **Phase 6**: Production deployment and enterprise features
 
 **Note**: The current implementation serves as a proof of concept and research foundation. Future versions will focus on production readiness, scalability, and enterprise-grade features.
 
@@ -107,20 +111,57 @@ The system follows a modern microservices architecture with clear separation of 
 ```text
 ETL-Design/
 ├── docs/                           # Project documentation
-├── excel-parsing/                  # Excel parsing microservices
-│   ├── excel-reader/               # Main REST API service
-│   ├── formula-parser/             # Excel formula parsing (Node.js)
-│   ├── ddl-generator/              # AST to SQL conversion (Python)
-│   ├── sql-builder/                # Final SQL assembly (Python)
-│   ├── proto/                      # Protocol Buffer definitions
-│   └── README.md                   # Excel parsing documentation
-├── typechecking/                   # Data validation system
-│   ├── backend/                    # FastAPI application
+├── apps/                           # Application services
+│   ├── backend/                    # Core backend services
+│   ├── connections/                # Database infrastructure
 │   ├── scripts/                    # Deployment scripts
-│   ├── docker-compose.yml          # Container orchestration
-│   └── .env.example                # Environment configuration
+│   └── web/                        # Frontend applications (planned)
+├── packages/                       # Shared packages and utilities
+├── infrastructure/                 # DevOps and infrastructure (planned)
+│   ├── terraform/                  # Infrastructure as Code
+│   ├── k8s/                        # Kubernetes manifests
+│   ├── monitoring/                 # Observability configurations
+│   └── scripts/                    # Infrastructure automation
+├── tools/                          # Development tools and benchmarks
 └── README.md                       # This file
 ```
+
+## ☁️ DevOps & Cloud Infrastructure
+
+The ETL Design platform is being designed with modern DevOps practices and cloud-native architectures in mind:
+
+### 🚀 Infrastructure as Code (IaC)
+
+- **Terraform Modules**: Planned implementation for reproducible cloud infrastructure
+  - **Cloud Providers**: Multi-cloud support (AWS, Azure, GCP) with provider-specific optimizations
+  - **Resource Management**: Automated provisioning of databases, message queues, and compute resources
+  - **Environment Isolation**: Separate infrastructure configurations for development, staging, and production
+  - **Cost Optimization**: Intelligent resource scaling and cost monitoring integration
+
+### ⚙️ Container Orchestration
+
+- **Kubernetes Deployment**: Cloud-native orchestration with the following components:
+  - **Microservices Pods**: Each service containerized with health checks and resource limits
+  - **Service Mesh**: Istio integration for advanced traffic management and security
+  - **Auto-scaling**: Horizontal Pod Autoscaler (HPA) and Vertical Pod Autoscaler (VPA)
+  - **Storage**: Persistent volumes for databases with automated backup strategies
+  - **Monitoring**: Prometheus + Grafana stack for comprehensive observability
+
+### 🔄 CI/CD Pipeline
+
+- **Automated Workflows**: GitHub Actions / GitLab CI integration
+  - **Multi-stage Testing**: Unit tests, integration tests, and end-to-end validation
+  - **Code Quality**: SonarQube integration for code coverage and security scanning
+  - **Container Security**: Vulnerability scanning with Trivy and admission controllers
+  - **Progressive Deployment**: Blue-green and canary deployment strategies
+  - **Rollback Capabilities**: Automated rollback triggers based on health metrics
+
+### 📊 Observability & Monitoring
+
+- **Logging**: Centralized logging with ELK stack (Elasticsearch, Logstash, Kibana)
+- **Metrics**: Custom application metrics with Prometheus and alerting rules
+- **Tracing**: Distributed tracing with Jaeger for microservices communication analysis
+- **Health Monitoring**: Advanced health checks with dependency validation
 
 ## 🚀 Quick Start
 
@@ -155,7 +196,7 @@ ETL-Design/
    cd ../excel-parsing
    cp .env.example .env
    # Edit .env with your configuration
-   
+
    # Start each service (in separate terminals)
    cd formula-parser && npm install && npm start
    cd ddl-generator && uv sync && uv run python src/server.py
@@ -169,22 +210,22 @@ ETL-Design/
 
    ```bash
    cd excel-parsing
-   
+
    # Formula Parser (Node.js)
    cd formula-parser
    npm install
    npm start
-   
+
    # DDL Generator (Python)
    cd ../ddl-generator
    uv sync
    uv run python src/server.py
-   
+
    # SQL Builder (Python)
    cd ../sql-builder
    uv sync
    uv run python src/server.py
-   
+
    # Excel Reader (Python)
    cd ../excel-reader
    uv sync
@@ -336,12 +377,17 @@ The system is designed for high performance and scalability:
 - **Error Handling**: Improved error management and recovery
 - **Testing**: Additional test coverage and testing strategies
 - **Documentation**: API documentation and usage examples
+- **DevOps & Infrastructure**: Kubernetes manifests, Terraform modules, and CI/CD pipeline improvements
+- **Cloud Architecture**: Multi-cloud deployment strategies and cost optimization
+- **Security**: Container security scanning, vulnerability assessment, and compliance frameworks
 
 ## 📖 Documentation
 
+- **[Applications Overview](./apps/README.md)**: Complete service directory and navigation guide
 - **[Excel Parsing System](./excel-parsing/README.md)**: Complete microservices documentation
 - **[Typechecking System](./typechecking/backend/README.md)**: Data validation platform guide
 - **[API Documentation](http://localhost:8000/docs)**: Interactive OpenAPI docs (when running)
+- **[Kubernetes Manifests](./infrastructure/k8s/README.md)**: Container orchestration configurations
 - **Research Papers**: Available in the `docs/` directory
 
 ## 🐛 Troubleshooting
@@ -352,6 +398,8 @@ The system is designed for high performance and scalability:
 2. **Docker Issues**: Run `docker-compose down && docker-compose up --build`
 3. **Database Connection**: Verify database services are running and accessible
 4. **Memory Issues**: Increase Docker memory allocation for large files
+5. **Kubernetes Deployment**: Check pod status and logs using `kubectl get pods` and `kubectl logs`
+6. **Infrastructure Provisioning**: Verify Terraform state and cloud resource availability
 
 ## 🏆 Academic Context
 
@@ -368,15 +416,9 @@ This project is developed as part of an academic degree project at Universidad T
 
 ## 👥 Authors
 
-**Engineering Degree Project**  
+**Engineering Degree Project**
 Diederik Montaño  
+Mauro Gonzalez  
 Juan Perez  
 Universidad Tecnológica de Bolívar  
 Faculty of Engineering
-
----
-
-For detailed documentation of each subsystem, please refer to their respective README files:
-
-- [Excel Parsing Documentation](./excel-parsing/README.md)
-- [Typechecking Documentation](./typechecking/backend/README.md)
