@@ -20,16 +20,22 @@ import json
 
 import pika
 from jsonschema import SchemaError
+from messaging_utils.core.config import settings as mq_settings
+from messaging_utils.messaging.connection_factory import (
+    RabbitMQConnectionFactory,
+)
+from messaging_utils.schemas import SchemaMessage
 from proto_utils.database import dtypes
 
 from src.core.config import settings
 from src.core.database_client import database_client
 from src.handlers.schemas import create_schema, remove_schema, save_schema
-from src.messaging.connection_factory import RabbitMQConnectionFactory
-from src.schemas.messaging import SchemaMessage
 from src.schemas.workers import SchemaUpdated
-from src.utils import get_datetime_now, logger
+from src.utils import create_component_logger, get_datetime_now
 from src.workers.utils import update_task_status
+
+# Create logger with [schemas] prefix
+logger = create_component_logger("schemas")
 
 
 class SchemaWorker:
@@ -63,6 +69,7 @@ class SchemaWorker:
             Exception: If connection setup fails or consumption encounters
                 unrecoverable errors. Errors are logged and consumption is stopped.
         """
+        logger.info("Starting schema worker...")
         try:
             self.connection: pika.BlockingConnection = (
                 RabbitMQConnectionFactory.get_thread_connection()
@@ -74,7 +81,7 @@ class SchemaWorker:
                 prefetch_count=settings.WORKER_PREFETCH_COUNT
             )
             self.channel.basic_consume(
-                queue="typechecking.schema.queue",
+                queue=mq_settings.RABBITMQ_QUEUE_SCHEMAS,
                 on_message_callback=self.process_schema_update,
                 auto_ack=False,
             )
@@ -128,12 +135,12 @@ class SchemaWorker:
             Error details are logged for debugging and monitoring.
         """
         try:
-            message: SchemaMessage = json.loads(body.decode())
+            message = SchemaMessage(**json.loads(body.decode()))
             task_id = message["id"]
             task = message.get("task", "upload_schema")
 
             if task == "upload_schema":
-                # Update the task status to 'processing' in Redis
+                # Update the task status to 'processing'
                 logger.info(f"Processing schema update: {task_id}")
                 update_task_status(
                     task_id=task_id,
@@ -163,8 +170,11 @@ class SchemaWorker:
 
             # Add more cases here if needed for other tasks
 
-            # Publish the result back to the exchange
-            self._publish_result(task_id, result)
+            # Here could be implemented a callback to notify other services
+            # e.g. using webhooks or other messaging patterns.
+            # And, maybe, not use another queue of results for that.
+            self._publish_result(task_id, result)  # Meanwhile
+
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
             logger.info(f"Schema update completed for task: {task_id}")
@@ -202,7 +212,7 @@ class SchemaWorker:
         import_name = message["import_name"]
         raw = message.get("raw", False)
 
-        # Update the task status in Redis
+        # Update the task status
         update_task_status(
             task_id=task_id,
             field="status",
@@ -273,13 +283,13 @@ class SchemaWorker:
             },
         )
 
-        return {
-            "task_id": task_id,
-            "status": status,
-            "import_name": import_name,
-            "schema": schema,
-            "result": result,
-        }
+        return SchemaUpdated(
+            task_id=task_id,
+            status=status,
+            import_name=import_name,
+            schema=schema,
+            result=result,
+        )
 
     def _remove_schema(self, message: SchemaMessage) -> SchemaUpdated:
         """Remove the schema based on the incoming message.
@@ -301,13 +311,13 @@ class SchemaWorker:
                 - result: Boolean result from removal operation
 
         Note:
-            The function updates the task status in Redis and handles errors
+            The function updates the task status and handles errors
             during schema removal.
         """
         task_id = message["id"]
         import_name = message["import_name"]
 
-        # Update the task status in Redis
+        # Update the task status
         update_task_status(
             task_id=task_id,
             field="status",
@@ -337,12 +347,13 @@ class SchemaWorker:
             },
         )
 
-        return {
-            "task_id": task_id,
-            "status": status,
-            "import_name": import_name,
-            "result": result,
-        }
+        return SchemaUpdated(
+            task_id=task_id,
+            status=status,
+            import_name=import_name,
+            schema=None,
+            result=result,
+        )
 
     def _publish_result(self, task_id: str, result: SchemaUpdated) -> None:
         """Publish the result of the schema update to the RabbitMQ exchange.
@@ -384,8 +395,8 @@ class SchemaWorker:
             return None
 
         self.channel.basic_publish(
-            exchange="typechecking.exchange",
-            routing_key="results.schema",
+            exchange=mq_settings.RABBITMQ_EXCHANGE,
+            routing_key=mq_settings.RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_SCHEMAS,
             body=json.dumps(result),
         )
         update_task_status(

@@ -22,6 +22,11 @@ import json
 from io import BytesIO
 
 from fastapi import UploadFile
+from messaging_utils.core.config import settings as mq_settings
+from messaging_utils.messaging.connection_factory import (
+    RabbitMQConnectionFactory,
+)
+from messaging_utils.schemas import ValidationMessage
 from proto_utils.database import dtypes
 
 from src.core.config import settings
@@ -30,11 +35,12 @@ from src.handlers.validation import (
     get_validation_summary,
     validate_file_against_schema,
 )
-from src.messaging.connection_factory import RabbitMQConnectionFactory
-from src.schemas.messaging import ValidationMessage
 from src.schemas.workers import DataValidated
-from src.utils import get_datetime_now, logger
+from src.utils import create_component_logger, get_datetime_now
 from src.workers.utils import update_task_status
+
+# Create logger with [validation] prefix
+logger = create_component_logger("validation")
 
 
 class ValidationWorker:
@@ -70,6 +76,7 @@ class ValidationWorker:
             Exception: If connection setup fails or consumption encounters
                 unrecoverable errors. Errors are logged and consumption is stopped.
         """
+        logger.info("Starting validation worker...")
         try:
             self.connection = RabbitMQConnectionFactory.get_thread_connection()
             self.channel = RabbitMQConnectionFactory.get_thread_channel()
@@ -79,7 +86,7 @@ class ValidationWorker:
                 prefetch_count=settings.WORKER_PREFETCH_COUNT
             )
             self.channel.basic_consume(
-                queue="typechecking.validation.queue",
+                queue=mq_settings.RABBITMQ_QUEUE_VALIDATIONS,
                 on_message_callback=self.process_validation_request,
                 auto_ack=False,
             )
@@ -135,7 +142,7 @@ class ValidationWorker:
             Error details are logged for debugging and monitoring.
         """
         try:
-            message: ValidationMessage = json.loads(body.decode())
+            message = ValidationMessage(**json.loads(body.decode()))
             task_id = message["id"]
             task = message.get("task", "sample_validation")
 
@@ -155,9 +162,12 @@ class ValidationWorker:
 
             # Add more cases here if needed for other tasks
 
-            self._publish_result(task_id, result)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            # Here could be implemented a callback to notify other services
+            # e.g. using webhooks or other messaging patterns.
+            # And, maybe, not use another queue of results for that.
+            self._publish_result(task_id, result)  # Meanwhile
 
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             logger.info(f"Validation completed for task: {task_id}")
         except Exception as e:
             logger.error(f"Error processing validation request: {e}")
@@ -218,6 +228,9 @@ class ValidationWorker:
         results = await validate_file_against_schema(
             file=upload_file, import_name=message["import_name"]
         )
+
+        logger.debug(f"Results: {json.dumps(results, indent=4)}")
+
         summary = get_validation_summary(results)
 
         update_task_status(
@@ -225,14 +238,14 @@ class ValidationWorker:
             field="status",
             value=summary["status"],
             task=self.TASK,
-            data={"results": summary, "update_date": get_datetime_now()},
+            data={"results": json.dumps(summary), "update_date": get_datetime_now()},
         )
 
-        return {
-            "task_id": task_id,
-            "status": summary["status"],
-            "results": summary,
-        }
+        return DataValidated(
+            task_id=task_id,
+            status=summary["status"],
+            results=summary,
+        )
 
     def _publish_result(self, task_id: str, result: DataValidated) -> str:
         """Publish the validation result back to the exchange.
@@ -278,8 +291,8 @@ class ValidationWorker:
             return None
 
         self.channel.basic_publish(
-            exchange="typechecking.exchange",
-            routing_key="results.validation",
+            exchange=mq_settings.RABBITMQ_EXCHANGE,
+            routing_key=mq_settings.RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_VALIDATIONS,
             body=json.dumps(result),
         )
         update_task_status(

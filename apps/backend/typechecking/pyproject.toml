@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = "==3.12.10"
 dependencies = [
     "proto-utils",
+    "messaging-utils",
     "aio-pika>=9.5.7",
     "fastapi>=0.116.1",
     "jsonschema>=4.25.1",
@@ -13,10 +14,12 @@ dependencies = [
     "pika>=1.3.2",
     "polars>=1.32.3",
     "pydantic-settings>=2.10.1",
+    "openpyxl>=3.1.5",
 ]
 
 [tool.uv.sources]
 proto-utils = { path = "../../../packages/proto-utils/proto-utils-py", editable = true }
+messaging-utils = { path = "../../../packages/messaging-utils/messaging-utils-py", editable = true }
 
 [dependency-groups]
 dev = [

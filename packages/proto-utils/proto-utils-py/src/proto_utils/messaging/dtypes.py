@@ -1,5 +1,4 @@
-from typing import Dict, Literal, TypedDict, List
-from proto_utils.database.dtypes import JsonSchema
+from typing import Dict, Literal, TypedDict, List, Any
 
 SchemasTasks = Literal["upload_schema", "remove_schema", "unknown"]
 ValidationTasks = Literal["sample_validation", "unknown"]
@@ -55,7 +54,7 @@ class SchemaMessageRequest(TypedDict):
 
 class SchemaMessageResponse(TypedDict):
     id: str
-    schema: JsonSchema
+    schema: Dict[str, Any]
     import_name: str
     raw: bool
     tasks: SchemasTasks

@@ -30,9 +30,17 @@ import signal
 import sys
 import threading
 
-from src.utils import logger
+from messaging_utils.core.connection_params import messaging_params
+from messaging_utils.messaging.connection_factory import (
+    RabbitMQConnectionFactory,
+)
+
+from src.utils import create_component_logger
 from src.workers.schemas import SchemaWorker
 from src.workers.validation import ValidationWorker
+
+# Create logger with [main] prefix
+logger = create_component_logger("main")
 
 
 class WorkerManager:
@@ -119,7 +127,6 @@ class WorkerManager:
         worker fails.
         """
         try:
-            print("Consuming validation worker")
             self.validation_worker.start_consuming()
         except Exception as e:
             logger.error(f"Validation worker error: {e}")
@@ -136,7 +143,6 @@ class WorkerManager:
         worker fails.
         """
         try:
-            print("Consuming schema worker")
             self.schema_worker.start_consuming()
         except Exception as e:
             logger.error(f"Schema worker error: {e}")
@@ -191,6 +197,13 @@ async def main() -> None:
     # Setup signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    logger.info("Starting Worker Manager...")
+
+    # Configure Connection Factory
+    RabbitMQConnectionFactory.configure(messaging_params)
+
+    logger.info("Connection Factory configured")
 
     # Start worker manager
     manager = WorkerManager()

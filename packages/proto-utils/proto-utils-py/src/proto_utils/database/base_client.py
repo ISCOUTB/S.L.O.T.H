@@ -11,6 +11,9 @@ class DatabaseClient:
         self.channel = grpc.insecure_channel(channel)
         self.stub = DatabaseServiceStub(self.channel)
 
+    def close(self) -> None:
+        self.channel.close()
+
     # ============================ Redis Methods ============================
 
     def redis_get_keys(

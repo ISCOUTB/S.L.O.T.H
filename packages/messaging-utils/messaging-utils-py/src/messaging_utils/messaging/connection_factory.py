@@ -11,7 +11,7 @@ creating new ones when needed and providing proper cleanup mechanisms.
 
 import threading
 from contextlib import contextmanager
-from typing import Dict, Generator
+from typing import Dict, Generator, Optional
 
 import pika
 from pika.adapters.blocking_connection import BlockingChannel
@@ -20,6 +20,7 @@ from proto_utils.messaging.dtypes import (
     GetMessagingParamsResponse,
 )
 
+from messaging_utils.core.connection_params import messaging_params
 from messaging_utils.schemas.connection import ConnectionParams
 
 
@@ -43,11 +44,13 @@ class RabbitMQConnectionFactory:
     _connections: Dict[int, pika.BlockingConnection] = {}
     _channels: Dict[int, BlockingChannel] = {}
     _lock = threading.RLock()
-    _params: ConnectionParams = {}
-    _exchange_info: ExchangeInfo = {}
+    _params: ConnectionParams = ConnectionParams()
+    _exchange_info: ExchangeInfo = ExchangeInfo()
 
     @classmethod
-    def configure(cls, connection_params: GetMessagingParamsResponse) -> None:
+    def configure(
+        cls, connection_params: Optional[GetMessagingParamsResponse] = None
+    ) -> None:
         """Configure the connection factory with connection parameters.
 
         This method sets the connection parameters for the factory.
@@ -57,6 +60,9 @@ class RabbitMQConnectionFactory:
             connection_params: ConnectionParams object containing
                 RabbitMQ connection details.
         """
+        if connection_params is None:
+            connection_params = messaging_params
+
         connection_params = connection_params.copy()
         cls._exchange_info = connection_params["exchange"].copy()
 

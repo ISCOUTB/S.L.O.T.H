@@ -247,7 +247,7 @@ class MongoSchemasService:
             )
 
         return dtypes.MongoFindJsonSchemaResponse(
-            status="found", extra={}, schema=schema_doc
+            status="found", extra={}, schema=schema_doc["active_schema"]
         )
 
     @staticmethod

@@ -1,3 +1,6 @@
 **/__pycache__/
 .venv/
 *.pyc
+logs/
+.env
+.ruff_cache/

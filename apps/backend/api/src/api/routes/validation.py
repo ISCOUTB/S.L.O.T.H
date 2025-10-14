@@ -1,17 +1,20 @@
-from fastapi import APIRouter, UploadFile, HTTPException
-from src.messaging.publishers import ValidationPublisher
+from fastapi import APIRouter, HTTPException, UploadFile, Depends
+from messaging_utils.core.config import settings as mq_settings
+from proto_utils.database import dtypes, DatabaseClient
 
-from proto_utils.database import dtypes
-from src.core.database_client import database_client
+from src.api.deps import get_db_client
+from src.messaging.publisher import publisher
 
 TASK = "validation"
 router = APIRouter()
-publisher = ValidationPublisher()
 
 
 @router.post("/upload/{import_name}")
 async def validate(
-    spreadsheet_file: UploadFile, import_name: str, new: bool = False
+    spreadsheet_file: UploadFile,
+    import_name: str,
+    new: bool = False,
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Upload a spreadsheet file in order to be validated.
@@ -40,6 +43,7 @@ async def validate(
         # Publish in RabbitMQ
         # file_content = UploadFile(file_content)
         task_id = publisher.publish_validation_request(
+            routing_key=mq_settings.RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS,
             file_data=file_content,
             import_name=import_name,
             metadata=metadata,
@@ -72,7 +76,9 @@ async def validate(
 
 @router.get("/status")
 async def get_validation_status(
-    task_id: str = "", import_name: str = ""
+    task_id: str = "",
+    import_name: str = "",
+    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Get the status of the file being validated.

@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12.10"
 dependencies = [
     "proto-utils",
+    "messaging-utils",
     "aio-pika>=9.5.5",
     "alembic>=1.16.2",
     "asyncpg>=0.30.0",
@@ -27,6 +28,7 @@ dependencies = [
 
 [tool.uv.sources]
 proto-utils = { path = "../../../packages/proto-utils/proto-utils-py", editable = true }
+messaging-utils = { path = "../../../packages/messaging-utils/messaging-utils-py", editable = true }
 
 [dependency-groups]
 dev = [

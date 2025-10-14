@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Tuple
 
 import jsonschema
 from fastapi import UploadFile
+from proto_utils.database import dtypes
 
 from src.core.config import settings
 from src.handlers.schemas import get_active_schema
@@ -64,6 +65,24 @@ async def validate_file_against_schema(
                 "message": "File is empty but valid",
             },
         }
+
+    # Verify that the columns in data match the schema properties
+    schema_properties = set(schema.get("properties", {}).keys())
+    df_columns = set(data[0].keys())
+
+    if df_columns != schema_properties:
+        return {
+            "success": False,
+            "error": (
+                "Columns do not match schema properties. "
+                f"File columns: {sorted(df_columns)}. "
+                f"Schema properties: {sorted(schema_properties)}."
+            ),
+            "validation_results": None,
+        }
+
+    # Try to parse the data types according to schema
+    data = _convert_data_types(data, schema)
 
     # Validate data against schema
     validation_results = validate_data_parallel(data, schema, n_workers)
@@ -168,15 +187,19 @@ def validate_data_parallel(
 
     # Split data into chunks for parallel processing
     chunk_size = max(1, len(data) // n_workers)
-    chunks = [data[i : i + chunk_size] for i in range(0, len(data), chunk_size)]
+    chunks = list(
+        map(
+            lambda idx: (
+                data[idx : idx + chunk_size],
+                schema,
+                idx // chunk_size,
+            ),
+            range(0, len(data), chunk_size),
+        )
+    )
 
-    chunk_size = max(1, len(data) // n_workers)
-    chunks = []
-    for i in range(0, len(data), chunk_size):
-        chunk = data[i : i + chunk_size]
-        chunks.append((chunk, schema, i))
-
-    with mp.Pool(processes=n_workers) as pool:
+    actual_processes = min(n_workers, len(chunks))
+    with mp.Pool(processes=actual_processes) as pool:
         results = pool.map(validate_chunks, chunks)
 
     # Process results
@@ -208,7 +231,8 @@ def validate_data_parallel(
         all_errors.extend(adjusted_errors)
         total_valid_items += chunk_size_actual - len(errors)
 
-    total_items = len(data)
+    # Assuming all rows the same number of fields (should be always true for CSV/Excel at least)
+    total_items = len(data) * len(data[0])
     invalid_items = total_items - total_valid_items
 
     # Limit errors to first 50 to avoid overwhelming response
@@ -219,3 +243,75 @@ def validate_data_parallel(
         "invalid_items": invalid_items,
         "errors": all_errors[:50],
     }
+
+
+def _convert_data_types(
+    data: List[Dict[str, Any]], schema: dtypes.JsonSchema
+) -> List[Dict[str, Any]]:
+    """
+    Convert data types according to JSON schema definitions.
+
+    Args:
+        data: List of dictionaries representing rows
+        schema: JSON schema with type definitions
+
+    Returns:
+        List of dictionaries with converted types
+    """
+    if not data or not schema.get("properties"):
+        return data
+
+    properties = schema["properties"]
+    converted_data = []
+
+    for row in data:
+        converted_row = {}
+        for key, value in row.items():
+            if key not in properties:
+                converted_row[key] = value
+                continue
+
+            prop_type = properties[key].get("type")
+
+            try:
+                if prop_type == "boolean":
+                    # Handle boolean conversion from string representations
+                    if isinstance(value, str):
+                        if value.lower() in ("true", "1", "yes", "y"):
+                            converted_row[key] = True
+                        elif value.lower() in ("false", "0", "no", "n"):
+                            converted_row[key] = False
+                        else:
+                            # Keep original value if can't convert
+                            converted_row[key] = value
+                    else:
+                        converted_row[key] = bool(value)
+
+                elif prop_type == "integer":
+                    if value is None or value == "":
+                        converted_row[key] = None
+                    else:
+                        converted_row[key] = int(float(str(value)))
+
+                elif prop_type == "number":
+                    if value is None or value == "":
+                        converted_row[key] = None
+                    else:
+                        converted_row[key] = float(value)
+
+                elif prop_type == "string":
+                    converted_row[key] = (
+                        str(value) if value is not None else None
+                    )
+
+                else:
+                    # For other types (array, object, etc.), keep as is
+                    converted_row[key] = value
+
+            except (ValueError, TypeError):
+                # If conversion fails, keep original value for validation to catch error
+                converted_row[key] = value
+
+        converted_data.append(converted_row)
+
+    return converted_data

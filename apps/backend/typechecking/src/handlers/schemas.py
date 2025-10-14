@@ -15,7 +15,7 @@ def compare_schemas(schema1: Dict[str, Any], schema2: Dict[str, Any]) -> bool:
     return schema1 == schema2
 
 
-def get_active_schema(import_name: str) -> Dict | None:
+def get_active_schema(import_name: str) -> dtypes.JsonSchema | None:
     """
     Get the active schema for a given import name.
 
