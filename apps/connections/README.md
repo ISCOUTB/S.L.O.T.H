@@ -1,6 +1,6 @@
 # Connection Services
 
-A collection of centralized gRPC microservices that solve architectural challenges in shared resource management for microservices. These services provide unified access to databases and messaging systems while maintaining microservices architecture principles.
+A centralized gRPC microservice that solves architectural challenges in shared database resource management for microservices. This service provides unified access to databases while maintaining microservices architecture principles.
 
 ## Architecture Problem & Solution
 
@@ -10,37 +10,37 @@ In a traditional microservices architecture, each service should maintain its ow
 
 - **Redis**: Fast task state tracking and response caching
 - **MongoDB**: Persistent storage for JSON schemas and task history  
-- **RabbitMQ**: Pub/Sub messaging for asynchronous task processing
 
 Direct database sharing between microservices violates microservices principles and creates tight coupling between services.
 
+For messaging, both services connect directly to **RabbitMQ**: the API service publishes messages and the Typechecking service consumes them.
+
 ### The Solution
 
-We've implemented dedicated connection services that act as centralized proxies, providing gRPC interfaces to shared resources:
+We've implemented a dedicated database service that acts as a centralized proxy, providing gRPC interfaces to shared database resources:
 
 ```text
 ┌─────────────┐    ┌─────────────────┐    ┌─────────────┐
 │ API Service │────│ Database Service│────│ Redis/Mongo │
 └─────────────┘    └─────────────────┘    └─────────────┘
-       │                                  ┌─────────────┐
-       │                              ┌───│  RabbitMQ   │
-       │            ┌─────────────────┐   └─────────────┘
-       └─(creds)────│Messaging Service│
-                    └─────────────────┘
-                           │
-┌─────────────┐            │
-│Typechecking │────────────┘
+       │                                  
+       │            ┌─────────────┐
+       └────────────│  RabbitMQ   │───────┐
+                    └─────────────┘       │
+                                          │
+┌─────────────┐                           │
+│Typechecking │───────────────────────────┘
 │   Service   │
 └─────────────┘
 ```
 
 This approach:
 
-- ✅ Maintains microservices independence
-- ✅ Enables multi-language support
-- ✅ Centralizes connection management
-- ✅ Provides standardized interfaces
-- ✅ Eliminates direct database coupling
+- ✅ Maintains microservices independence for database access
+- ✅ Enables direct messaging communication
+- ✅ Centralizes database connection management
+- ✅ Provides standardized database interfaces
+- ✅ Eliminates unnecessary messaging proxies
 
 ## Services Overview
 
@@ -63,23 +63,14 @@ This approach:
 - API Service: Task status queries, response caching, schema operations
 - Typechecking Service: Task state updates, schema retrieval and management
 
-### [Messaging Connections](./messaging/)
+## Messaging Architecture
 
-**Purpose**: gRPC proxy for RabbitMQ message streaming and configuration
+Both the API and Typechecking services connect directly to RabbitMQ without any intermediary proxy:
 
-**Key Features**:
+- **API Service**: Publishes messages directly to RabbitMQ queues
+- **Typechecking Service**: Consumes messages directly from RabbitMQ queues
 
-- **Real-time Streaming**: Continuous message delivery via gRPC streams
-- **Connection Management**: RabbitMQ credential distribution and configuration
-- **Routing Intelligence**: Message routing key management for different queue types
-- **Service Abstraction**: Clean gRPC interface hiding RabbitMQ complexity
-
-**Technology Stack**: Python 3.12, gRPC, RabbitMQ, Pika
-
-**Usage Pattern**:
-
-- API Service: Retrieves RabbitMQ credentials for direct publishing
-- Typechecking Service: Consumes messages through gRPC streaming interfaces
+This direct connection approach eliminates unnecessary complexity and potential points of failure that would be introduced by a messaging proxy service.
 
 ## Communication Patterns
 
@@ -99,13 +90,13 @@ Both services communicate with databases exclusively through the Database Servic
 
 ```text
 API Service → Direct RabbitMQ Publishing
-Typechecking Service → gRPC Streaming ← Messaging Service ← RabbitMQ
+Typechecking Service → Direct RabbitMQ Consuming
 ```
 
-Asymmetric messaging pattern:
+Direct messaging pattern:
 
-- **Publishing**: API publishes directly to RabbitMQ (after getting credentials)
-- **Consuming**: Typechecking consumes via gRPC streams from Messaging Service
+- **Publishing**: API service publishes directly to RabbitMQ queues
+- **Consuming**: Typechecking service consumes directly from RabbitMQ queues
 
 ## Message Types & Queues
 
@@ -127,10 +118,9 @@ Asymmetric messaging pattern:
 
 ### Protocol Buffers
 
-All services use shared `.proto` definitions located in [`packages/proto/`](../../packages/proto/):
+The Database service uses shared `.proto` definitions located in [`packages/proto/`](../../packages/proto/):
 
 - `database/`: Database operation interfaces
-- `messaging/`: Messaging and streaming interfaces
 
 ### Utility Packages
 
@@ -141,19 +131,24 @@ All services use shared `.proto` definitions located in [`packages/proto/`](../.
 
 ### Environment-Based Configuration
 
-Both services use environment variables for configuration:
+The Database service uses environment variables for configuration:
 
 - Database credentials and connection settings
 - TTL policies and cache configuration  
 - gRPC server settings and debug options
+
+Both API and Typechecking services manage their own RabbitMQ connection configuration:
+
 - Queue names and routing key patterns
+- RabbitMQ connection credentials
+- Message processing settings
 
 ### Service Discovery
 
-Services communicate through configured gRPC endpoints:
+Services communicate through configured endpoints:
 
 - **Database Service**: Default port 50050
-- **Messaging Service**: Default port 50055
+- **RabbitMQ**: Direct connection to configured RabbitMQ instance
 
 ## Development & Operations
 
@@ -164,28 +159,22 @@ Services communicate through configured gRPC endpoints:
 moon run database:run      # Start database service
 moon run database:test     # Run database tests  
 moon run database:format   # Format database code
-
-# Messaging Service  
-moon run messaging:run     # Start messaging service
-moon run messaging:test    # Run messaging tests
-moon run messaging:format  # Format messaging code
 ```
 
 ### Docker Support
 
-Both services include Docker support for containerized deployment:
+The Database service includes Docker support for containerized deployment:
 
 ```bash
-# Build services
+# Build service
 moon run database:docker-build
-moon run messaging:docker-build
 
 # Deploy with proper networking for inter-service communication
 ```
 
 ### Testing Strategy
 
-Comprehensive testing across both services:
+Comprehensive testing for the Database service:
 
 - **Unit Tests**: Mock-based testing without external dependencies
 - **Integration Tests**: Full end-to-end testing with real infrastructure
@@ -195,32 +184,33 @@ Comprehensive testing across both services:
 
 ### Microservices Compliance
 
-- Each service maintains its own concerns and responsibilities
+- Database service maintains clear separation of concerns and responsibilities
 - No direct database coupling between business logic services
-- Clean separation between connection management and business logic
+- Clean separation between database connection management and business logic
+- Direct messaging eliminates unnecessary complexity
 
 ### Scalability & Performance
 
-- Connection pooling and resource optimization at the proxy level
+- Database connection pooling and resource optimization at the proxy level
 - Intelligent caching strategies with automatic fallback
-- Efficient message streaming without polling overhead
+- Direct RabbitMQ communication reduces latency and improves throughput
 
 ### Technology Flexibility
 
 - Services can be implemented in different programming languages
 - Database technologies can be changed without affecting business services
-- Messaging systems can be swapped (RabbitMQ → Kafka) with minimal impact
+- Direct messaging allows each service to optimize its RabbitMQ usage patterns
 
 ### Operational Excellence
 
-- Centralized monitoring and logging of database/messaging operations
-- Standardized error handling and retry logic
+- Centralized monitoring and logging of database operations
+- Standardized error handling and retry logic for database access
 - Simplified configuration management and deployment
+- Reduced points of failure by eliminating unnecessary messaging proxies
 
 ## Related Documentation
 
 - [Database Service README](./database/README.md): Detailed database service documentation
-- [Messaging Service README](./messaging/README.md): Comprehensive messaging service guide
 - [Protocol Definitions](../../packages/proto/): Shared interface specifications
 
 For information about client services that use these connections, see:
