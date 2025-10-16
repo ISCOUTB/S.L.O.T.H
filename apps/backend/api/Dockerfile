@@ -35,7 +35,9 @@ ENV PYTHONPATH=.
 
 COPY ./apps/backend/api/pyproject.toml \
     ./apps/backend/api/uv.lock \
+    ./apps/backend/api/alembic.ini \
     ./
+COPY ./apps/backend/api/scripts ./scripts
 COPY ./apps/backend/api/src ./src
 
 # Sync the project
