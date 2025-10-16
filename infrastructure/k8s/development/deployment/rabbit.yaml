@@ -36,6 +36,11 @@ spec:
                 secretKeyRef:
                   key: RABBITMQ_PASSWORD
                   name: development-secret
+            - name: RABBITMQ_DEFAULT_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  key: RABBITMQ_VHOST
+                  name: development-config
 
           resources:
             requests:
