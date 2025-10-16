@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-pod
+  namespace: development
+spec:
+  containers:
+    - name: debug
+      image: ubuntu:latest
+      command: ["sleep", "infinity"]
