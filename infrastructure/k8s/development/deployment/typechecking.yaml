@@ -1,0 +1,175 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-typechecking
+  namespace: development
+  labels:
+    app: etl-typechecking
+    component: etl-typechecking
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-typechecking
+      component: etl-typechecking
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-typechecking
+        component: etl-typechecking
+        environment: development
+    spec:
+      initContainers:
+        # Wait for the database service to be ready
+        - name: wait-for-database
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z etl-database 50050; do
+              echo "Waiting for database service...";
+              sleep 5;
+              done;
+              echo "Database is ready!"
+
+        # Wait for RabbitMQ to be ready
+        - name: wait-for-rabbitmq
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z rabbit-amqp 5672; do
+              echo "Waiting for RabbitMQ service...";
+              sleep 5;
+              done;
+              echo "RabbitMQ is ready!"
+
+      containers:
+        - name: etl-typechecking
+          image: dosquisd/typechecking-service:1.0
+
+          resources:
+            requests:
+              memory: "768Mi"
+              cpu: "250m"
+            limits:
+              memory: "1.5Gi"
+              cpu: "750m"
+
+          env:
+            # Typechecking service related
+            - name: MAX_WORKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: MAX_WORKERS
+            - name: WORKER_CONCURRENCY
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: WORKER_CONCURRENCY
+            - name: WORKER_PREFETCH_COUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: WORKER_PREFETCH_COUNT
+
+            # Database server related
+            - name: DATABASE_CONNECTION_HOST
+              value: etl-database
+            - name: DATABASE_CONNECTION_PORT
+              value: "50050"
+
+            # RabbitMQ related
+            - name: RABBITMQ_HOST
+              value: rabbit
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: RABBITMQ_PASSWORD
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_VHOST
+            - name: RABBITMQ_EXCHANGE
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_EXCHANGE
+            - name: RABBITMQ_EXCHANGE_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_EXCHANGE_TYPE
+            - name: RABBITMQ_QUEUE_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_QUEUE_SCHEMAS
+            - name: RABBITMQ_QUEUE_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_QUEUE_VALIDATIONS
+            - name: RABBITMQ_ROUTING_KEY_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_ROUTING_KEY_SCHEMAS
+            - name: RABBITMQ_QUEUE_RESULTS_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_QUEUE_RESULTS_SCHEMAS
+            - name: RABBITMQ_QUEUE_RESULTS_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_QUEUE_RESULTS_VALIDATIONS
+            - name: RABBITMQ_ROUTING_KEY_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_ROUTING_KEY_VALIDATIONS
+            - name: RABBITMQ_ROUTING_KEY_RESULTS_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_ROUTING_KEY_RESULTS_SCHEMAS
+            - name: RABBITMQ_ROUTING_KEY_RESULTS_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_ROUTING_KEY_RESULTS_VALIDATIONS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_SCHEMAS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_VALIDATIONS
+
+        # TODO: Add readiness and liveness probes
+        # this app does not have a web server, but it's planned to add a /health endpoint

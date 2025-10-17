@@ -1,0 +1,285 @@
+# TODO: Fix an error that is happening when applying this file with kubectl (I'll see later)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-api
+  namespace: development
+  labels:
+    app: etl-api
+    component: etl-api
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-api
+      component: etl-api
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-api
+        component: etl-api
+        environment: development
+    spec:
+      initContainers:
+        # Wait for the database service to be ready
+        - name: wait-for-database
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z etl-database 50050; do
+              echo "Waiting for database service...";
+              sleep 5;
+              done;
+              echo "Database is ready!"
+
+        # Wait for RabbitMQ to be ready
+        - name: wait-for-rabbitmq
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z rabbit-amqp 5672; do
+              echo "Waiting for RabbitMQ service...";
+              sleep 5;
+              done;
+              echo "RabbitMQ is ready!"
+
+        # Wait for PostgreSQL to be ready
+        - name: wait-for-postgres
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z postgres 5432; do
+              echo "Waiting for PostgreSQL service...";
+              sleep 5;
+              done;
+              echo "PostgreSQL is ready!"
+        
+        # Run database migrations
+        - name: run-migrations
+          image: dosquisd/typechecking-api-service:1.0
+          imagePullPolicy: Always
+          command: ["sh", "/workspace/apps/backend/api/scripts/prestart.sh"]
+          env:
+            # PostgreSQL connection
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: POSTGRES_DB
+            # Variables for initial data
+            - name: FIRST_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: FIRST_SUPERUSER
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: FIRST_SUPERUSER_PASSWORD
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: SECRET_KEY
+            # Required API variables for Settings validation
+            - name: API_V1_STR
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: API_V1_STR
+            - name: CORS_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: CORS_ORIGINS
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            - name: SERVER_PORT
+              value: "8000"
+            - name: SERVER_DEBUG
+              value: "false"
+            # Required RabbitMQ variables
+            - name: RABBITMQ_HOST
+              value: rabbit
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: RABBITMQ_PASSWORD
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_VHOST
+            # Required Database service variables
+            - name: DATABASE_CONNECTION_HOST
+              value: etl-database
+            - name: DATABASE_CONNECTION_PORT
+              value: "50050"
+      containers:
+        - name: etl-api
+          image: dosquisd/typechecking-api-service:1.0
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 8000
+              name: api
+
+          env:
+            # Database server related
+            - name: DATABASE_CONNECTION_HOST
+              value: etl-database
+            - name: DATABASE_CONNECTION_PORT
+              value: "50050"
+
+            # API related
+            - name: API_V1_STR
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: API_V1_STR
+            - name: CORS_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: CORS_ORIGINS
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: SECRET_KEY
+            - name: FIRST_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: FIRST_SUPERUSER
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: FIRST_SUPERUSER_PASSWORD
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            - name: SERVER_PORT
+              value: "8000"
+            - name: SERVER_DEBUG
+              value: "false"
+
+            # Postgres related
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: POSTGRES_DB
+
+            # RabbitMQ related
+            - name: RABBITMQ_HOST
+              value: rabbit
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: RABBITMQ_PASSWORD
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_VHOST
+            - name: RABBITMQ_EXCHANGE
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_EXCHANGE
+            - name: RABBITMQ_EXCHANGE_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_EXCHANGE_TYPE
+            - name: RABBITMQ_QUEUE_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_QUEUE_SCHEMAS
+            - name: RABBITMQ_QUEUE_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_QUEUE_VALIDATIONS
+            - name: RABBITMQ_ROUTING_KEY_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_ROUTING_KEY_SCHEMAS
+            - name: RABBITMQ_ROUTING_KEY_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_ROUTING_KEY_VALIDATIONS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS
+
+        # TODO: Add readiness and liveness probes
+        # readiness probe could be an tcp socket check on port 8000
+        # liveness probe could be an exec that checks if the process is running
+        # verifying that redis and mongo are reachable by the server (this deployment)

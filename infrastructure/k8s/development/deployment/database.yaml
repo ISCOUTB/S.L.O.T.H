@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-database
+  namespace: development
+  labels:
+    app: etl-database
+    component: etl-database
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-database
+      component: etl-database
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-database
+        component: etl-database
+        environment: development
+    spec:
+      initContainers:
+        # Esperar a que MongoDB esté listo
+        - name: wait-for-mongo
+          image: busybox:1.35
+          command: ['sh', '-c']
+          args:
+            - until nc -z mongo 27017; do
+                echo "Waiting for MongoDB service on port 27017...";
+                sleep 5;
+              done;
+              echo "MongoDB service is ready!"
+        
+        # Esperar a que Redis esté listo
+        - name: wait-for-redis
+          image: busybox:1.35
+          command: ['sh', '-c']
+          args:
+            - until nc -z redis 6379; do
+                echo "Waiting for Redis service on port 6379...";
+                sleep 5;
+              done;
+              echo "Redis service is ready!"
+
+      containers:
+        - name: etl-database
+          image: dosquisd/etl-database:1.0
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 50050
+              name: grpc
+              protocol: TCP
+
+          env:
+            # Mongo related
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_HOST
+              value: mongo
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: MONGO_INITDB_ROOT_PASSWORD
+            - name: MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: MONGO_DB
+            - name: MONGO_SCHEMAS_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: MONGO_SCHEMAS_COLLECTION
+            - name: MONGO_TASKS_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: development-config
+                  key: MONGO_TASKS_COLLECTION
+
+            # Redis related
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: REDIS_PASSWORD
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+
+            # Server related
+            - name: DATABASE_CONNECTION_HOST
+              value: "0.0.0.0"
+            - name: DATABASE_CONNECTION_PORT
+              value: "50050"
+            - name: DATABASE_CONNECTION_DEBUG
+              value: "false"
+
+        # TODO: Add readiness and liveness probes
+        # readiness probe could be an tcp socket check on port 50050
+        # liveness probe could be an exec that checks if the process is running
+        # verifying that redis and mongo are reachable by the server (this deployment)
