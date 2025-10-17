@@ -13,82 +13,9 @@ The types are organized into:
 - Union types for flexible type handling
 """
 
-from typing import TypedDict, Literal, Optional, Dict, Union, Any
+from typing import Any, Literal, Optional, TypedDict, Union
 
-
-AstTypes = Literal[
-    "binary-expression",  # e.g., "a + b"
-    "cell-range",  # e.g., "A1:B2"
-    "function",  # e.g., "SUM(A1:B2)"
-    "cell",  # e.g., "A1"
-    "number",  # e.g., 42
-    "logical",  # e.g., true
-    "text",  # e.g., "Hello, World!"
-    "unary-expression",  # e.g., "-a" or "NOT a"
-]
-
-RefTypes = Literal[
-    "relative",  # Obtained from a cell reference like "A1" or "B2"
-    "absolute",  # Obtained from a cell reference like "$A$1" or "$B$2"
-    "mixed",  # Obtained from a cell reference like "A$1" or "$B2"
-    "",  # Represents an empty or unknown reference type
-]
-
-
-class AST(TypedDict):
-    """
-    Represents an Abstract Syntax Tree (AST) node.
-    Each node can represent a binary expression, a cell range,
-    a function call, or a single cell reference in spreadsheet formulas.
-
-    Attributes:
-        type (AstTypes): The type of the AST node indicating its structure and purpose.
-        operator (Optional[str]): The operator for binary expressions such as "+", "-", "*", "/".
-            Only used when type indicates a binary expression.
-        left (Optional["AST"]): The left operand for binary expressions, the range start for
-            cell ranges, or the first argument for functions. Used for binary expressions,
-            functions, and cell ranges.
-        right (Optional["AST"]): The right operand for binary expressions, the range end for
-            cell ranges, or additional arguments for functions. Used for binary expressions,
-            functions, and cell ranges.
-        arguments (Optional[list["AST"]]): A list of AST nodes representing the arguments
-            passed to function calls. Only used when type indicates a function.
-        name (Optional[str]): The name identifier of the function being called, such as
-            "SUM", "AVERAGE", "COUNT". Only used for function type nodes.
-        refType (Optional[str]): The type of cell reference indicating the range format,
-            such as "A1:B2" for ranges or "A1" for single cells. Only used for cell
-            reference type nodes.
-        key (Optional[str]): The specific cell reference key, such as "A1", "B2", or
-            "C3:D5". Only used for cell reference type nodes.
-        value (Optional[float | str | bool]): The numeric value for nodes representing numbers. Only used
-            for number type nodes.
-        operand (Optional[str]): The operator for unary expressions, such as "-" for negation.
-    """
-
-    type: AstTypes
-    operator: Optional[str]
-    left: Optional["AST"]
-    right: Optional["AST"]
-    arguments: Optional[list["AST"]]
-    name: Optional[str]
-    refType: Optional[RefTypes]
-    key: Optional[str]
-    value: Optional[float | str | bool]
-    operand: Optional[str]
-
-
-class InputData(TypedDict):
-    """
-    Represents the input data for the DDL generator.
-
-    Attributes:
-        ast (AST): The Abstract Syntax Tree representing the structure of the input.
-        columns (Dict[str, str]): A mapping of column names to their data types.
-        e.g., {"A": "col1", "B": "col2", ...}
-    """
-
-    ast: AST
-    columns: Dict[str, str]
+from proto_utils.parsers.dtypes import RefType
 
 
 class NumberMapsOutput(TypedDict):
@@ -137,7 +64,7 @@ class CellMapsOutput(TypedDict):
 
     type: Literal["cell"]
     cell: str
-    refType: RefTypes
+    refType: RefType
     column: str
     error: Optional[str]
     sql: str
@@ -243,14 +170,21 @@ AllOutputs = Union[
     FunctionMapsOutput,
     LogicalMapsOutput,
     TextMapsOutput,
-    UnaryExpressionMapsOutput
+    UnaryExpressionMapsOutput,
 ]
 """Union type representing all possible output types from AST processing functions."""
 
 SingleOutput = Union[
-    CellMapsOutput, NumberMapsOutput, LogicalMapsOutput, TextMapsOutput
+    CellMapsOutput,
+    NumberMapsOutput,
+    LogicalMapsOutput,
+    TextMapsOutput,
 ]
 """Union type for simple, single-value outputs (cells, numbers, logical values and text)."""
 
-ComplexOutput = Union[FunctionMapsOutput, BinaryExpressionMapsOutput, UnaryExpressionMapsOutput]
+ComplexOutput = Union[
+    FunctionMapsOutput,
+    BinaryExpressionMapsOutput,
+    UnaryExpressionMapsOutput,
+]
 """Union type for complex outputs that contain nested structures (functions, expressions)."""

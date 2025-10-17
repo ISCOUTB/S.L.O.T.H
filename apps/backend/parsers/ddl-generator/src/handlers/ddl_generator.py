@@ -1,11 +1,12 @@
-import logging
+# from clients import ddl_generator_pb2, utils
+from proto_utils.generated.parsers import ddl_generator_pb2
+from proto_utils.parsers.ddl_generator_serde import DDLGeneratorSerde
+from proto_utils.parsers.dtypes import DDLRequest
+from proto_utils.parsers.dtypes_serde import DTypesSerde
 
-from services import dtypes, ddl_generator
-from clients import ddl_generator_pb2, utils
-from core.config import settings
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from src.core.config import settings
+from src.services import ddl_generator
+from src.utils.logger import logger
 
 
 def generate_ddl_handler(
@@ -20,13 +21,13 @@ def generate_ddl_handler(
     Returns:
         ddl_generator_pb2.DDLResponse: The response containing the generated DDL.
     """
-    input_data = dtypes.InputData(
-        ast=utils.parse_ast(request.ast),
+    input_data = DDLRequest(
+        ast=DTypesSerde.deserialize_ast(request.ast),
         columns=dict(request.columns),
     )
 
     output = ddl_generator.generate_ddl(input_data)
     if settings.DDL_GENERATOR_DEBUG:
-        logger.info(f"Generated DDL: {output}")
+        logger.debug(f"Generated DDL: {output}")
 
-    return utils.parse_output_to_proto(output)
+    return DDLGeneratorSerde.serialize_ddl_response(output)

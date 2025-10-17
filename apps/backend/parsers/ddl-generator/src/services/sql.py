@@ -7,7 +7,8 @@ and utilities to generate SQL code from parsed formula ASTs.
 """
 
 from typing import List
-from services.dtypes import AllOutputs
+
+from src.services.dtypes import AllOutputs
 
 FUNCTION_SQL_MAP = {
     "SUM": lambda args: " + ".join(args[0]["columns"]),
@@ -36,7 +37,7 @@ def get_sql_from_function(func_name: str, args: List[AllOutputs]) -> str:
         >>> args = [{"columns": ["col1", "col2"]}]
         >>> get_sql_from_function("SUM", args)
         'col1 + col2'
-        
+
         >>> get_sql_from_function("UNKNOWN", [])
         'UNSUPPORTED_FUNCTION(UNKNOWN)'
     """

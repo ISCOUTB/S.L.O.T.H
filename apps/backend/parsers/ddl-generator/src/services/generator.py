@@ -9,24 +9,23 @@ The module defines a dispatcher pattern using the MAPS dictionary to route diffe
 AST node types to their appropriate processing functions.
 """
 
-from services.sql import get_sql_from_function
-from services.utils import get_column_range, get_column_from_cell
+from typing import Callable, Dict
 
-from typing import Dict, Callable
-from services.dtypes import (
-    AST,
-    AstTypes,
+from proto_utils.parsers.dtypes import AST, AstType
+
+from src.services.dtypes import (
+    AllOutputs,
+    BinaryExpressionMapsOutput,
     CellMapsOutput,
     CellRangeMapsOutput,
-    NumberMapsOutput,
-    BinaryExpressionMapsOutput,
     FunctionMapsOutput,
+    NumberMapsOutput,
     TextMapsOutput,
-    AllOutputs
 )
+from src.services.sql import get_sql_from_function
+from src.services.utils import get_column_from_cell, get_column_range
 
-
-MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
+MAPS: Dict[AstType, Callable[[AST, Dict[str, str]], AllOutputs]] = {
     "binary-expression": lambda ast, columns: binary_maps(ast, columns),
     "cell-range": lambda ast, columns: cell_range_maps(ast, columns),
     "function": lambda ast, columns: function_maps(ast, columns),
@@ -38,7 +37,9 @@ MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
 }
 
 
-def binary_maps(ast: AST, columns: Dict[str, str]) -> BinaryExpressionMapsOutput:
+def binary_maps(
+    ast: AST, columns: Dict[str, str]
+) -> BinaryExpressionMapsOutput:
     """
     Process binary expression AST nodes into SQL equivalents.
 
@@ -118,7 +119,12 @@ def function_maps(ast: AST, columns: Dict[str, str]) -> FunctionMapsOutput:
     args = [MAPS[arg["type"]](arg, columns) for arg in args_raw]
     sql = get_sql_from_function(funtion_name, args)
 
-    return {"type": "function", "arguments": args, "name": funtion_name, "sql": sql}
+    return {
+        "type": "function",
+        "arguments": args,
+        "name": funtion_name,
+        "sql": sql,
+    }
 
 
 def cell_range_maps(ast: AST, columns: Dict[str, str]) -> CellRangeMapsOutput:

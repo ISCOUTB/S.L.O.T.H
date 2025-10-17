@@ -3,11 +3,14 @@ import signal
 
 import grpc
 from grpc._typing import Any  # type: ignore
+from proto_utils.generated.parsers import (
+    ddl_generator_pb2,
+    ddl_generator_pb2_grpc,
+)
 
-from clients import ddl_generator_pb2, ddl_generator_pb2_grpc
-from core.config import settings
-from handlers.ddl_generator import generate_ddl_handler
-from utils import logger
+from src.core.config import settings
+from src.handlers.ddl_generator import generate_ddl_handler
+from src.utils import logger
 
 
 class DDLGeneratorServicer(ddl_generator_pb2_grpc.DDLGeneratorServicer):
