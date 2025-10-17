@@ -21,13 +21,33 @@ def generate_ddl_handler(
     Returns:
         ddl_generator_pb2.DDLResponse: The response containing the generated DDL.
     """
-    input_data = DDLRequest(
-        ast=DTypesSerde.deserialize_ast(request.ast),
-        columns=dict(request.columns),
-    )
+    try:
+        # Log input data info
+        column_count = len(request.columns)
+        ast_present = request.HasField("ast")
+        logger.info(
+            f"[HANDLER] Processing request - AST: {ast_present}, Columns: {column_count}"
+        )
 
-    output = ddl_generator.generate_ddl(input_data)
-    if settings.DDL_GENERATOR_DEBUG:
-        logger.debug(f"Generated DDL: {output}")
+        # Deserialize input data
+        input_data = DDLRequest(
+            ast=DTypesSerde.deserialize_ast(request.ast),
+            columns=dict(request.columns),
+        )
 
-    return DDLGeneratorSerde.serialize_ddl_response(output)
+        # Generate DDL
+        output = ddl_generator.generate_ddl(input_data)
+
+        # Log output info
+        if settings.DDL_GENERATOR_DEBUG:
+            logger.debug(f"[HANDLER] Generated DDL output: {output}")
+
+        # Serialize response
+        response = DDLGeneratorSerde.serialize_ddl_response(output)
+        logger.info("[HANDLER] Request processed successfully")
+
+        return response
+
+    except Exception as e:
+        logger.error(f"[HANDLER] DDL generation failed: {e}")
+        raise
