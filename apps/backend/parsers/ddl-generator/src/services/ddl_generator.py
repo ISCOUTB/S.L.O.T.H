@@ -6,13 +6,12 @@ into SQL expressions. It processes input data containing ASTs and column mapping
 to generate corresponding SQL output.
 """
 
-from proto_utils.parsers.dtypes import DDLRequest
+from proto_utils.parsers.dtypes import AllASTs, DDLRequest
 
-from src.services.dtypes import AllOutputs
 from src.services.generator import MAPS
 
 
-def generate_ddl(data: DDLRequest) -> AllOutputs:
+def generate_ddl(data: DDLRequest) -> AllASTs:
     """
     Process input data and generate SQL output from Excel formula AST.
 

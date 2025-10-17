@@ -8,7 +8,7 @@ and utilities to generate SQL code from parsed formula ASTs.
 
 from typing import List
 
-from src.services.dtypes import AllOutputs
+from proto_utils.parsers.dtypes import AllASTs
 
 FUNCTION_SQL_MAP = {
     "SUM": lambda args: " + ".join(args[0]["columns"]),
@@ -18,7 +18,7 @@ FUNCTION_SQL_MAP = {
 }
 
 
-def get_sql_from_function(func_name: str, args: List[AllOutputs]) -> str:
+def get_sql_from_function(func_name: str, args: List[AllASTs]) -> str:
     """
     Convert an Excel function to its SQL equivalent.
 
@@ -27,7 +27,7 @@ def get_sql_from_function(func_name: str, args: List[AllOutputs]) -> str:
 
     Args:
         func_name (str): The name of the Excel function (e.g., "SUM", "IF", "AND").
-        args (List[AllOutputs]): List of processed arguments for the function.
+        args (List[AllASTs]): List of processed arguments for the function.
 
     Returns:
         str: The SQL equivalent of the Excel function, or an error message
