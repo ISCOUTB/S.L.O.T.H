@@ -1,36 +1,31 @@
-import grpc
-from clients.dtypes import utils
-from services.get_data import get_data_from_spreadsheet
-from services.utils import monitor_performance 
+from typing import Dict, Generator
 
-from clients.dtypes import dtypes_pb2
-from clients.ddl_generator import ddl_generator_pb2, ddl_generator_pb2_grpc
-from clients.formula_parser import formula_parser_pb2, formula_parser_pb2_grpc
+from proto_utils.generated.parsers import (
+    ddl_generator_pb2,
+    ddl_generator_pb2_grpc,
+    dtypes_pb2,
+    formula_parser_pb2,
+    formula_parser_pb2_grpc,
+    sql_builder_pb2,
+    sql_builder_pb2_grpc,
+)
+from proto_utils.parsers import (
+    DTypesSerde,
+    SQLBuilderSerde,
+)
 
-from clients.sql_builder import utils as sql_builder_utils
-from clients.sql_builder import sql_builder_pb2, sql_builder_pb2_grpc
-
-from services import dtypes
-from typing import Generator, Dict
-from core.config import settings
-from utils import logger
-
-
-FORMULA_PARSER_CHANNEL = grpc.insecure_channel(settings.FORMULA_PARSER_CHANNEL)
-FORMULA_PARSER_STUB = formula_parser_pb2_grpc.FormulaParserStub(FORMULA_PARSER_CHANNEL)
-
-DDL_GENERATOR_CHANNEL = grpc.insecure_channel(settings.DDL_GENERATOR_CHANNEL)
-DDL_GENERATOR_STUB = ddl_generator_pb2_grpc.DDLGeneratorStub(DDL_GENERATOR_CHANNEL)
-
-SQL_BUILDER_CHANNEL = grpc.insecure_channel(settings.SQL_BUILDER_CHANNEL)
-SQL_BUILDER_STUB = sql_builder_pb2_grpc.SQLBuilderStub(SQL_BUILDER_CHANNEL)
+from src.services import dtypes
+from src.services.get_data import get_data_from_spreadsheet
+from src.services.utils import monitor_performance
 
 
 def parse_formula(
     stub: formula_parser_pb2_grpc.FormulaParserStub, formula: str
-) -> Dict:
+) -> dtypes_pb2.AST:
     request = formula_parser_pb2.FormulaParserRequest(formula=formula)
-    response: formula_parser_pb2.FormulaParserResponse = stub.ParseFormula(request)
+    response: formula_parser_pb2.FormulaParserResponse = stub.ParseFormula(
+        request
+    )
     return response.ast
 
 
@@ -63,7 +58,9 @@ def generate_sql(
         table_name=table_name,
     )
     response: sql_builder_pb2.BuildSQLResponse = stub.BuildSQL(request)
-    sql_expressions = sql_builder_utils.parse_sql_builder_response(response)["content"]
+    sql_expressions = SQLBuilderSerde.deserialize_build_sql_response(response)[
+        "content"
+    ]
     sql_expression = ""
     for level in sorted(sql_expressions.keys()):
         for content in sql_expressions[level]:
@@ -89,10 +86,18 @@ def generate_data(
 
 @monitor_performance("parse_formulas")
 def parse_formulas(
-    filename: str, file_bytes: bytes, limit: int = 50, fill_spaces: str = "_"
-) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
+    *,
+    formula_parser_stub: formula_parser_pb2_grpc.FormulaParserStub,
+    filename: str,
+    file_bytes: bytes,
+    limit: int = 50,
+    fill_spaces: str = "_",
+) -> dtypes.ParseFormulasResult:
     content = get_data_from_spreadsheet(
-        filename, file_bytes, limit=limit, fill_spaces=fill_spaces
+        filename,
+        file_bytes,
+        limit=limit,
+        fill_spaces=fill_spaces,
     )
     data = content["data"]
     result = {}
@@ -108,19 +113,29 @@ def parse_formulas(
         if col not in result[sheet]:
             result[sheet][col] = []
 
-        cell["ast"] = parse_formula(FORMULA_PARSER_STUB, str(cell["value"]))
+        cell["ast"] = parse_formula(formula_parser_stub, str(cell["value"]))
         result[sheet][col].append(cell)
 
-    return {"result": result, "columns": content["columns"]}
+    return dtypes.ParseFormulasResult(result=result, columns=content["columns"])
 
 
 @monitor_performance("main")
 def main(
-    filename: str, file_bytes: bytes, limit: int = 50, fill_spaces: str = " "
-) -> Dict[str, dtypes.DataInfo | dtypes.ColumnsInfo]:
-    content = parse_formulas(filename, file_bytes, limit, fill_spaces=fill_spaces)
-    result = content["result"]
-    columns = content["columns"]
+    *,
+    formula_parser_stub: formula_parser_pb2_grpc.FormulaParserStub,
+    ddl_generator_stub: ddl_generator_pb2_grpc.DDLGeneratorStub,
+    filename: str,
+    file_bytes: bytes,
+    limit: int = 50,
+    fill_spaces: str = " ",
+) -> dtypes.ParseFormulasResult:
+    content = parse_formulas(
+        filename=filename,
+        file_bytes=file_bytes,
+        limit=limit,
+        fill_spaces=fill_spaces,
+        formula_parser_stub=formula_parser_stub,
+    )
 
     result = content["result"]
     columns = content["columns"]
@@ -128,12 +143,13 @@ def main(
         for col, cells in cols.items():
             for i, cell in enumerate(cells):
                 result[sheet][col][i]["sql"] = generate_ddl(
-                    DDL_GENERATOR_STUB, cell["ast"], columns[sheet], raw=True
+                    ddl_generator_stub,
+                    cell["ast"],
+                    columns[sheet],
+                    raw=True,
                 )
-                result[sheet][col][i]["ast"] = utils.parse_ast(cell["ast"])
+                result[sheet][col][i]["ast"] = DTypesSerde.deserialize_ast(
+                    cell["ast"]
+                )
 
-    return {"result": result, "columns": columns}
-
-
-if __name__ == "__main__":
-    pass
+    return dtypes.ParseFormulasResult(result=result, columns=columns)
