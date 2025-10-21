@@ -5,3 +5,5 @@ coverage.xml
 htmlcov
 __pycache__
 **/*.pyc
+logs/
+.ruff_cache

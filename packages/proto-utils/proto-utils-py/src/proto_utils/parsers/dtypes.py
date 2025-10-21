@@ -5,7 +5,7 @@ Abstract Syntax Tree (AST) representation, DDL generation, and SQL building oper
 These types correspond to the Protocol Buffer message definitions for the parsers package.
 """
 
-from typing import TypedDict, Dict, Literal, Optional, List
+from typing import Any, TypedDict, Dict, Literal, Optional, List, Union
 
 
 AstType = Literal[
@@ -74,6 +74,199 @@ class AST(TypedDict):
     key: Optional[str]
     value: Optional[float | str | bool]
     operand: Optional["AST"]
+
+
+# ===================== Related to AST =====================
+
+class NumberAST(TypedDict):
+    """
+    Represents a number AST node.
+
+    Attributes:
+        type (Literal["number"]): The type of the AST node, always "number".
+        value (float): The numeric value represented by the AST node.
+        sql (str): The string representation of the number, e.g., "42".
+    """
+
+    type: Literal["number"]
+    value: float
+    sql: str
+
+
+class LogicalAST(TypedDict):
+    """
+    Represents a logical AST node.
+
+    Attributes:
+        type (Literal["logical"]): The type of the AST node, always "logical".
+        value (bool): The boolean value represented by the AST node.
+        sql (str): The string representation of the logical value, e.g., "true" or "false".
+    """
+
+    type: Literal["logical"]
+    value: bool
+    sql: str
+
+
+class CellAST(TypedDict):
+    """
+    Represents a cell reference AST node.
+
+    Attributes:
+        type (Literal["cell"]): The type of the AST node, always "cell".
+        cell (str): The cell reference (e.g., "A1").
+        refType (RefType): The type of cell reference ("relative", "absolute" and "mixed").
+        column (str): The column name corresponding to the cell reference (e.g., "A").
+        error (Optional[str]): An error message if there was an issue with the cell reference,
+            otherwise None.
+        sql (str): The SQL representation of the cell reference, typically the column name.
+    """
+
+    type: Literal["cell"]
+    cell: str
+    refType: RefType
+    column: str
+    error: Optional[str]
+    sql: str
+
+
+class CellRangeAST(TypedDict):
+    """
+    Represents a cell range AST node.
+
+    Attributes:
+        type (Literal["cell-range"]): The type of the AST node, always "cell-range".
+        start (str): The starting cell reference of the range (e.g., "A1").
+        end (str): The ending cell reference of the range (e.g., "B2").
+        cells (list[str]): A list of cell references in the range (e.g., ["A1", "A2", ...]).
+        columns (list[str]): A list of column names corresponding to the cells in the range.
+        error (Optional[str]): An error message if there was an issue with the range,
+            otherwise None.
+    """
+
+    type: Literal["cell-range"]
+    start: str
+    end: str
+    cells: list[str]
+    columns: list[str]
+    error: Optional[str]
+
+
+class BinaryExpressionAST(TypedDict):
+    """
+    Represents a binary expression AST node.
+
+    Attributes:
+        type (Literal["binary-expression"]): The type of the AST node, always "binary-expression".
+        operator (str): The operator used in the binary expression (e.g., "+", "-", "*", "/").
+        left (Any): The left operand of the binary expression.
+        right (Any): The right operand of the binary expression.
+        sql (str): The SQL representation of the binary expression, combining the left and right
+            operands with the operator.
+    """
+
+    type: Literal["binary-expression"]
+    operator: str
+    left: Any
+    right: Any
+    sql: str
+
+
+class FunctionAST(TypedDict):
+    """
+    Represents a function call AST node.
+
+    Attributes:
+        type (Literal["function"]): The type of the AST node, always "function".
+        name (str): The name of the function being called (e.g., "SUM", "IF").
+        arguments (list[Any]): A list of AST nodes representing the arguments passed to the function.
+        sql (str): The SQL representation of the function call, including its name and arguments.
+    """
+
+    type: Literal["function"]
+    name: str
+    arguments: list[Any]
+    sql: str
+
+
+class TextAST(TypedDict):
+    """
+    Represents a text literal AST node.
+
+    Attributes:
+        type (Literal["text"]): The type of the AST node, always "text".
+        value (str): The text value represented by the AST node.
+        sql (str): The SQL representation of the text value, typically enclosed in quotes.
+    """
+
+    type: Literal["text"]
+    value: str
+    sql: str
+
+
+class ColReferences(TypedDict):
+    """
+    Represents a collection of column references.
+
+    Attributes:
+        columns (list[str]): A list of column names that are referenced.
+        error (Optional[str]): An error message if there was an issue with the references,
+            otherwise None.
+        constants (bool): Indicates if the references are constants
+    """
+
+    columns: list[str]
+    error: Optional[str]
+    constants: bool
+
+
+class UnaryExpressionAST(TypedDict):
+    """
+    Represents a unary expression AST node.
+
+    Attributes:
+        type (Literal["unary-expression"]): The type of the AST node, always "unary-expression".
+        operator (str): The operator used in the unary expression (e.g., "-").
+        operand (Any): The operand of the unary expression.
+        sql (str): The SQL representation of the unary expression, typically applying the operator
+            to the operand.
+    """
+
+    type: Literal["unary-expression"]
+    operator: str
+    operand: Any
+    sql: str
+
+
+AllASTs = Union[
+    CellAST,
+    CellRangeAST,
+    NumberAST,
+    BinaryExpressionAST,
+    FunctionAST,
+    LogicalAST,
+    TextAST,
+    UnaryExpressionAST
+]
+"""Union type representing all possible AST node types."""
+
+SingleASTs = Union[
+    CellAST,
+    NumberAST,
+    LogicalAST,
+    TextAST,
+]
+"""Union type for simple, single-value AST nodes (cells, numbers, logical values and text)."""
+
+ConstantsASTs = Union[TextAST, NumberAST, LogicalAST]
+"""Union type representing AST nodes that are constant values."""
+
+ComplexASTs = Union[
+    FunctionAST,
+    BinaryExpressionAST,
+    UnaryExpressionAST,
+]
+"""Union type for complex AST nodes that contain nested structures (functions, expressions)."""
 
 
 # ===================== Formula Parser =====================

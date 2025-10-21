@@ -1,11 +1,12 @@
-import services.dtypes as dtypes
-from services.utils import (
-    open_file_from_bytes,
-    extract_formulas,
-    convert_csv_to_excel,
-    monitor_performance,
-)
 import logging
+
+import src.services.dtypes as dtypes
+from src.services.utils import (
+    convert_csv_to_excel,
+    extract_formulas,
+    monitor_performance,
+    open_file_from_bytes,
+)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -60,23 +61,10 @@ def get_data_from_spreadsheet(
         "data": {
             sheet: dict(
                 map(
-                    lambda x: (x[0], x[1][1:]), zip(columns[sheet], sheet_data.values())
+                    lambda x: (x[0], x[1][1:]),
+                    zip(columns[sheet], sheet_data.values()),
                 )
             )
             for sheet, sheet_data in cells.items()
         },
     }
-
-
-if __name__ == "__main__":
-    import json
-    import os.path
-
-    file_example = "../../../typechecking/backend/static/acme__users__sample1.xlsx"
-    with open(file_example, "rb") as file:
-        file_bytes = file.read()
-
-    content = get_data_from_spreadsheet(
-        os.path.basename(file_example), file_bytes, limit=-1
-    )
-    print(json.dumps(content, indent=4))

@@ -5,13 +5,15 @@ description = "A Python gRPC service that constructs complete SQL statements fro
 readme = "README.md"
 requires-python = "==3.12.10"
 dependencies = [
+    "proto-utils",
     "asyncio>=3.4.3",
-    "grpcio>=1.73.1",
-    "grpcio-tools>=1.73.1",
     "igraph>=0.11.9",
     "pydantic-settings>=2.10.1",
     "sqlglot>=26.31.0",
 ]
+
+[tool.uv.sources]
+proto-utils = { path = "../../../../packages/proto-utils/proto-utils-py", editable = true }
 
 [dependency-groups]
 dev = [
@@ -30,5 +32,4 @@ pythonpath = [
 [tool.ruff]
 line-length = 80
 target-version = "py312"
-extend-select = ["I"]
-
+lint.extend-select = ["I"]

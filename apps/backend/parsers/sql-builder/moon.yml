@@ -38,6 +38,20 @@ tasks:
         command: uv
         args:
             - run
-            - src/server.py
+            - python
+            - -m
+            - src.server
         toolchain: python
         local: true
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -t
+            - sql-builder:1.0
+            - -f
+            - ./apps/backend/parsers/sql-builder/Dockerfile
+            - .
+        options:
+            runFromWorkspaceRoot: true

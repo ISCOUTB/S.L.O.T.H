@@ -1,14 +1,14 @@
-import csv
-import openpyxl
-from io import BytesIO
-
-import services.dtypes as dtypes
-from typing import Any, List, Dict, Callable, TypeVar
-
 import asyncio
+import csv
 import time
-import logging
 from functools import wraps
+from io import BytesIO
+from typing import Any, Callable, Dict, List, TypeVar
+
+import openpyxl
+
+from src.services import dtypes
+from src.utils.logger import logger
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -32,8 +32,7 @@ def monitor_performance(operation_name: str):
                     end_time = time.perf_counter()
                     duration = end_time - start_time
 
-                    # Log detallado
-                    logging.info(
+                    logger.info(
                         f"{operation_name} - Duration: {duration:.4f}s - Status: {status}"
                     )
 
@@ -55,8 +54,7 @@ def monitor_performance(operation_name: str):
                     end_time = time.perf_counter()
                     duration = end_time - start_time
 
-                    # Log detallado
-                    logging.info(
+                    logger.info(
                         f"{operation_name} - Duration: {duration:.4f}s - Status: {status}"
                     )
 
@@ -99,7 +97,9 @@ def extract_formulas(
 
     for sheet in workbook.worksheets:
         sheets[sheet.title] = {}
-        max_rows = sheet.max_column if limit <= 0 else min(limit, sheet.max_column)
+        max_rows = (
+            sheet.max_column if limit <= 0 else min(limit, sheet.max_column)
+        )
         for column in sheet.columns:
             if column[0].value is None:
                 continue
@@ -107,13 +107,12 @@ def extract_formulas(
             column_letter = column[0].column_letter
             result: List[dtypes.CellData] = []
             for cell, _ in zip(column, range(max_rows)):
-                # print(cell.coordinate, cell.column, cell.row, cell.col_idx, cell.column_letter)
                 cell_data: dtypes.CellData = {
                     "cell": cell.coordinate,
                     "value": cell.value,
                     "data_type": cell.data_type,
-                    "is_formula": cell.data_type
-                    == "f",  # isinstance(cell.value, str) and cell.value.startswith("=")
+                    # isinstance(cell.value, str) and cell.value.startswith("=")
+                    "is_formula": cell.data_type == "f",
                 }
                 result.append(cell_data)
             sheets[sheet.title][column_letter] = result

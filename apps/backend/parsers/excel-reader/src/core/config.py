@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     @property
     def DDL_GENERATOR_CHANNEL(self) -> str:
         return f"{self.DDL_GENERATOR_HOST}:{self.DDL_GENERATOR_PORT}"
-    
+
     SQL_BUILDER_HOST: str = "localhost"
     SQL_BUILDER_PORT: str = "50054"
 
@@ -35,14 +35,10 @@ class Settings(BaseSettings):
     @property
     def SQL_BUILDER_CHANNEL(self) -> str:
         return f"{self.SQL_BUILDER_HOST}:{self.SQL_BUILDER_PORT}"
-    
+
     EXCEL_READER_HOST: str = "localhost"
     EXCEL_READER_PORT: int = 8001
     EXCEL_READER_DEBUG: bool = False
 
 
 settings = Settings()
-
-
-if __name__ == "__main__":
-    print(settings.model_dump_json(indent=4))
