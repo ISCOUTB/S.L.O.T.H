@@ -29,4 +29,4 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 80
 target-version = "py312"
-extend-select = ["I"]
+lint.extend-select = ["I"]

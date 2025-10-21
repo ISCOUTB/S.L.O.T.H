@@ -126,7 +126,7 @@ dev = [
 requires-dist = [
     { name = "asyncio", specifier = ">=4.0.0" },
     { name = "proto-utils", editable = "../../../../packages/proto-utils/proto-utils-py" },
-    { name = "pydantic-settings", specifier = ">=2.10.1" },
+    { name = "pydantic-settings", specifier = ">=2.11.0" },
 ]
 
 [package.metadata.requires-dev]
