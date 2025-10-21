@@ -54,9 +54,7 @@ def setup_logger() -> logging.Logger:
     if settings.DDL_GENERATOR_DEBUG:
         logger.setLevel(logging.DEBUG)
     else:
-        logger.setLevel(
-            logging.INFO
-        )  # Show INFO logs in production, not just ERROR
+        logger.setLevel(logging.INFO)
 
     # Clear any existing handlers to prevent duplication
     logger.handlers.clear()

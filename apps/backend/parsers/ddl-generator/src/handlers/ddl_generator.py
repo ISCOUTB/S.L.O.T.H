@@ -1,4 +1,3 @@
-# from clients import ddl_generator_pb2, utils
 from proto_utils.generated.parsers import ddl_generator_pb2
 from proto_utils.parsers.ddl_generator_serde import DDLGeneratorSerde
 from proto_utils.parsers.dtypes import DDLRequest
