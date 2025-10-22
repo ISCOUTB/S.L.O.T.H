@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etl-ddl-generator-svc
+  namespace: development
+  labels:
+    app: etl-ddl-generator
+    component: etl-ddl-generator
+    environment: development
+spec:
+  type: ClusterIP
+  selector:
+    app: etl-ddl-generator
+    component: etl-ddl-generator
+    environment: development
+  ports:
+    - name: grpc
+      port: 50053
+      targetPort: 50053
+      protocol: TCP

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etl-sql-builder-svc
+  namespace: development
+  labels:
+    app: etl-sql-builder
+    component: etl-sql-builder
+    environment: development
+spec:
+  type: ClusterIP
+  selector:
+    app: etl-sql-builder
+    component: etl-sql-builder
+    environment: development
+  ports:
+    - name: grpc
+      port: 50054
+      targetPort: 50054
+      protocol: TCP

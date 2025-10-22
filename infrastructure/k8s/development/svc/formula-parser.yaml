@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etl-formula-parser-svc
+  namespace: development
+  labels:
+    app: etl-formula-parser
+    component: etl-formula-parser
+    environment: development
+spec:
+  type: ClusterIP
+  selector:
+    app: etl-formula-parser
+    component: etl-formula-parser
+    environment: development
+  ports:
+    - name: grpc
+      port: 50052
+      targetPort: 50052
+      protocol: TCP

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-excel-reader
+  namespace: development
+  labels:
+    app: etl-excel-reader
+    component: etl-excel-reader
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-excel-reader
+      component: etl-excel-reader
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-excel-reader
+        component: etl-excel-reader
+        environment: development
+    spec:
+      containers:
+        - name: etl-excel-reader
+          image: dosquisd/excel-reader:1.0
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 8001
+              name: excel-reader
+
+          env:
+            # Excel Reader service related
+            - name: EXCEL_READER_HOST
+              value: "0.0.0.0"
+            - name: EXCEL_READER_PORT
+              value: "8001"
+            - name: EXCEL_READER_DEBUG
+              value: "false"
+
+            # Formula Parser service related
+            - name: FORMULA_PARSER_HOST
+              value: etl-formula-parser-svc
+            - name: FORMULA_PARSER_PORT
+              value: "50052"
+
+            # DDL Generator service related
+            - name: DDL_GENERATOR_HOST
+              value: etl-ddl-generator-svc
+            - name: DDL_GENERATOR_PORT
+              value: "50053"
+
+            # SQL Builder service related
+            - name: SQL_BUILDER_HOST
+              value: etl-sql-builder-svc
+            - name: SQL_BUILDER_PORT
+              value: "50054"
+
+        # TODO: Add readiness and liveness probes
