@@ -9,24 +9,24 @@ The module defines a dispatcher pattern using the MAPS dictionary to route diffe
 AST node types to their appropriate processing functions.
 """
 
-from services.sql import get_sql_from_function
-from services.utils import get_column_range, get_column_from_cell
+from typing import Callable, Dict
 
-from typing import Dict, Callable
-from services.dtypes import (
+from proto_utils.parsers.dtypes import (
     AST,
-    AstTypes,
-    CellMapsOutput,
-    CellRangeMapsOutput,
-    NumberMapsOutput,
-    BinaryExpressionMapsOutput,
-    FunctionMapsOutput,
-    TextMapsOutput,
-    AllOutputs
+    AllASTs,
+    AstType,
+    BinaryExpressionAST,
+    CellAST,
+    CellRangeAST,
+    FunctionAST,
+    NumberAST,
+    TextAST,
 )
 
+from src.services.sql import get_sql_from_function
+from src.services.utils import get_column_from_cell, get_column_range
 
-MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
+MAPS: Dict[AstType, Callable[[AST, Dict[str, str]], AllASTs]] = {
     "binary-expression": lambda ast, columns: binary_maps(ast, columns),
     "cell-range": lambda ast, columns: cell_range_maps(ast, columns),
     "function": lambda ast, columns: function_maps(ast, columns),
@@ -38,7 +38,7 @@ MAPS: Dict[AstTypes, Callable[[AST, Dict[str, str]], AllOutputs]] = {
 }
 
 
-def binary_maps(ast: AST, columns: Dict[str, str]) -> BinaryExpressionMapsOutput:
+def binary_maps(ast: AST, columns: Dict[str, str]) -> BinaryExpressionAST:
     """
     Process binary expression AST nodes into SQL equivalents.
 
@@ -52,7 +52,7 @@ def binary_maps(ast: AST, columns: Dict[str, str]) -> BinaryExpressionMapsOutput
         columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
 
     Returns:
-        BinaryExpressionMapsOutput: Processed binary expression with SQL representation.
+        BinaryExpressionAST: Processed binary expression with SQL representation.
 
     Raises:
         ValueError: If the AST type is not 'binary-expression'.
@@ -83,7 +83,7 @@ def binary_maps(ast: AST, columns: Dict[str, str]) -> BinaryExpressionMapsOutput
     }
 
 
-def function_maps(ast: AST, columns: Dict[str, str]) -> FunctionMapsOutput:
+def function_maps(ast: AST, columns: Dict[str, str]) -> FunctionAST:
     """
     Process function call AST nodes into SQL equivalents.
 
@@ -95,7 +95,7 @@ def function_maps(ast: AST, columns: Dict[str, str]) -> FunctionMapsOutput:
         columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
 
     Returns:
-        FunctionMapsOutput: Processed function with SQL representation.
+        FunctionAST: Processed function with SQL representation.
 
     Raises:
         ValueError: If the AST type is not 'function'.
@@ -118,10 +118,15 @@ def function_maps(ast: AST, columns: Dict[str, str]) -> FunctionMapsOutput:
     args = [MAPS[arg["type"]](arg, columns) for arg in args_raw]
     sql = get_sql_from_function(funtion_name, args)
 
-    return {"type": "function", "arguments": args, "name": funtion_name, "sql": sql}
+    return {
+        "type": "function",
+        "arguments": args,
+        "name": funtion_name,
+        "sql": sql,
+    }
 
 
-def cell_range_maps(ast: AST, columns: Dict[str, str]) -> CellRangeMapsOutput:
+def cell_range_maps(ast: AST, columns: Dict[str, str]) -> CellRangeAST:
     """
     Process cell range AST nodes into SQL column lists.
 
@@ -133,7 +138,7 @@ def cell_range_maps(ast: AST, columns: Dict[str, str]) -> CellRangeMapsOutput:
         columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
 
     Returns:
-        CellRangeMapsOutput: Processed cell range with column lists and error handling.
+        CellRangeAST: Processed cell range with column lists and error handling.
 
     Raises:
         ValueError: If the AST type is not 'cell-range'.
@@ -173,7 +178,7 @@ def cell_range_maps(ast: AST, columns: Dict[str, str]) -> CellRangeMapsOutput:
     }
 
 
-def cell_maps(ast: AST, columns: Dict[str, str]) -> CellMapsOutput:
+def cell_maps(ast: AST, columns: Dict[str, str]) -> CellAST:
     """
     Process individual cell AST nodes into SQL column references.
 
@@ -185,7 +190,7 @@ def cell_maps(ast: AST, columns: Dict[str, str]) -> CellMapsOutput:
         columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
 
     Returns:
-        CellMapsOutput: Processed cell with SQL column name and error handling.
+        CellAST: Processed cell with SQL column name and error handling.
 
     Raises:
         ValueError: If the AST type is not 'cell'.
@@ -218,7 +223,7 @@ def cell_maps(ast: AST, columns: Dict[str, str]) -> CellMapsOutput:
     }
 
 
-def number_maps(ast: AST, _) -> NumberMapsOutput:
+def number_maps(ast: AST, _) -> NumberAST:
     """
     Process numeric literal AST nodes into SQL numeric values.
 
@@ -230,7 +235,7 @@ def number_maps(ast: AST, _) -> NumberMapsOutput:
         _ : Unused columns parameter (kept for consistency with other map functions).
 
     Returns:
-        NumberMapsOutput: Processed number with SQL representation.
+        NumberAST: Processed number with SQL representation.
 
     Raises:
         ValueError: If the AST type is not 'number'.
@@ -247,7 +252,7 @@ def number_maps(ast: AST, _) -> NumberMapsOutput:
     return {"type": "number", "value": float(ast["value"]), "sql": ast["value"]}
 
 
-def logical_maps(ast: AST, _) -> CellMapsOutput:
+def logical_maps(ast: AST, _) -> CellAST:
     """
     Process logical literal AST nodes into SQL boolean values.
 
@@ -259,7 +264,7 @@ def logical_maps(ast: AST, _) -> CellMapsOutput:
         _ : Unused columns parameter (kept for consistency with other map functions).
 
     Returns:
-        CellMapsOutput: Processed logical value with SQL representation.
+        CellAST: Processed logical value with SQL representation.
 
     Raises:
         ValueError: If the AST type is not 'logical'.
@@ -283,7 +288,7 @@ def logical_maps(ast: AST, _) -> CellMapsOutput:
     }
 
 
-def text_maps(ast: AST, _) -> TextMapsOutput:
+def text_maps(ast: AST, _) -> TextAST:
     """
     Process text literal AST nodes into SQL string values.
 
@@ -295,7 +300,7 @@ def text_maps(ast: AST, _) -> TextMapsOutput:
         _ : Unused columns parameter (kept for consistency with other map functions).
 
     Returns:
-        TextMapsOutput: Processed text with SQL representation.
+        TextAST: Processed text with SQL representation.
 
     Raises:
         ValueError: If the AST type is not 'text'.
@@ -316,7 +321,7 @@ def text_maps(ast: AST, _) -> TextMapsOutput:
     }
 
 
-def unary_maps(ast: AST, columns: Dict[str, str]) -> AllOutputs:
+def unary_maps(ast: AST, columns: Dict[str, str]) -> AllASTs:
     """
     Process unary expression AST nodes into SQL equivalents.
 
@@ -328,7 +333,7 @@ def unary_maps(ast: AST, columns: Dict[str, str]) -> AllOutputs:
         columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
 
     Returns:
-        AllOutputs: Processed unary expression with SQL representation.
+        AllASTs: Processed unary expression with SQL representation.
 
     Raises:
         ValueError: If the AST type is not 'unary-expression'.

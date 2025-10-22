@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-formula-parser
+  namespace: development
+  labels:
+    app: etl-formula-parser
+    component: etl-formula-parser
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-formula-parser
+      component: etl-formula-parser
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-formula-parser
+        component: etl-formula-parser
+        environment: development
+    spec:
+      containers:
+        - name: etl-formula-parser
+          image: dosquisd/formula-parser:1.0
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 50052
+              name: formula-parser
+
+          env:
+            - name: FORMULA_PARSER_HOST
+              value: "0.0.0.0"
+            - name: FORMULA_PARSER_PORT
+              value: "50052"
+            - name: FORMULA_PARSER_DEBUG
+              value: "false"
+
+        # TODO: Add readiness and liveness probes

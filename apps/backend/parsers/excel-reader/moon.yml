@@ -38,6 +38,21 @@ tasks:
         command: uv
         args:
             - run
-            - src/server_rest.py
+            - python
+            - -m
+            - src.server_rest
         toolchain: python
         local: true
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -t
+            - excel-reader:1.0
+            - -f
+            - ./apps/backend/parsers/excel-reader/Dockerfile
+            - .
+        options:
+            runFromWorkspaceRoot: true
+

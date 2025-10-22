@@ -70,51 +70,61 @@ class DDLGeneratorSerde:
             type=DTypesSerde.serialize_ast_type(response["type"]),
             sql=response["sql"],
             # Cell Reference Information
-            cell=response["cell"],  # Could be None
+            cell=response["cell"] if "cell" in response else None,
             refType=(
                 DTypesSerde.serialize_ref_type(response["refType"])
-                if response["refType"]
+                if "refType" in response and response["refType"]
                 else None
             ),
-            column=response["column"],  # Could be None
-            error_cell=response["error_cell"],  # Could be None
+            column=response["column"] if "column" in response else None,
+            error_cell=response["error_cell"] if "error_cell" in response else None,
             # Cell Range Information
-            start=response["start"],  # Could be None
-            end=response["end"],  # Could be None
-            cells=list(response["cells"]) if response["cells"] else None,
-            columns=list(response["columns"]) if response["columns"] else None,
-            error_cell_range=response["error_cell_range"],  # Could be None
+            start=response["start"] if "start" in response else None,
+            end=response["end"] if "end" in response else None,
+            cells=(
+                list(response["cells"])
+                if "cells" in response and response["cells"]
+                else None
+            ),
+            columns=(
+                list(response["columns"])
+                if "columns" in response and response["columns"]
+                else None
+            ),
+            error_cell_range=(
+                response["error_cell_range"] if "error_cell_range" in response else None
+            ),
             # Binary Expression Information
-            operator=response["operator"],  # Could be None
+            operator=response["operator"] if "operator" in response else None,
             left=(
                 DDLGeneratorSerde.serialize_ddl_response(response["left"])
-                if response["left"]
+                if "left" in response and response["left"]
                 else None
             ),
             right=(
                 DDLGeneratorSerde.serialize_ddl_response(response["right"])
-                if response["right"]
+                if "right" in response and response["right"]
                 else None
             ),
             # Function Information
-            name=response["name"],  # Could be None
+            name=response["name"] if "name" in response else None,
             arguments=(
                 list(
                     map(DDLGeneratorSerde.serialize_ddl_response, response["arguments"])
                 )
-                if response["arguments"]
+                if "arguments" in response and response["arguments"]
                 else None
             ),
             # Unary Expression Information
             operand=(
                 DDLGeneratorSerde.serialize_ddl_response(response["operand"])
-                if response["operand"]
+                if "operand" in response and response["operand"]
                 else None
             ),
         )
 
         # Handle literal values
-        if response["value"] is not None:
+        if "value" in response and response["value"] is not None:
             if isinstance(response["value"], float):
                 proto.number_value = response["value"]
             elif isinstance(response["value"], str):

@@ -6,13 +6,12 @@ into SQL expressions. It processes input data containing ASTs and column mapping
 to generate corresponding SQL output.
 """
 
-from services.generator import MAPS
+from proto_utils.parsers.dtypes import AllASTs, DDLRequest
 
-from typing import Dict
-from services.dtypes import InputData, AST, AllOutputs
+from src.services.generator import MAPS
 
 
-def generate_ddl(data: InputData) -> AllOutputs:
+def generate_ddl(data: DDLRequest) -> AllASTs:
     """
     Process input data and generate SQL output from Excel formula AST.
 
@@ -21,7 +20,7 @@ def generate_ddl(data: InputData) -> AllOutputs:
     to produce SQL equivalent expressions.
 
     Args:
-        data (InputData): Dictionary containing:
+        data (DDLRequest): Dictionary containing:
             - ast: The Abstract Syntax Tree representing the Excel formula
             - columns: Mapping of Excel column letters to SQL column names
 
@@ -38,7 +37,7 @@ def generate_ddl(data: InputData) -> AllOutputs:
         >>> result["sql"]
         'col1'
     """
-    ast: AST = data["ast"]
-    columns: Dict[str, str] = data["columns"]
+    ast = data["ast"]
+    columns = data["columns"]
 
     return MAPS[ast["type"]](ast, columns)

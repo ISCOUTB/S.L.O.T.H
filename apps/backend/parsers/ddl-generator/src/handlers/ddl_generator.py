@@ -1,11 +1,11 @@
-import logging
+from proto_utils.generated.parsers import ddl_generator_pb2
+from proto_utils.parsers.ddl_generator_serde import DDLGeneratorSerde
+from proto_utils.parsers.dtypes import DDLRequest
+from proto_utils.parsers.dtypes_serde import DTypesSerde
 
-from services import dtypes, ddl_generator
-from clients import ddl_generator_pb2, utils
-from core.config import settings
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from src.core.config import settings
+from src.services import ddl_generator
+from src.utils.logger import logger
 
 
 def generate_ddl_handler(
@@ -20,13 +20,33 @@ def generate_ddl_handler(
     Returns:
         ddl_generator_pb2.DDLResponse: The response containing the generated DDL.
     """
-    input_data = dtypes.InputData(
-        ast=utils.parse_ast(request.ast),
-        columns=dict(request.columns),
-    )
+    try:
+        # Log input data info
+        column_count = len(request.columns)
+        ast_present = request.HasField("ast")
+        logger.info(
+            f"[HANDLER] Processing request - AST: {ast_present}, Columns: {column_count}"
+        )
 
-    output = ddl_generator.generate_ddl(input_data)
-    if settings.DDL_GENERATOR_DEBUG:
-        logger.info(f"Generated DDL: {output}")
+        # Deserialize input data
+        input_data = DDLRequest(
+            ast=DTypesSerde.deserialize_ast(request.ast),
+            columns=dict(request.columns),
+        )
 
-    return utils.parse_output_to_proto(output)
+        # Generate DDL
+        output = ddl_generator.generate_ddl(input_data)
+
+        # Log output info
+        if settings.DDL_GENERATOR_DEBUG:
+            logger.debug(f"[HANDLER] Generated DDL output: {output}")
+
+        # Serialize response
+        response = DDLGeneratorSerde.serialize_ddl_response(output)
+        logger.info("[HANDLER] Request processed successfully")
+
+        return response
+
+    except Exception as e:
+        logger.error(f"[HANDLER] DDL generation failed: {e}")
+        raise

@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbit
+  namespace: development
+  labels:
+    app: rabbit
+    component: rabbit
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: rabbit
+      component: rabbit
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbit
+        component: rabbit
+        environment: development
+    spec:
+      containers:
+        - name: rabbit
+          image: rabbitmq:4-management
+
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  key: RABBITMQ_USER
+                  name: development-secret
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: RABBITMQ_PASSWORD
+                  name: development-secret
+            - name: RABBITMQ_DEFAULT_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  key: RABBITMQ_VHOST
+                  name: development-config
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 5672
+              name: amqp
+            - containerPort: 15672
+              name: management
+
+          volumeMounts:
+            - name: typechecking-rabbit-data
+              mountPath: /var/lib/rabbitmq
+
+          startupProbe:
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 30
+
+          readinessProbe:
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+
+          livenessProbe:
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+
+      volumes:
+        - name: typechecking-rabbit-data
+          persistentVolumeClaim:
+            claimName: typechecking-rabbit-data

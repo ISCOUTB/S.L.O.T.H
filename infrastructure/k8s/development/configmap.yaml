@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: development-config
+  namespace: development
+  labels:
+    app: etl-design
+    component: configmap
+    environment: development
+data:
+  # # Databases ports
+  # REDIS_PORT: "6379"
+  # POSTGRES_PORT: "5432"
+  # RABBITMQ_PORT: "5672"
+  # MONGO_PORT: "27017"
+
+  # # Own services
+  # API_SERVICE_PORT: "8000"
+  # EXCEL_READER_PORT: "8001"
+  # DATABASE_CONNECTION_PORT: "50050"
+  # FORMULA_PARSER_PORT: "50052"
+  # DDL_GENERATOR_PORT: "50053"
+  # SQL_BUILDER_PORT: "50054"
+
+  # RabbitMQ Configuration
+  RABBITMQ_VHOST: "/"
+  RABBITMQ_EXCHANGE: "typechecking.exchange"
+  RABBITMQ_EXCHANGE_TYPE: "topic"
+
+  RABBITMQ_QUEUE_SCHEMAS: "typechecking.schemas.queue"
+  RABBITMQ_QUEUE_VALIDATIONS: "typechecking.validations.queue"
+  RABBITMQ_QUEUE_RESULTS_SCHEMAS: "typechecking.schemas.results.queue"
+  RABBITMQ_QUEUE_RESULTS_VALIDATIONS: "typechecking.validation.results.queue"
+
+  RABBITMQ_ROUTING_KEY_SCHEMAS: "schemas.*"
+  RABBITMQ_ROUTING_KEY_VALIDATIONS: "validation.*"
+  RABBITMQ_ROUTING_KEY_RESULTS_SCHEMAS: "schemas.result.*"
+  RABBITMQ_ROUTING_KEY_RESULTS_VALIDATIONS: "validation.results.*"
+
+  RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS: "schemas.update"
+  RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS: "validation.request"
+  RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_SCHEMAS: "schemas.results.publish"
+  RABBITMQ_PUBLISHERS_ROUTING_KEY_RESULTS_VALIDATIONS: "validation.results.publish"
+
+  # MongoDB Configuration
+  MONGO_DB: "typechecking"
+  MONGO_SCHEMAS_COLLECTION: "schemas"
+  MONGO_TASKS_COLLECTION: "tasks"
+
+  # Postgres Configuration
+  POSTGRES_DB: "typechecking"
+
+  # Typechecking service configuration
+  MAX_WORKERS: "4"
+  WORKER_CONCURRENCY: "4" # Replicas per worker
+  WORKER_PREFETCH_COUNT: "1"
+
+  # API Service configuration
+  API_V1_STR: "/api/v1"

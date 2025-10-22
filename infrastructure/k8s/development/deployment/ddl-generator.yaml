@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-ddl-generator
+  namespace: development
+  labels:
+    app: etl-ddl-generator
+    component: etl-ddl-generator
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-ddl-generator
+      component: etl-ddl-generator
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-ddl-generator
+        component: etl-ddl-generator
+        environment: development
+    spec:
+      containers:
+        - name: etl-ddl-generator
+          image: dosquisd/ddl-generator:1.0
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 50053
+              name: ddl-generator
+
+          env:
+            - name: DDL_GENERATOR_HOST
+              value: "0.0.0.0"
+            - name: DDL_GENERATOR_PORT
+              value: "50053"
+            - name: DDL_GENERATOR_DEBUG
+              value: "false"
+
+        # TODO: Add readiness and liveness probes

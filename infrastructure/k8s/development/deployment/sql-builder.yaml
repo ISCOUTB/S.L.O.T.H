@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etl-sql-builder
+  namespace: development
+  labels:
+    app: etl-sql-builder
+    component: etl-sql-builder
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: etl-sql-builder
+      component: etl-sql-builder
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: etl-sql-builder
+        component: etl-sql-builder
+        environment: development
+    spec:
+      containers:
+        - name: etl-sql-builder
+          image: dosquisd/sql-builder:1.0
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              memory: "384Mi"
+              cpu: "250m"
+            limits:
+              memory: "768Mi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 50054
+              name: sql-builder
+
+          env:
+            - name: SQL_BUILDER_HOST
+              value: "0.0.0.0"
+            - name: SQL_BUILDER_PORT
+              value: "50054"
+            - name: SQL_BUILDER_DEBUG
+              value: "false"
+
+        # TODO: Add readiness and liveness probes

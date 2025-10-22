@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: debug-scripts
+  namespace: development
+data:
+  setup.sh: |
+    #!/bin/bash
+    set -e
+
+    # Actualizar e instalar herramientas comunes
+    apt update && apt install -y gnupg curl wget telnet netcat-openbsd dnsutils
+
+    # Instalar clientes de bases de datos (postgres and redis)
+    apt install -y postgresql-client redis-tools
+
+    # Instalar cliente de MongoDB
+    # https://www.mongodb.com/docs/mongodb-shell/install/?operating-system=linux&linux-distribution=ubuntu&ubuntu-version=noble#procedure-4
+    wget -qO- https://www.mongodb.org/static/pgp/server-8.0.asc | tee /etc/apt/trusted.gpg.d/server-8.0.asc
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-8.0.list
+    apt update
+    apt install -y mongodb-mongosh
+
+    echo "Debug environment setup complete."
+
+    sleep infinity  # Mantener el pod en ejecución
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: debug-pvc
+  namespace: development
+spec:
+  resources:
+    requests:
+      storage: "2Gi"
+  accessModes:
+    - ReadWriteOnce
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-pod
+  namespace: development
+spec:
+  containers:
+    - name: debug
+      image: ubuntu:latest
+      command: ["bash", "/scripts/setup.sh"]
+
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "500m"
+        limits:
+          memory: "1Gi"
+          cpu: "1"
+
+      volumeMounts:
+        - name: debug-pvc
+          mountPath: /debug
+        - name: scripts-volume
+          mountPath: /scripts
+
+  volumes:
+    - name: debug-pvc
+      persistentVolumeClaim:
+        claimName: debug-pvc
+    - name: scripts-volume
+      configMap:
+        name: debug-scripts
+        defaultMode: 0755

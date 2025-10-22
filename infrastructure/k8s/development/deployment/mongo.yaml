@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: development
+  labels:
+    app: mongo
+    component: mongo
+    environment: development
+spec:
+  selector:
+    matchLabels:
+      app: mongo
+      component: mongo
+      environment: development
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongo
+        component: mongo
+        environment: development
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:7.0
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: development-secret
+                  key: MONGO_INITDB_ROOT_PASSWORD
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          ports:
+            - containerPort: 27017
+              name: mongo
+
+          volumeMounts:
+            - name: typechecking-mongo-pvc
+              mountPath: /data/db
+
+          readinessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - db.adminCommand('ping')
+                - -u
+                - $(MONGO_INITDB_ROOT_USERNAME)
+                - -p
+                - $(MONGO_INITDB_ROOT_PASSWORD)
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          livenessProbe:
+            exec:
+              command:
+                - mongosh
+                - --eval
+                - db.adminCommand('ping')
+                - -u
+                - $(MONGO_INITDB_ROOT_USERNAME)
+                - -p
+                - $(MONGO_INITDB_ROOT_PASSWORD)
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+      volumes:
+        - name: typechecking-mongo-pvc
+          persistentVolumeClaim:
+            claimName: typechecking-mongo-pvc

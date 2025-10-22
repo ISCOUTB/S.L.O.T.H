@@ -147,6 +147,22 @@ class DTypesSerde:
         return proto
 
     @staticmethod
+    def _has_field_safe(proto, field_name: str) -> bool:
+        """Safely check if a protobuf message has a field, returning False if field doesn't exist.
+
+        Args:
+            proto: The Protocol Buffer message to check.
+            field_name: The name of the field to check.
+
+        Returns:
+            True if the field exists and has a value, False otherwise.
+        """
+        try:
+            return proto.HasField(field_name)
+        except ValueError:
+            return False
+
+    @staticmethod
     def deserialize_ast(proto: dtypes_pb2.AST) -> dtypes.AST:
         """Deserialize a Protocol Buffer AST to dictionary format.
 
@@ -161,38 +177,38 @@ class DTypesSerde:
             operator=proto.operator if proto.HasField("operator") else None,
             left=(
                 DTypesSerde.deserialize_ast(proto.left)
-                if proto.HasField("left")
+                if DTypesSerde._has_field_safe(proto, "left")
                 else None
             ),
             right=(
                 DTypesSerde.deserialize_ast(proto.right)
-                if proto.HasField("right")
+                if DTypesSerde._has_field_safe(proto, "right")
                 else None
             ),
             arguments=(
                 list(map(DTypesSerde.deserialize_ast, proto.arguments))
-                if proto.HasField("arguments")
+                if DTypesSerde._has_field_safe(proto, "arguments")
                 else None
             ),
-            name=proto.name if proto.HasField("name") else None,
+            name=proto.name if DTypesSerde._has_field_safe(proto, "name") else None,
             refType=(
                 DTypesSerde.deserialize_ref_type(proto.refType)
-                if proto.HasField("refType")
+                if DTypesSerde._has_field_safe(proto, "refType")
                 else None
             ),
-            key=proto.key if proto.HasField("key") else None,
+            key=proto.key if DTypesSerde._has_field_safe(proto, "key") else None,
             operand=(
                 DTypesSerde.deserialize_ast(proto.operand)
-                if proto.HasField("operand")
+                if DTypesSerde._has_field_safe(proto, "operand")
                 else None
             ),
         )
 
-        if proto.HasField("number_value"):
+        if DTypesSerde._has_field_safe(proto, "number_value"):
             response["value"] = proto.number_value
-        elif proto.HasField("text_value"):
+        elif DTypesSerde._has_field_safe(proto, "text_value"):
             response["value"] = proto.text_value
-        elif proto.HasField("logical_value"):
+        elif DTypesSerde._has_field_safe(proto, "logical_value"):
             response["value"] = proto.logical_value
         else:
             response["value"] = None

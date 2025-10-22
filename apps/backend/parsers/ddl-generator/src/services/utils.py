@@ -5,8 +5,8 @@ This module provides helper functions for working with Excel column references,
 converting between column letters and indices, and generating column ranges.
 """
 
-from typing import List
 from functools import lru_cache
+from typing import List
 
 
 def get_row_from_cell(cell: str) -> int:
@@ -100,10 +100,10 @@ def index_to_excel_col(index: int) -> str:
     Convert a 1-based index to Excel column letters (optimized with caching).
     """
     if index <= 26:
-        return chr(ord('A') + index - 1)
-    
+        return chr(ord("A") + index - 1)
+
     quotient, remainder = divmod(index - 1, 26)
-    return index_to_excel_col(quotient) + chr(ord('A') + remainder)
+    return index_to_excel_col(quotient) + chr(ord("A") + remainder)
 
 
 def get_column_range(start: str, end: str) -> List[str]:
