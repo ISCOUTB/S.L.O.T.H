@@ -1,7 +1,7 @@
 import process from "node:process";
 import { Effect } from "effect";
 import { z } from "zod";
-import { EnvParseError } from "@/core/errors.ts";
+import { EnvParseError } from "@/core/errors";
 
 export type Settings = z.infer<typeof EnvSchema>;
 
