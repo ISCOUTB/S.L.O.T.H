@@ -47,6 +47,7 @@ spec:
       containers:
         - name: etl-database
           image: dosquisd/etl-database:1.0
+          imagePullPolicy: Always
 
           resources:
             requests:
