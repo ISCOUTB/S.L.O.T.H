@@ -9,8 +9,8 @@ import {
 } from "@etl-design/packages-proto-utils-js";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
 import { Effect } from "effect";
-import { BindPortError, settings } from "@/core/index.ts";
-import { handler } from "@/handlers/handler.ts";
+import { BindPortError, settings } from "@/core/";
+import { handler } from "@/handlers/handler";
 import { logger } from "@/utils/index.ts";
 
 export function parseFormula(
