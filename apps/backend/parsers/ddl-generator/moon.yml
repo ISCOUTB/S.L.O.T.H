@@ -41,6 +41,7 @@ tasks:
             - python
             - -m
             - src.server
+        toolchain: python
         options:
             runFromWorkspaceRoot: false
 

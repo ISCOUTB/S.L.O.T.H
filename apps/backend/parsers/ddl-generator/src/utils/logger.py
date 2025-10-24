@@ -1,11 +1,12 @@
 import logging
 import logging.handlers
-from pathlib import Path
 
 from src.core.config import settings
 
+from .rootdir import ROOTDIR
+
 # Ensure logs directory exists for file handlers
-log_dir = Path("logs")
+log_dir = ROOTDIR / "logs"
 log_dir.mkdir(exist_ok=True)
 
 
