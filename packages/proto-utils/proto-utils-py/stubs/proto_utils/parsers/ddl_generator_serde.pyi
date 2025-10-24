@@ -1,0 +1,13 @@
+from proto_utils.generated.parsers import ddl_generator_pb2 as ddl_generator_pb2
+from proto_utils.parsers import dtypes as dtypes
+from proto_utils.parsers.dtypes_serde import DTypesSerde as DTypesSerde
+
+class DDLGeneratorSerde:
+    @staticmethod
+    def serialize_ddl_request(request: dtypes.DDLRequest) -> ddl_generator_pb2.DDLRequest: ...
+    @staticmethod
+    def deserialize_ddl_request(proto: ddl_generator_pb2.DDLRequest) -> dtypes.DDLRequest: ...
+    @staticmethod
+    def serialize_ddl_response(response: dtypes.DDLResponse) -> ddl_generator_pb2.DDLResponse: ...
+    @staticmethod
+    def deserialize_ddl_response(proto: ddl_generator_pb2.DDLResponse) -> dtypes.DDLResponse: ...

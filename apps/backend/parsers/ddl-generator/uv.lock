@@ -273,6 +273,9 @@ requires-dist = [
     { name = "grpcio-tools", specifier = ">=1.74.0" },
 ]
 
+[package.metadata.requires-dev]
+dev = [{ name = "mypy", specifier = ">=1.18.2" }]
+
 [[package]]
 name = "protobuf"
 version = "6.33.0"

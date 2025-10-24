@@ -39,6 +39,10 @@
         {
             "name": "[ Tool ] TS-Config",
             "path": "../tools/tsconfig"
+        },
+        {
+            "name": "[ Config ] Proto",
+            "path": "../packages/proto"
         }
     ],
     "settings": {

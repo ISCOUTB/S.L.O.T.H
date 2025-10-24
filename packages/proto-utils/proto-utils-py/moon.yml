@@ -23,3 +23,21 @@ tasks:
             - ^:generate
         options:
             runFromWorkspaceRoot: false
+
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
+    generate-stubs:
+        command: uv
+        args:
+            - run
+            - stubgen
+            - -p
+            - proto-utils
+            - -o
+            - stubs
+        toolchain: python

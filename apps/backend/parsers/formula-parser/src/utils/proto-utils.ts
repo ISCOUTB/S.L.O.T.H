@@ -20,15 +20,16 @@ export function getAstTypeEnum(type: Ast.Node["type"]) {
 }
 
 export function getRefTypeEnum(refType: Required<CellNode>["refType"]) {
-    const dtypesEnum = dtypes.RefType;
-
-    const refMap = {
-        relative: dtypesEnum.REF_RELATIVE,
-        absolute: dtypesEnum.REF_ABSOLUTE,
-        mixed: dtypesEnum.REF_MIXED,
+    const refMap: Record<
+        Required<CellNode>["refType"],
+        (typeof dtypes.RefType)[keyof typeof dtypes.RefType]
+    > = {
+        relative: dtypes.RefType.REF_RELATIVE,
+        absolute: dtypes.RefType.REF_ABSOLUTE,
+        mixed: dtypes.RefType.REF_MIXED,
     };
 
-    return Effect.succeed(refMap[refType as keyof typeof refMap] ?? dtypesEnum.REF_UNKNOWN);
+    return Effect.succeed(refMap[refType] ?? dtypes.RefType.REF_UNKNOWN);
 }
 
 export function getRefType(cellRef: string): NonNullable<Ast.ReferenceNode["refType"]> {

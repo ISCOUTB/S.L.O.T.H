@@ -1,0 +1,13 @@
+from proto_utils.generated.parsers import formula_parser_pb2 as formula_parser_pb2
+from proto_utils.parsers import dtypes as dtypes
+from proto_utils.parsers.dtypes_serde import DTypesSerde as DTypesSerde
+
+class FormulaParserSerde:
+    @staticmethod
+    def serialize_formula_parser_request(request: dtypes.FormulaParserRequest) -> formula_parser_pb2.FormulaParserRequest: ...
+    @staticmethod
+    def deserialize_formula_parser_request(proto: formula_parser_pb2.FormulaParserRequest) -> dtypes.FormulaParserRequest: ...
+    @staticmethod
+    def serialize_formula_parser_response(response: dtypes.FormulaParserResponse) -> formula_parser_pb2.FormulaParserResponse: ...
+    @staticmethod
+    def deserialize_formula_parser_response(proto: formula_parser_pb2.FormulaParserResponse) -> dtypes.FormulaParserResponse: ...

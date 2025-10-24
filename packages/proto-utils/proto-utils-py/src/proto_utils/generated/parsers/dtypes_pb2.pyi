@@ -18,6 +18,7 @@ class AstType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     AST_LOGICAL: _ClassVar[AstType]
     AST_TEXT: _ClassVar[AstType]
     AST_UNARY_EXPRESSION: _ClassVar[AstType]
+    AST_REFERENCE: _ClassVar[AstType]
 
 class RefType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -34,13 +35,14 @@ AST_NUMBER: AstType
 AST_LOGICAL: AstType
 AST_TEXT: AstType
 AST_UNARY_EXPRESSION: AstType
+AST_REFERENCE: AstType
 REF_UNKNOWN: RefType
 REF_RELATIVE: RefType
 REF_ABSOLUTE: RefType
 REF_MIXED: RefType
 
 class AST(_message.Message):
-    __slots__ = ("type", "operator", "left", "right", "arguments", "name", "refType", "key", "operand", "number_value", "text_value", "logical_value")
+    __slots__ = ("type", "operator", "left", "right", "arguments", "name", "refType", "key", "operand", "number_value", "text_value", "logical_value", "sheet_name")
     TYPE_FIELD_NUMBER: _ClassVar[int]
     OPERATOR_FIELD_NUMBER: _ClassVar[int]
     LEFT_FIELD_NUMBER: _ClassVar[int]
@@ -53,6 +55,7 @@ class AST(_message.Message):
     NUMBER_VALUE_FIELD_NUMBER: _ClassVar[int]
     TEXT_VALUE_FIELD_NUMBER: _ClassVar[int]
     LOGICAL_VALUE_FIELD_NUMBER: _ClassVar[int]
+    SHEET_NAME_FIELD_NUMBER: _ClassVar[int]
     type: AstType
     operator: str
     left: AST
@@ -65,7 +68,8 @@ class AST(_message.Message):
     number_value: float
     text_value: str
     logical_value: bool
-    def __init__(self, type: _Optional[_Union[AstType, str]] = ..., operator: _Optional[str] = ..., left: _Optional[_Union[AST, _Mapping]] = ..., right: _Optional[_Union[AST, _Mapping]] = ..., arguments: _Optional[_Iterable[_Union[AST, _Mapping]]] = ..., name: _Optional[str] = ..., refType: _Optional[_Union[RefType, str]] = ..., key: _Optional[str] = ..., operand: _Optional[_Union[AST, _Mapping]] = ..., number_value: _Optional[float] = ..., text_value: _Optional[str] = ..., logical_value: bool = ...) -> None: ...
+    sheet_name: str
+    def __init__(self, type: _Optional[_Union[AstType, str]] = ..., operator: _Optional[str] = ..., left: _Optional[_Union[AST, _Mapping]] = ..., right: _Optional[_Union[AST, _Mapping]] = ..., arguments: _Optional[_Iterable[_Union[AST, _Mapping]]] = ..., name: _Optional[str] = ..., refType: _Optional[_Union[RefType, str]] = ..., key: _Optional[str] = ..., operand: _Optional[_Union[AST, _Mapping]] = ..., number_value: _Optional[float] = ..., text_value: _Optional[str] = ..., logical_value: bool = ..., sheet_name: _Optional[str] = ...) -> None: ...
 
 class Tokens(_message.Message):
     __slots__ = ("tokens",)

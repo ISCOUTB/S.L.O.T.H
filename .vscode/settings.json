@@ -143,8 +143,12 @@
         "postcss"
     ],
     "python.analysis.extraPaths": [
-        "packages/proto-utils/proto-utils-py/src",
-        "packages/messaging-utils/messaging-utils-py/src"
+        "${workspaceFolder}/apps/backend/parsers/ddl-generator/src",
+        "${workspaceFolder}/apps/backend/parsers/sql-builder/src",
+        "${workspaceFolder}/apps/backend/parsers/excel-reader/src",
+        "${workspaceFolder}/packages/proto-utils/proto-utils-py/src",
+        "${workspaceFolder}/packages/messaging-utils/messaging-utils-py/src"
     ],
+    "python.analysis.autoSearchPaths": true,
     "ruff.organizeImports": true
 }
