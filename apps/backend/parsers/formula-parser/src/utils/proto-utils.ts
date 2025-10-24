@@ -1,22 +1,22 @@
-import type { CellNode, Node } from "excel-formula-ast";
+import type { CellNode } from "excel-formula-ast";
 import { dtypes } from "@etl-design/packages-proto-utils-js";
 import { Effect } from "effect";
 
-export function getAstTypeEnum(type: Node["type"]) {
-    const dtypesEnum = dtypes.AstType;
+export function getAstTypeEnum(type: Ast.Node["type"]) {
+    const typeMap: Record<Ast.Node["type"], (typeof dtypes.AstType)[keyof typeof dtypes.AstType]> =
+        {
+            function: dtypes.AstType.AST_FUNCTION,
+            cell: dtypes.AstType.AST_CELL,
+            number: dtypes.AstType.AST_NUMBER,
+            logical: dtypes.AstType.AST_LOGICAL,
+            text: dtypes.AstType.AST_TEXT,
+            "binary-expression": dtypes.AstType.AST_BINARY_EXPRESSION,
+            "cell-range": dtypes.AstType.AST_CELL_RANGE,
+            "unary-expression": dtypes.AstType.AST_UNARY_EXPRESSION,
+            "reference-node": dtypes.AstType.AST_REFERENCE,
+        };
 
-    const typeMap = {
-        function: dtypesEnum.AST_FUNCTION,
-        cell: dtypesEnum.AST_CELL,
-        number: dtypesEnum.AST_NUMBER,
-        logical: dtypesEnum.AST_LOGICAL,
-        text: dtypesEnum.AST_TEXT,
-        "binary-expression": dtypesEnum.AST_BINARY_EXPRESSION,
-        "cell-range": dtypesEnum.AST_CELL_RANGE,
-        "unary-expression": dtypesEnum.AST_UNARY_EXPRESSION,
-    };
-
-    return Effect.succeed(typeMap[type] ?? dtypesEnum.AST_UNKNOWN);
+    return Effect.succeed(typeMap[type] ?? dtypes.AstType.AST_UNKNOWN);
 }
 
 export function getRefTypeEnum(refType: Required<CellNode>["refType"]) {

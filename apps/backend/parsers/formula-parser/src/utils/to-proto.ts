@@ -1,4 +1,3 @@
-import type { Node } from "excel-formula-ast";
 import type { Token } from "excel-formula-tokenizer";
 import { dtypes } from "@etl-design/packages-proto-utils-js";
 import { Effect } from "effect";
@@ -22,7 +21,7 @@ export function convertTokensToProto(tokens: Token[]) {
 
 export function convertAstToProto(ast: Ast.Node) {
     const astProto = new dtypes.AST();
-    astProto.type = Effect.runSync(getAstTypeEnum(ast.type)); // TODO;
+    astProto.type = Effect.runSync(getAstTypeEnum(ast.type));
 
     const astType = ast.type;
 
@@ -114,6 +113,22 @@ export function convertAstToProto(ast: Ast.Node) {
         case "logical": {
             if (ast.value !== undefined) {
                 astProto.logical_value = ast.value;
+            }
+
+            break;
+        }
+
+        case "reference-node": {
+            if (ast.refType) {
+                astProto.refType = Effect.runSync(getRefTypeEnum(ast.refType));
+            }
+
+            if (ast.key) {
+                astProto.key = ast.key;
+            }
+
+            if (ast.sheetName) {
+                astProto.sheet_name = ast.sheetName;
             }
 
             break;

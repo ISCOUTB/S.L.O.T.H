@@ -18,6 +18,7 @@ enum AstType {
     AST_LOGICAL = 6;            // Boolean values (TRUE/FALSE)
     AST_TEXT = 7;               // Literal text strings
     AST_UNARY_EXPRESSION = 8;  // Unary expressions like -1 (negation)
+    AST_REFERENCE = 9;
 }
 
 // Reference types for Excel cells
@@ -47,6 +48,7 @@ message AST {
         string text_value = 11;       // Text value for string literals
         bool logical_value = 12;      // Logical value (TRUE/FALSE) for boolean literals
     }
+    optional string sheet_name = 13;   // Sheet name for cell references
 }
 
 // Represents tokens generated during Excel formula parsing
