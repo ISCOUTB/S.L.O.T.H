@@ -3,88 +3,13 @@ import { Effect } from "effect";
 import { buildTree } from "excel-formula-ast";
 import { tokenize } from "excel-formula-tokenizer";
 import { BuildTreeError, TokenizeError } from "@/core/";
+import { extendAst } from "@/utils/";
 
 interface ParseFormulaReturnType {
     formula: string;
     tokens: Token[] | null;
     ast: Ast.Node | null;
     error: string;
-}
-
-function getRefType(cellRef: string): NonNullable<Ast.ReferenceNode["refType"]> {
-    const colAbsolute = cellRef.startsWith("$");
-    const rowAbsolute = /\$\d+$/.test(cellRef);
-
-    if (colAbsolute && rowAbsolute) {
-        return "absolute";
-    }
-
-    if (colAbsolute || rowAbsolute) {
-        return "mixed";
-    }
-
-    return "relative";
-}
-
-function extendAst(node: Ast.Node): Ast.Node {
-    switch (node.type) {
-        case "cell": {
-            const match = /^([^!]+)!(.+)/.exec(node.key);
-
-            if (match) {
-                const [, sheetName, cellRef] = match;
-
-                if (!sheetName || !cellRef) {
-                    return node;
-                }
-
-                return {
-                    type: "reference-node",
-                    sheetName,
-                    key: cellRef,
-                    refType: getRefType(cellRef),
-                };
-            }
-
-            break;
-        }
-
-        case "binary-expression": {
-            return {
-                ...node,
-                left: extendAst(node.left),
-                right: extendAst(node.right),
-            };
-        }
-
-        case "unary-expression": {
-            return {
-                ...node,
-                operand: extendAst(node.operand),
-            };
-        }
-
-        case "function": {
-            return {
-                ...node,
-                arguments: node.arguments.map((_node) => extendAst(_node)),
-            };
-        }
-
-        case "cell-range": {
-            return {
-                ...node,
-                left: extendAst(node.left),
-                right: extendAst(node.right),
-            };
-        }
-
-        default: {
-            return node;
-        }
-    }
-
-    return node;
 }
 
 export function parseFormula(formula: string) {

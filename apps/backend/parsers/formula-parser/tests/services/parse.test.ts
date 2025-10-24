@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { isEqual } from "lodash";
 import { describe, expect, it } from "vitest";
 import { parseFormula } from "@/services/parse";
+import { isEqual } from "@@/tests/utils/isEqual";
 
 describe("parseFormula", () => {
     it("should parse a simple formula", () => {
