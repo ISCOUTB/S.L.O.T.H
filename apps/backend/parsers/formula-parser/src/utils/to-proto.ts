@@ -20,9 +20,9 @@ export function convertTokensToProto(tokens: Token[]) {
     return Effect.succeed(protoTokens);
 }
 
-export function convertAstToProto(ast: Node) {
+export function convertAstToProto(ast: Ast.Node) {
     const astProto = new dtypes.AST();
-    astProto.type = Effect.runSync(getAstTypeEnum(ast.type));
+    astProto.type = Effect.runSync(getAstTypeEnum(ast.type)); // TODO;
 
     const astType = ast.type;
 

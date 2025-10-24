@@ -1,9 +1,12 @@
 import { antfu } from "@antfu/eslint-config";
+import pluginDepend from "eslint-plugin-depend";
+// @ts-expect-error "theres no official .d.ts for this module"
+import pluginYouDontNeedLodash from "eslint-plugin-you-dont-need-lodash-underscore";
 import merge from "lodash.merge";
 
-export function withConfig(
-    config?: Parameters<typeof antfu>[0],
-): ReturnType<typeof antfu> {
+type Config = Parameters<typeof antfu>[0];
+
+export function withConfig(config?: Config): ReturnType<typeof antfu> {
     return antfu(
         merge(
             {},
@@ -20,7 +23,11 @@ export function withConfig(
                     "style/brace-style": ["warn", "1tbs"],
                     "style/quote-props": ["error", "as-needed"],
                 },
-            },
+                plugins: {
+                    "you-dont-need-lodash-underscore": pluginYouDontNeedLodash,
+                    depend: pluginDepend,
+                },
+            } satisfies Config,
             config,
         ),
     );

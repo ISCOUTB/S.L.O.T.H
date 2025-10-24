@@ -12,7 +12,7 @@ tasks:
         command: pnpm
         args:
             - --filter
-            - "@etl-design/packages-eslint"
+            - "@etl-design/tools-eslint"
         options:
             runFromWorkspaceRoot: true
             cache: false

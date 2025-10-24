@@ -23,9 +23,7 @@ def parse_formula(
     stub: formula_parser_pb2_grpc.FormulaParserStub, formula: str
 ) -> dtypes_pb2.AST:
     request = formula_parser_pb2.FormulaParserRequest(formula=formula)
-    response: formula_parser_pb2.FormulaParserResponse = stub.ParseFormula(
-        request
-    )
+    response: formula_parser_pb2.FormulaParserResponse = stub.ParseFormula(request)
     return response.ast
 
 
@@ -35,18 +33,28 @@ def generate_ddl(
     columns: Dict[str, str],
     raw: bool = False,
 ) -> ddl_generator_pb2.DDLResponse | str:
+    """
+    DDL-Generator Service
+    """
     request = ddl_generator_pb2.DDLRequest(ast=ast, columns=columns)
     response: ddl_generator_pb2.DDLResponse = stub.GenerateDDL(request)
-    return response if raw else response.sql
+
+    if raw:
+        return response
+
+    return response.sql
 
 
 @monitor_performance("generate_sql")
 def generate_sql(
     stub: sql_builder_pb2_grpc.SQLBuilderStub,
     cols: Dict[str, ddl_generator_pb2.DDLResponse],
-    dtypes: Dict[str, Dict[str, str]],
+    dtypes: Dict[str, Dict[str, str]], 
     table_name: str,
 ) -> str:
+    """
+    SQL-Builder Service
+    """
     request = sql_builder_pb2.BuildSQLRequest(
         cols=cols,
         dtypes={
@@ -148,8 +156,6 @@ def main(
                     columns[sheet],
                     raw=True,
                 )
-                result[sheet][col][i]["ast"] = DTypesSerde.deserialize_ast(
-                    cell["ast"]
-                )
+                result[sheet][col][i]["ast"] = DTypesSerde.deserialize_ast(cell["ast"])
 
     return dtypes.ParseFormulasResult(result=result, columns=columns)
