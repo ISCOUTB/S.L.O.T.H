@@ -20,6 +20,7 @@ Logging Enhancements:
 
 import asyncio
 import signal
+import sys
 from typing import cast
 
 import grpc
@@ -124,9 +125,10 @@ async def serve() -> None:
         logger.info("[SERVER] Shutdown signal received")
         stop_event.set()
 
-    loop = asyncio.get_running_loop()
-    loop.add_signal_handler(signal.SIGINT, _signal_handler)
-    loop.add_signal_handler(signal.SIGTERM, _signal_handler)
+    if sys.platform != "win32":
+        loop = asyncio.get_running_loop()
+        loop.add_signal_handler(signal.SIGINT, _signal_handler)
+        loop.add_signal_handler(signal.SIGTERM, _signal_handler)
 
     try:
         await stop_event.wait()

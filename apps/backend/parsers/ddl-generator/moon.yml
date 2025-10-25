@@ -42,6 +42,8 @@ tasks:
             - -m
             - src.server
         toolchain: python
+        env:
+            PYTHONPATH: src
         options:
             runFromWorkspaceRoot: false
 

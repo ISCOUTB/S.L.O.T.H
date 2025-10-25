@@ -26,8 +26,8 @@ from proto_utils.parsers.dtypes import (
     TextAST,
 )
 
-from src.services.sql import get_sql_from_function
-from src.services.utils import get_column_from_cell, get_column_range
+from services.sql import get_sql_from_function
+from services.utils import get_column_from_cell, get_column_range
 
 MAPS: Dict[AstType, Callable[[AST, Dict[str, str]], AllASTs]] = {
     "binary-expression": lambda ast, columns: binary_maps(ast, columns),

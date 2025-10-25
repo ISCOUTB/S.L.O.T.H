@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 SQL generation utilities for Excel formula translation.
 
@@ -10,6 +12,7 @@ from typing import List
 
 from proto_utils.parsers.dtypes import AllASTs
 
+# TODO!: Add more functions support here...
 FUNCTION_SQL_MAP = {
     "SUM": lambda args: " + ".join(args[0]["columns"]),
     "IF": lambda args: f"CASE WHEN {args[0]['sql']} THEN {args[1]['sql']} ELSE {args[2]['sql']} END",
