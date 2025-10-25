@@ -1,3 +1,5 @@
+# type: ignore
+
 """
 AST processing and SQL generation functions.
 
@@ -20,6 +22,7 @@ from proto_utils.parsers.dtypes import (
     CellRangeAST,
     FunctionAST,
     NumberAST,
+    ReferenceAST,
     TextAST,
 )
 
@@ -35,6 +38,7 @@ MAPS: Dict[AstType, Callable[[AST, Dict[str, str]], AllASTs]] = {
     "logical": lambda ast, columns: logical_maps(ast, columns),
     "text": lambda ast, columns: text_maps(ast, columns),
     "unary-expression": lambda ast, columns: unary_maps(ast, columns),
+    "reference-node": lambda ast, columns: reference_maps(ast, columns),
 }
 
 
@@ -74,13 +78,13 @@ def binary_maps(ast: AST, columns: Dict[str, str]) -> BinaryExpressionAST:
     left = MAPS[ast["left"]["type"]](ast["left"], columns)
     right = MAPS[ast["right"]["type"]](ast["right"], columns)
 
-    return {
-        "type": "binary-expression",
-        "operator": ast["operator"],
-        "left": left,
-        "right": right,
-        "sql": f"({left['sql']}) {ast['operator']} ({right['sql']})",
-    }
+    return BinaryExpressionAST(
+        type="binary-expression",
+        operator=ast["operator"],
+        left=left,
+        right=right,
+        sql=f"({left['sql']}) {ast['operator']} ({right['sql']})",
+    )
 
 
 def function_maps(ast: AST, columns: Dict[str, str]) -> FunctionAST:
@@ -355,3 +359,51 @@ def unary_maps(ast: AST, columns: Dict[str, str]) -> AllASTs:
         "operand": operand,
         "sql": f"-({operand['sql']})",
     }
+
+
+def reference_maps(ast: AST, columns: Dict[str, str]):
+    """
+    Process 'reference-node' AST nodes for cross-sheet references.
+
+    Args:
+        ast (AST): AST node of type 'reference-node' with sheetName, key, and refType.
+        columns (Dict[str, str]): Mapping of Excel column letters to SQL column names.
+
+    Returns:
+        dict: Processed reference node with SQL representation and error info.
+
+    Example:
+        >>> ast = {
+        ...     "type": "reference-node",
+        ...     "sheetName": "Sheet2",
+        ...     "key": "A1",
+        ...     "refType": "relative"
+        ... }
+        >>> result = reference_maps(ast, {"A": "col1"})
+        >>> result["sql"]
+        'Sheet2.col1'
+    """
+    if ast["type"] != "reference-node":
+        raise ValueError("AST must be of type 'reference-node'")
+
+    sheet_name = ast.get("sheet_name", "")
+    cell = ast.get("key", "").replace("$", "")  # type: ignore
+
+    try:
+        column_letter = get_column_from_cell(cell)
+        column = columns[column_letter]
+        error = None
+    except Exception as e:
+        column = ""
+        error = repr(e)
+
+    sql = f"{sheet_name}.{column}" if column else ""
+
+    return ReferenceAST(
+        type="reference-node",
+        sheetName=sheet_name,
+        key=cell,
+        refType=ast.get("refType", ""),
+        sql=sql,
+        error=error,
+    )

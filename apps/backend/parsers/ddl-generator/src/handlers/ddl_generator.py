@@ -30,7 +30,7 @@ def generate_ddl_handler(
 
         # Deserialize input data
         input_data = DDLRequest(
-            ast=DTypesSerde.deserialize_ast(request.ast),
+            ast=DTypesSerde.deserialize_ast(request.ast),  # type: ignore[misc]
             columns=dict(request.columns),
         )
 

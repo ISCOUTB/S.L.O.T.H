@@ -18,6 +18,7 @@ AstType = Literal[
     "logical",
     "text",
     "unary-expression",
+    "reference-node",
 ]
 """Type alias for supported AST node types in Excel formula parsing.
 
@@ -74,9 +75,11 @@ class AST(TypedDict):
     key: Optional[str]
     value: Optional[float | str | bool]
     operand: Optional["AST"]
+    sheet_name: Optional[str]
 
 
 # ===================== Related to AST =====================
+
 
 class NumberAST(TypedDict):
     """
@@ -204,6 +207,15 @@ class TextAST(TypedDict):
     sql: str
 
 
+class ReferenceAST(TypedDict):
+    type: Literal["reference-node"]
+    sheetName: str
+    key: str
+    refType: Optional[RefType]
+    error: Optional[str]
+    sql: str
+
+
 class ColReferences(TypedDict):
     """
     Represents a collection of column references.
@@ -246,7 +258,8 @@ AllASTs = Union[
     FunctionAST,
     LogicalAST,
     TextAST,
-    UnaryExpressionAST
+    UnaryExpressionAST,
+    ReferenceAST,
 ]
 """Union type representing all possible AST node types."""
 

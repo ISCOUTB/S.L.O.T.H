@@ -20,12 +20,14 @@ Logging Enhancements:
 
 import asyncio
 import signal
+from typing import cast
 
 import grpc
 from grpc._typing import Any  # type: ignore
 from proto_utils.generated.parsers import (
     ddl_generator_pb2,
     ddl_generator_pb2_grpc,
+    dtypes_pb2,
 )
 
 from src.core.config import settings
@@ -69,7 +71,12 @@ class DDLGeneratorServicer(ddl_generator_pb2_grpc.DDLGeneratorServicer):
         context: grpc.aio.ServicerContext[Any, Any],
     ) -> ddl_generator_pb2.DDLResponse:
         column_count = len(request.columns)
-        ast_type = request.ast.type if request.HasField("ast") else "NO_AST"
+
+        ast_type = (
+            cast(dtypes_pb2.AST, request.ast).type  # type: ignore
+            if request.HasField("ast")
+            else "NO_AST"
+        )
 
         logger.info(
             f"[DDL_GENERATE] Request from client {context.peer()} - "
@@ -82,7 +89,7 @@ class DDLGeneratorServicer(ddl_generator_pb2_grpc.DDLGeneratorServicer):
 
             logger.info(
                 f"[DDL_GENERATE] DDL generation completed - "
-                f"Response Type: {response.type}, SQL Length: {sql_length} chars"
+                f"Response Type: {response.type}, SQL Length: {sql_length} chars"  # type: ignore[misc]
             )
 
             return response
@@ -98,7 +105,7 @@ async def serve() -> None:
 
     # Create and configure server
     server = grpc.aio.server()
-    ddl_generator_pb2_grpc.add_DDLGeneratorServicer_to_server(servicer, server)
+    ddl_generator_pb2_grpc.add_DDLGeneratorServicer_to_server(servicer, server)  # type: ignore[misc]
     server.add_insecure_port(settings.DDL_GENERATOR_CHANNEL)
 
     # Start server

@@ -9,7 +9,7 @@ package dtypes;
 // Types of nodes in the Abstract Syntax Tree (AST)
 // for representing Excel expressions
 enum AstType {
-    AST_UNKNOWN = 0;           // Unknown or unrecognized node
+    AST_UNKNOWN = 0;            // Unknown or unrecognized node
     AST_BINARY_EXPRESSION = 1;  // Binary expressions like +, -, *, /
     AST_CELL_RANGE = 2;         // Cell ranges like A1:B5
     AST_FUNCTION = 3;           // Functions like SUM(), AVERAGE()
@@ -17,8 +17,8 @@ enum AstType {
     AST_NUMBER = 5;             // Literal numeric values
     AST_LOGICAL = 6;            // Boolean values (TRUE/FALSE)
     AST_TEXT = 7;               // Literal text strings
-    AST_UNARY_EXPRESSION = 8;  // Unary expressions like -1 (negation)
-    AST_REFERENCE = 9;
+    AST_UNARY_EXPRESSION = 8;   // Unary expressions like -1 (negation)
+    AST_REFERENCE = 9;          // Cross-sheet references like Sheet1!A1
 }
 
 // Reference types for Excel cells
