@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- toYaml .Values.deployment.labels | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.app }}
+      component: {{ .Values.deployment.labels.component }}
+      environment: {{ .Values.deployment.labels.environment }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.deployment.labels | nindent 8 }}
+    spec:
+      initContainers:
+        - name: wait-for-mongo
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z {{ .Values.dependencies.mongo.host }} {{ .Values.dependencies.mongo.port }}; do
+              echo "Waiting for mongo service...";
+              sleep 5;
+              done;
+              echo "MongoDB service is ready!"
+        - name: wait-for-redis
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z {{ .Values.dependencies.redis.host }} {{ .Values.dependencies.redis.port }}; do
+              echo "Waiting for Redis service...";
+              sleep 5;
+              done;
+              echo "Redis service is ready!"
+
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          ports:
+            - containerPort: {{ .Values.port.containerPort }}
+              name: {{ .Values.port.name }}
+              protocol: TCP
+
+          env:
+            # MongoDB related
+            - name: MONGO_PORT
+              value: "{{ .Values.dependencies.mongo.port }}"
+            - name: MONGO_HOST
+              value: {{ .Values.dependencies.mongo.host }}
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: MONGO_INITDB_ROOT_PASSWORD
+            - name: MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: MONGO_DB
+            - name: MONGO_SCHEMAS_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: MONGO_SCHEMAS_COLLECTION
+            - name: MONGO_TASKS_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: MONGO_TASKS_COLLECTION
+
+            # Redis related
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: REDIS_PASSWORD
+            - name: REDIS_HOST
+              value: {{ .Values.dependencies.redis.host }}
+            - name: REDIS_PORT
+              value: "{{ .Values.dependencies.redis.port }}"
+
+            # Database server related
+            - name: DATABASE_CONNECTION_HOST
+              value: "{{ .Values.env.DATABASE_CONNECTION_HOST }}"
+            - name: DATABASE_CONNECTION_PORT
+              value: "{{ .Values.env.DATABASE_CONNECTION_PORT }}"
+            - name: DATABASE_CONNECTION_DEBUG
+              value: "{{ .Values.env.DATABASE_CONNECTION_DEBUG }}"
+
+          # TODO: Add readiness and liveness probes

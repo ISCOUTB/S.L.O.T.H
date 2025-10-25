@@ -1,0 +1,277 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- toYaml .Values.deployment.labels | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.app }}
+      component: {{ .Values.deployment.labels.component }}
+      environment: {{ .Values.deployment.labels.environment }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.deployment.labels | nindent 8 }}
+    spec:
+      initContainers:
+        # Wait for database
+        - name: wait-for-database
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z {{ .Values.dependencies.database.host }} {{ .Values.dependencies.database.port }}; do
+              echo "Waiting for database service...";
+              sleep 5;
+              done;
+              echo "Database is ready!"
+
+        # Wait for RabbitMQ
+        - name: wait-for-rabbitmq
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z {{ .Values.dependencies.rabbitmq.host }} {{ .Values.dependencies.rabbitmq.port }}; do
+              echo "Waiting for RabbitMQ service...";
+              sleep 5;
+              done;
+              echo "RabbitMQ is ready!"
+
+        # Wait for PostgreSQL
+        - name: wait-for-postgres
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - until nc -z {{ .Values.dependencies.postgres.host }} {{ .Values.dependencies.postgres.port }}; do
+              echo "Waiting for PostgreSQL service...";
+              sleep 5;
+              done;
+              echo "PostgreSQL is ready!"
+
+        # Run migrations
+        - name: run-migrations
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["sh", "/workspace/apps/backend/api/scripts/prestart.sh"]
+          env:
+            # PostgreSQL connection
+            - name: POSTGRES_HOST
+              value: {{ .Values.dependencies.postgres.host }}
+            - name: POSTGRES_PORT
+              value: "{{ .Values.dependencies.postgres.port }}"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: POSTGRES_DB
+
+            # Initial superuser credentials
+            - name: FIRST_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: FIRST_SUPERUSER
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: FIRST_SUPERUSER_PASSWORD
+
+            # Core variables for api service
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: SECRET_KEY
+            - name: API_V1_STR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: API_V1_STR
+            - name: CORS_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: CORS_ORIGINS
+            - name: SERVER_HOST
+              value: "{{ .Values.env.SERVER_HOST }}"
+            - name: SERVER_PORT
+              value: "{{ .Values.env.SERVER_PORT }}"
+            - name: SERVER_DEBUG
+              value: "{{ .Values.env.SERVER_DEBUG }}"
+
+            # Required RabbitMQ variables
+            - name: RABBITMQ_HOST
+              value: {{ .Values.dependencies.rabbitmq.host}}
+            - name: RABBITMQ_PORT
+              value: "{{ .Values.dependencies.rabbitmq.port }}"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: RABBITMQ_PASSWORD
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_VHOST
+
+            # Database service variables
+            - name: DATABASE_CONNECTION_HOST
+              value: {{ .Values.dependencies.database.host }}
+            - name: DATABASE_CONNECTION_PORT
+              value: "{{ .Values.dependencies.database.port }}"
+
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          ports:
+            - containerPort: {{ .Values.port.containerPort }}
+              name: {{ .Values.port.name }}
+
+          env:
+            # Database server related
+            - name: DATABASE_CONNECTION_HOST
+              value: {{ .Values.dependencies.database.host }}
+            - name: DATABASE_CONNECTION_PORT
+              value: "{{ .Values.dependencies.database.port }}"
+
+            # API related
+            - name: API_V1_STR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: API_V1_STR
+            - name: CORS_ORIGINS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: CORS_ORIGINS
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: SECRET_KEY
+            - name: FIRST_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: FIRST_SUPERUSER
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: FIRST_SUPERUSER_PASSWORD
+            - name: SERVER_HOST
+              value: {{ .Values.env.SERVER_HOST }}
+            - name: SERVER_PORT
+              value: "{{ .Values.env.SERVER_PORT }}"
+            - name: SERVER_DEBUG
+              value: "{{ .Values.env.SERVER_DEBUG }}"
+
+            # Postgres related
+            - name: POSTGRES_HOST
+              value: {{  .Values.dependencies.postgres.host }}
+            - name: POSTGRES_PORT
+              value: "{{ .Values.dependencies.postgres.port }}"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: POSTGRES_DB
+
+            # RabbitMQ related
+            - name: RABBITMQ_HOST
+              value: {{ .Values.dependencies.rabbitmq.host }}
+            - name: RABBITMQ_PORT
+              value: "{{ .Values.dependencies.rabbitmq.port }}"
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.variables.secrets }}
+                  key: RABBITMQ_PASSWORD
+            - name: RABBITMQ_VHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_VHOST
+            - name: RABBITMQ_EXCHANGE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_EXCHANGE
+            - name: RABBITMQ_EXCHANGE_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_EXCHANGE_TYPE
+            - name: RABBITMQ_QUEUE_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_QUEUE_SCHEMAS
+            - name: RABBITMQ_QUEUE_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_QUEUE_VALIDATIONS
+            - name: RABBITMQ_ROUTING_KEY_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_ROUTING_KEY_SCHEMAS
+            - name: RABBITMQ_ROUTING_KEY_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_ROUTING_KEY_VALIDATIONS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_SCHEMAS
+            - name: RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.variables.config }}
+                  key: RABBITMQ_PUBLISHERS_ROUTING_KEY_VALIDATIONS
+
+          # TODO: Add readiness and liveness probes

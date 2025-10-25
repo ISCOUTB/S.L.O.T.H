@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- toYaml .Values.deployment.labels | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.app }}
+      component: {{ .Values.deployment.labels.component }}
+      environment: {{ .Values.deployment.labels.environment }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.deployment.labels | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          ports:
+            - containerPort: {{ .Values.port.containerPort }}
+              name: {{ .Values.port.name }}
+              protocol: TCP
+
+          env:
+            # Excel Reader service related
+            - name: EXCEL_READER_HOST
+              value: "{{ .Values.env.EXCEL_READER_HOST }}"
+            - name: EXCEL_READER_PORT
+              value: "{{ .Values.env.EXCEL_READER_PORT }}"
+            - name: EXCEL_READER_DEBUG
+              value: "{{ .Values.env.EXCEL_READER_DEBUG }}"
+
+            # Formula Parser service related
+            - name: FORMULA_PARSER_HOST
+              value: {{ .Values.env.FORMULA_PARSER_HOST }}
+            - name: FORMULA_PARSER_PORT
+              value: "{{ .Values.env.FORMULA_PARSER_PORT }}"
+
+            # DDL Generator service related
+            - name: DDL_GENERATOR_HOST
+              value: {{ .Values.env.DDL_GENERATOR_HOST }}
+            - name: DDL_GENERATOR_PORT
+              value: "{{ .Values.env.DDL_GENERATOR_PORT }}"
+
+            # SQL Builder service related
+            - name: SQL_BUILDER_HOST
+              value: {{ .Values.env.SQL_BUILDER_HOST }}
+            - name: SQL_BUILDER_PORT
+              value: "{{ .Values.env.SQL_BUILDER_PORT }}"
+
+        # TODO: Add readiness and liveness probes

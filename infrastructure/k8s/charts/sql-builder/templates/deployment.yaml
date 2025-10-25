@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- toYaml .Values.deployment.labels | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.app }}
+      component: {{ .Values.deployment.labels.component }}
+      environment: {{ .Values.deployment.labels.environment }}
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        {{- toYaml .Values.deployment.labels | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          ports:
+            - containerPort: {{ .Values.port.containerPort }}
+              name: {{ .Values.port.name }}
+              protocol: TCP
+
+          env:
+            - name: SQL_BUILDER_HOST
+              value: "{{ .Values.env.SQL_BUILDER_HOST }}"
+            - name: SQL_BUILDER_PORT
+              value: "{{ .Values.env.SQL_BUILDER_PORT }}"
+            - name: SQL_BUILDER_DEBUG
+              value: "{{ .Values.env.SQL_BUILDER_DEBUG }}"
+
+        # TODO: Add readiness and liveness probes

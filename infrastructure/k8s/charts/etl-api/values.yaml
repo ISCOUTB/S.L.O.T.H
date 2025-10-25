@@ -1,0 +1,61 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: dosquisd/typechecking-api-service
+  tag: "1.0"
+  pullPolicy: Always
+
+namespace: development
+
+deployment:
+  name: etl-api
+  labels:
+    app: etl-api
+    component: etl-api
+    environment: development
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+port:
+  containerPort: 8000
+  name: api
+
+service:
+  internal:
+    name: etl-api
+    type: ClusterIP
+    port: 8000
+  external:
+    name: etl-api-external
+    type: LoadBalancer
+    port: 8000
+
+# Dependency services
+dependencies:
+  database:
+    host: etl-database
+    port: 50050
+  rabbitmq:
+    host: rabbit-amqp
+    port: 5672
+  postgres:
+    host: postgres
+    port: 5432
+
+# Environment variables
+env:
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "8000"
+  SERVER_DEBUG: "false"
+  API_V1_STR: "/api/v1"
+
+variables:
+  secrets: development-secret
+  config: development-config

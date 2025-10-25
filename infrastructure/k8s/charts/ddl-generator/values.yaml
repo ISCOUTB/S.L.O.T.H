@@ -1,0 +1,43 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: dosquisd/ddl-generator
+  tag: "1.0"
+  pullPolicy: Always
+
+namespace: development
+
+deployment:
+  name: etl-ddl-generator
+  labels:
+    app: etl-ddl-generator
+    component: etl-ddl-generator
+    environment: development
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+port:
+  containerPort: 50053
+  name: grpc
+
+service:
+  internal:
+    name: etl-ddl-generator
+    type: ClusterIP
+    port: 50053
+
+env:
+  DDL_GENERATOR_HOST: "0.0.0.0"
+  DDL_GENERATOR_PORT: "50053"
+  DDL_GENERATOR_DEBUG: "true"
+
+variables:
+  secrets: development-secret
+  config: development-config
