@@ -17,6 +17,42 @@ spec:
       labels:
         {{- toYaml .Values.deployment.labels | nindent 8 }}
     spec:
+      initContainers:
+        # Wait for formula-parser
+        - name: wait-for-formula-parser
+          image: busybox
+          command: ['sh', '-c']
+          args:
+            - |
+              until nc -z {{ .Values.env.FORMULA_PARSER_HOST }} {{ .Values.env.FORMULA_PARSER_PORT }}; do
+                echo "Waiting for formula-parser service...";
+                sleep 5;
+              done;
+              echo "formula-parser service is up!";
+
+        # Wait for ddl-generator
+        - name: wait-for-ddl-generator
+          image: busybox
+          command: ['sh', '-c']
+          args:
+            - |
+              until nc -z {{ .Values.env.DDL_GENERATOR_HOST }} {{ .Values.env.DDL_GENERATOR_PORT }}; do
+                echo "Waiting for ddl-generator service...";
+                sleep 5;
+              done;
+              echo "ddl-generator service is up!";
+
+        # Wait for sql-builder
+        - name: wait-for-sql-builder
+          image: busybox
+          command: ['sh', '-c']
+          args:
+            - |
+              until nc -z {{ .Values.env.SQL_BUILDER_HOST }} {{ .Values.env.SQL_BUILDER_PORT }}; do
+                echo "Waiting for sql-builder service...";
+                sleep 5;
+              done;
+              echo "sql-builder service is up!";
       containers:
         - name: {{ .Values.deployment.name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}

@@ -25,7 +25,7 @@ resources:
 
 port:
   containerPort: 8001
-  name: excel-reader-http
+  name: http
 
 service:
   internal:
