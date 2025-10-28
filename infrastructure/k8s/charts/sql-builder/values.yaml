@@ -1,0 +1,43 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: dosquisd/sql-builder
+  tag: "1.0"
+  pullPolicy: Always
+
+namespace: development
+
+deployment:
+  name: etl-sql-builder
+  labels:
+    app: etl-sql-builder
+    component: etl-sql-builder
+    environment: development
+
+resources:
+  requests:
+    memory: "384Mi"
+    cpu: "250m"
+  limits:
+    memory: "768Mi"
+    cpu: "500m"
+
+port:
+  containerPort: 50054
+  name: grpc
+
+service:
+  internal:
+    name: etl-sql-builder
+    type: ClusterIP
+    port: 50054
+
+env:
+  SQL_BUILDER_HOST: "0.0.0.0"
+  SQL_BUILDER_PORT: "50054"
+  SQL_BUILDER_DEBUG: "true"
+
+variables:
+  secrets: development-secret
+  config: development-config

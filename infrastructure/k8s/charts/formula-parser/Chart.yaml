@@ -1,0 +1,11 @@
+apiVersion: v2
+name: etl-formula-parser
+description: a gRPC service that parses Excel formulas into Abstract Syntax Trees (AST) and token representations. This service is responsible for analyzing Excel formula syntax and providing structured data that can be consumed by other services in the Excel Parsing system.
+type: application
+version: 1.0.0 # Version of the chart
+appVersion: "1.0" # Version of the application
+
+maintainers:
+  - name: Juan Perez
+  - name: Mauro Gonzalez
+  - name: Diederik Montaño

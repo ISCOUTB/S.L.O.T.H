@@ -1,0 +1,27 @@
+replicaCount: 2
+
+namespace: staging
+
+deployment:
+  labels:
+    environment: staging
+
+image:
+  # This tag will be changed during the staging CI/CD process
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "2Gi"
+    cpu: "1000m"
+
+env:
+  SERVER_DEBUG: "false"
+
+variables:
+  secrets: staging-secret
+  config: staging-config

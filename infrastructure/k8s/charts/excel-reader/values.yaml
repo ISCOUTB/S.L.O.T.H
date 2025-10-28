@@ -1,0 +1,55 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: dosquisd/excel-reader
+  tag: "1.0"
+  pullPolicy: Always
+
+namespace: development
+
+deployment:
+  name: etl-excel-reader
+  labels:
+    app: etl-excel-reader
+    component: etl-excel-reader
+    environment: development
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+port:
+  containerPort: 8001
+  name: http
+
+service:
+  internal:
+    name: etl-excel-reader
+    type: ClusterIP
+    port: 8001
+
+env:
+  EXCEL_READER_HOST: "0.0.0.0"
+  EXCEL_READER_PORT: "8001"
+  EXCEL_READER_DEBUG: "false"
+
+  # Formula Parser service related
+  FORMULA_PARSER_HOST: etl-formula-parser
+  FORMULA_PARSER_PORT: "50052"
+
+  # DDL Generator service related
+  DDL_GENERATOR_HOST: etl-ddl-generator
+  DDL_GENERATOR_PORT: "50053"
+
+  # SQL Builder service related
+  SQL_BUILDER_HOST: etl-sql-builder
+  SQL_BUILDER_PORT: "50054"
+
+variables:
+  secrets: development-secret
+  config: development-config

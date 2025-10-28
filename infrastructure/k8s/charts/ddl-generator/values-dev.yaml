@@ -1,0 +1,26 @@
+replicaCount: 1
+
+namespace: development
+
+deployment:
+  labels:
+    environment: development
+
+image:
+  tag: "1.0"
+  pullPolicy: Always
+
+env:
+  DDL_GENERATOR_DEBUG: "true"
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "250m"
+
+variables:
+  secrets: development-secret
+  config: development-config

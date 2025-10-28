@@ -1,0 +1,11 @@
+apiVersion: v2
+name: etl-ddl-generator
+description: a gRPC service that constructs complete SQL statements from individual DDL expressions and column metadata. This service is responsible for assembling final CREATE TABLE and INSERT statements by managing dependencies and execution order of SQL expressions.
+type: application
+version: 1.0.0 # Version of the chart
+appVersion: "1.0" # Version of the application
+
+maintainers:
+  - name: Juan Perez
+  - name: Mauro Gonzalez
+  - name: Diederik Montaño

@@ -1,0 +1,37 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: dosquisd/typechecking-service
+  tag: "1.0"
+  pullPolicy: Always
+
+namespace: development
+
+deployment:
+  name: etl-typechecking
+  labels:
+    app: etl-typechecking
+    component: etl-typechecking
+    environment: development
+
+resources:
+  requests:
+    memory: "768Mi"
+    cpu: "250m"
+  limits:
+    memory: "1.5Gi"
+    cpu: "750m"
+
+# Dependency services
+dependencies:
+  database:
+    host: etl-database
+    port: 50050
+  rabbitmq:
+    host: rabbit-amqp
+    port: 5672
+
+variables:
+  secrets: development-secret
+  config: development-config

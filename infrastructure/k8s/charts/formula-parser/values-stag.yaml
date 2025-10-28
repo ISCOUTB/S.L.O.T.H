@@ -1,0 +1,26 @@
+replicaCount: 2
+
+namespace: staging
+
+deployment:
+  labels:
+    environment: staging
+
+image:
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+env:
+  FORMULA_PARSER_DEBUG: "false"
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+variables:
+  secrets: staging-secret
+  config: staging-config
