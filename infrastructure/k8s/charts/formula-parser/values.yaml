@@ -1,0 +1,43 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: dosquisd/formula-parser
+  tag: "1.0"
+  pullPolicy: Always
+
+namespace: development
+
+deployment:
+  name: etl-formula-parser
+  labels:
+    app: etl-formula-parser
+    component: etl-formula-parser
+    environment: development
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+port:
+  containerPort: 50052
+  name: grpc
+
+service:
+  internal:
+    name: etl-formula-parser
+    type: ClusterIP
+    port: 50052
+
+env:
+  FORMULA_PARSER_HOST: "0.0.0.0"
+  FORMULA_PARSER_PORT: "50052"
+  FORMULA_PARSER_DEBUG: "true"
+
+variables:
+  secrets: development-secret
+  config: development-config

@@ -1,0 +1,26 @@
+replicaCount: 2
+
+namespace: production
+
+deployment:
+  labels:
+    environment: production
+
+image:
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+env:
+  FORMULA_PARSER_DEBUG: "false"
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "500m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+variables:
+  secrets: production-secret
+  config: production-config

@@ -1,0 +1,27 @@
+replicaCount: 4
+
+namespace: production
+
+deployment:
+  labels:
+    environment: production
+
+image:
+  # This tag will be changed during the production CI/CD process
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "2Gi"
+    cpu: "1000m"
+  limits:
+    memory: "4Gi"
+    cpu: "2000m"
+
+env:
+  SERVER_DEBUG: "false"
+
+variables:
+  secrets: production-secret
+  config: production-config
