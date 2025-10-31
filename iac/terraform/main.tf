@@ -1,58 +1,3 @@
-# Data source to get the latest Ubuntu 24.04 AMI
-data "aws_ami" "ubuntu" {
-  owners      = ["099720109477"]
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
-  }
-}
-
-# Variables
-variable "manager_count" {
-  description = "Number of manager nodes in the Swarm (preferably odd: 1, 3, 5)"
-  type        = number
-  default     = 1
-
-  validation {
-    condition     = var.manager_count > 0
-    error_message = "manager_count must be greater than 0."
-  }
-}
-
-variable "worker_count" {
-  description = "Number of worker nodes in the Swarm"
-  type        = number
-  default     = 2
-
-  validation {
-    condition     = var.worker_count >= 0
-    error_message = "worker_count must be greater than or equal to 0."
-  }
-}
-
-variable "allowed_ssh_cidr" {
-  description = "CIDR allowed for SSH access (example: your_public_ip/32)"
-  type        = string
-  default     = "0.0.0.0/0"
-}
-
-variable "instance_type" {
-  description = "EC2 instance type"
-  type        = string
-  default     = "t3.micro"
-} # VPC
-resource "aws_vpc" "swarm" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = {
-    Name = "swarm-vpc"
-  }
-}
-
 # Public subnet
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.swarm.id
@@ -63,11 +8,6 @@ resource "aws_subnet" "public" {
   tags = {
     Name = "swarm-public-subnet"
   }
-}
-
-# Data source to get available AZs
-data "aws_availability_zones" "available" {
-  state = "available"
 }
 
 # Internet Gateway
