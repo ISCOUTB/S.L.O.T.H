@@ -5,6 +5,10 @@
             "path": "../"
         },
         {
+            "name": "[ IAC ]",
+            "path": "../iac/"
+        },
+        {
             "name": "[ App ] Excel-Reader",
             "path": "../apps/backend/parsers/excel-reader"
         },
