@@ -1,5 +1,8 @@
+from src.config import env
+
+
 def main() -> None:
-    print("hello there")
+    print(env)
 
 
 if __name__ == "__main__":
