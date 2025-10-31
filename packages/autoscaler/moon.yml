@@ -1,0 +1,33 @@
+project:
+    name: autoscaler
+    description: AutoScaler utility for deployment
+
+toolchain:
+    python:
+        version: "latest"
+
+tasks:
+    run:
+        command: uv
+        args:
+            - run
+            - -m
+            - src.main
+        env:
+            PYTHONPATH: .
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+
+    docker-build:
+        command: docker
+        args:
+            - build
+            - -t
+            - autoscaler:1.0
+            - -f
+            - Dockerfile
+            - .
+        options:
+            runFromWorkspaceRoot: false
+            cache: false

@@ -5,7 +5,7 @@
             "path": "../"
         },
         {
-            "name": "[ IAC ]",
+            "name": "[ IAC ] Code",
             "path": "../iac/"
         },
         {
@@ -37,6 +37,10 @@
             "path": "../packages/proto-utils/proto-utils-py"
         },
         {
+            "name": "[ Package ] [ IAC ] AutoScaler",
+            "path": "../packages/autoscaler"
+        },
+        {
             "name": "[ Tool ] Eslint",
             "path": "../tools/eslint"
         },
@@ -47,10 +51,10 @@
     ],
     "settings": {
         "files.exclude": {
-            "**/.git": true,
-            "**/.svn": true,
-            "**/.hg": true,
             "**/.DS_Store": true,
+            "**/.git": true,
+            "**/.hg": true,
+            "**/.svn": true,
             "**/Thumbs.db": true
         }
     }
