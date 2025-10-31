@@ -1,0 +1,24 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
+project:
+    name: iac
+    description: cloud infraestructure
+
+tasks:
+    swarm-dev:
+        command: docker
+        args:
+            - stack
+            - deploy
+            - -c
+            - swarm/development/docker-stack.yml
+            - dev
+            - --detach=true
+        options:
+            cache: false
+
+    swarm-dev-info:
+        command: bash
+        args:
+            - swarm/scripts/dev-info.sh
+    
