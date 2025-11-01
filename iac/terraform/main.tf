@@ -239,7 +239,7 @@ resource "null_resource" "ansible_provision" {
 
   provisioner "local-exec" {
     working_dir = "${path.module}/.."
-    command     = "sleep 30 && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./ansible/inventory.ini --private-key ./keys/swarm-key.pem ./ansible/docker.yaml"
+    command     = "sleep 30 && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./ansible/inventory.ini --private-key ./keys/swarm-key.pem ./ansible/docker.yml"
   }
 }
 
@@ -249,6 +249,6 @@ resource "null_resource" "swarm_init" {
 
   provisioner "local-exec" {
     working_dir = "${path.module}/.."
-    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./ansible/inventory.ini --private-key ./keys/swarm-key.pem ./ansible/swarm-init.yaml"
+    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ./ansible/inventory.ini --private-key ./keys/swarm-key.pem ./ansible/swarm-init.yml"
   }
 }
