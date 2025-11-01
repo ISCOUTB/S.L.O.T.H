@@ -1,8 +1,10 @@
-from src.config import env
+import docker
+
+docker_client = docker.from_env()
 
 
 def main() -> None:
-    print(env)
+    pass
 
 
 if __name__ == "__main__":
