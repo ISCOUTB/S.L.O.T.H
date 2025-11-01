@@ -2,7 +2,6 @@ import logging
 import logging.handlers
 
 from src.utils.rootdir import ROOTDIR
-from src.config.env import env
 
 log_dir = ROOTDIR / "logs"
 log_dir.mkdir(exist_ok=True)
@@ -54,11 +53,6 @@ def setup() -> logging.Logger:
     logger.addHandler(console_handler)
 
     logger.propagate = False
-
-    if env.DEBUG:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
 
     return logger
 

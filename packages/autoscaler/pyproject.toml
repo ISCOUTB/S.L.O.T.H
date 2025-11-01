@@ -8,7 +8,6 @@ dependencies = [
     "dataclasses>=0.8",
     "docker>=7.1.0",
     "httpx>=0.28.1",
-    "logging>=0.4.9.6",
     "pydantic>=2.12.3",
     "pydantic-settings>=2.11.0",
 ]

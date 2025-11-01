@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.utils import ROOTDIR
+from src.utils.rootdir import ROOTDIR
 
 
 class EnvSettings(BaseSettings):

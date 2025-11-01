@@ -1,6 +1,9 @@
-from typing import Any, Callable, Dict, Optional, cast
+import datetime
+import time
+from typing import Any, Callable, Dict, List, Optional, cast
 
 import httpx
+from docker.client import DockerClient
 from docker.models.services import Service
 
 from src.config import Constants, env
@@ -9,6 +12,8 @@ from src.utils import logger
 
 
 class DockerService(object):
+    scale_records: Dict[str, datetime.datetime] = {}
+
     @staticmethod
     def get_service_config(service: Service) -> Optional[ServiceConfig]:
         specs: Dict[str, Any] = service.attrs.get("Spec", {})
@@ -91,3 +96,137 @@ class DockerService(object):
             logger.warning(f"service name: {config.service_name} | Error: {exception}")
 
             return None
+
+    @staticmethod
+    def get_current_replicas(client: DockerClient, service_name: str) -> Optional[int]:
+        try:
+            service = cast(Service, client.services.get(service_name))  # type: ignore
+            return service.attrs["Spec"]["Mode"]["Replicated"]["Replicas"]
+        except Exception as exception:
+            logger.error(
+                f"error getting current replicas for {service_name}: {exception}"
+            )
+            return None
+
+    @staticmethod
+    def scale_service(
+        client: DockerClient, service_name: str, target_replicas: int, reason: str
+    ) -> bool:
+        try:
+            service = cast(Service, client.services.get(service_name))  # type: ignore
+            current = DockerService.get_current_replicas(
+                client=client, service_name=service_name
+            )
+
+            if not current:
+                logger.error(
+                    f"could not escale {service_name}, failed to get current replicas"
+                )
+                return False
+
+            service.update(mode={"Replicated": {"Replicas": target_replicas}})  # type: ignore
+
+            direction = "UP" if target_replicas > current else "DOWN"
+            logger.info(
+                f"{direction} {service_name}: {current} -> {target_replicas} (reason: {reason})"
+            )
+
+            DockerService.scale_records[service_name] = datetime.datetime.now()
+
+            return True
+        except Exception as exception:
+            logger.error(f"error scaling {service_name}: {exception}")
+            return False
+
+    @staticmethod
+    def can_scale(service_name: str) -> bool:
+        elapsed = (
+            datetime.datetime.now() - DockerService.scale_records[service_name]
+        ).total_seconds()
+        return elapsed >= env.COOLDOWN_PERIOD
+
+    @staticmethod
+    def evaluate_service(client: DockerClient, service: Service):
+        config = DockerService.get_service_config(service=service)
+        if not config:
+            return
+
+        metric_value = DockerService.get_metric_value(config=config)
+        if metric_value is None:
+            logger.warning(f"no metrics for {service.name}")  # type: ignore
+            return
+
+        current_replicas = DockerService.get_current_replicas(
+            client=client, service_name=config.service_name
+        )
+        if current_replicas is None:
+            return
+
+        if not DockerService.can_scale(service_name=config.service_name):
+            cooldown_remaining = (
+                env.COOLDOWN_PERIOD
+                - (
+                    datetime.datetime.now()
+                    - DockerService.scale_records[config.service_name]
+                ).total_seconds()
+            )
+            logger.debug(
+                f"{config.service_name} in cooldown ({cooldown_remaining:0f}s)"
+            )
+            return
+
+        should_scale_up = metric_value > config.threshold_up
+        should_scale_down = metric_value < config.threshold_down
+
+        if should_scale_up:
+            if config.is_on_demmand or current_replicas < config.max_replicas:
+                reason = f"{config.metric}={metric_value:.1f}% > {config.threshold_up}%"
+                DockerService.scale_service(
+                    client=client,
+                    service_name=config.service_name,
+                    target_replicas=current_replicas + 1,
+                    reason=reason,
+                )
+                return
+
+            logger.info(
+                f"{config.service_name} in max replicas ({config.max_replicas})"
+            )
+
+            return
+
+        if should_scale_down and current_replicas > config.min_replicas:
+            reason = f"{config.metric}={metric_value:.1f}% < {config.threshold_down}%"
+            DockerService.scale_service(
+                client=client,
+                service_name=config.service_name,
+                target_replicas=current_replicas - 1,
+                reason=reason,
+            )
+
+    @staticmethod
+    def loop(client: DockerClient):
+        logger.info("autoscaler init")
+
+        while True:
+            try:
+                services = cast(List[Service], client.services.list())  # type: ignore
+
+                for service in services:
+                    try:
+                        config = DockerService.get_service_config(service=service)
+
+                        if config:
+                            DockerService.evaluate_service(
+                                client=client, service=service
+                            )
+                    except Exception as exception:
+                        logger.error(f"error procesing {service.name}: {exception}")  # type: ignore
+
+                time.sleep(env.CHECK_INVERVAL)
+            except KeyboardInterrupt:
+                logger.info("autoscaler stopped by user")
+                break
+            except Exception as exception:
+                logger.error(f"error in main loop: {exception}")
+                time.sleep(env.CHECK_INVERVAL)
