@@ -25,12 +25,11 @@ services:
 
     cadvisor:
         image: gcr.io/cadvisor/cadvisor:latest
-        hostname: "{{.Node.Hostname}}"
         volumes:
             - /:/rootfs:ro
-            - /var/run:/var/run:ro
+            - /var/run:/var/run:rw
             - /sys:/sys:ro
-            - /var/lib/docker:/var/lib/docker:ro
+            - /var/lib/docker/:/var/lib/docker:ro
         networks:
             - monitoring
         ports:
@@ -41,7 +40,7 @@ services:
                 - prometheus-job=cadvisor
             resources:
                 limits:
-                    memory: 128M
+                    memory: 256M
 
     node-exporter:
         image: prom/node-exporter:latest
@@ -59,6 +58,39 @@ services:
             - 9100:9100
         deploy:
             mode: global
+            labels:
+                - prometheus-job=node-exporter
+
+    scaler:
+        image: vulcan99/autoscaler:latest
+        volumes:
+            - ./scaler-logs/:/app/logs
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            PROMETHEUS_URL: http://prometheus:9090
+            STACK_NAME: dev
+        networks:
+            - monitoring
+        deploy:
+            placement:
+                constraints:
+                    - node.role == manager
+
+    test-app:
+        image: nginx:latest
+        networks:
+            - monitoring
+        ports:
+            - 8081:80
+        deploy:
+            replicas: 1
+            labels:
+                - scaler.enabled=true
+                - scaler.min=1
+                - scaler.max=5
+                - scaler.metric=cpu
+                - scaler.up=10
+                - scaler.down=2
 
 networks:
     monitoring:

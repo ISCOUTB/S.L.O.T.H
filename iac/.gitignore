@@ -20,3 +20,5 @@ ansible/inventory.ini
 *-token.txt
 manager-token.txt
 worker-token.txt
+
+*-logs

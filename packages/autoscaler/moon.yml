@@ -1,10 +1,12 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
 project:
     name: autoscaler
     description: AutoScaler utility for deployment
 
 toolchain:
     python:
-        version: "latest"
+        version: "3.13.7"
 
 tasks:
     uv:
@@ -29,7 +31,7 @@ tasks:
         args:
             - build
             - -t
-            - autoscaler:1.0
+            - autoscaler:latest
             - -f
             - Dockerfile
             - .

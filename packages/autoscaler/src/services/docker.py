@@ -51,13 +51,13 @@ class DockerService(object):
             "cpu": lambda c: (
                 f"avg(rate(container_cpu_usage_seconds_total{{"
                 f'job="cadvisor",'
-                f'container_label_com_docker_swarm_service_name="{c.service_name}"'
+                f'name=~".*{c.service_name}.*"'
                 f"}}[2m])) * 100"
             ),
             "memory": lambda c: (
                 f"avg(container_memory_usage_bytes{{"
                 f'job="cadvisor",'
-                f'container_label_com_docker_swarm_service_name="{c.service_name}"'
+                f'name=~".*{c.service_name}.*"'
                 f"}} / container_spec_memory_limit_bytes * 100)"
             ),
         }
