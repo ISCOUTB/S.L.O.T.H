@@ -3,6 +3,7 @@
 services:
     prometheus:
         image: prom/prometheus:latest
+        user: root
         volumes:
             - prometheus-data:/prometheus
             - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -26,10 +27,31 @@ services:
     cadvisor:
         image: gcr.io/cadvisor/cadvisor:latest
         volumes:
-            - /:/rootfs:ro
-            - /var/run:/var/run:rw
-            - /sys:/sys:ro
-            - /var/lib/docker/:/var/lib/docker:ro
+            - type: bind
+              source: /var/run/docker.sock
+              target: /var/run/docker.sock
+              read_only: true
+
+            - type: bind
+              source: /
+              target: /rootfs
+              read_only: true
+
+            - type: bind
+              source: /var/run
+              target: /var/run
+
+            - type: bind
+              source: /sys
+              target: /sys
+              read_only: true
+
+            - type: bind
+              source: /var/lib/docker
+              target: /var/lib/docker
+              read_only: true
+        command:
+            - "--docker_only=true"
         networks:
             - monitoring
         ports:
@@ -64,7 +86,6 @@ services:
     scaler:
         image: vulcan99/autoscaler:latest
         volumes:
-            - ./scaler-logs/:/app/logs
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
             PROMETHEUS_URL: http://prometheus:9090
