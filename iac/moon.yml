@@ -17,14 +17,7 @@ tasks:
         options:
             cache: false
 
-    swarm-dev-info:
-        command: bash
-        args:
-            - swarm/scripts/dev-info.sh
-        local: true
-
     swarm-dev-test-scaler:
         command: bash
         args:
             - swarm/scripts/dev-scaler.sh
-        local: true

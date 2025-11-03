@@ -47,17 +47,20 @@ class DockerService(object):
 
     @staticmethod
     def get_metric_value(config: ServiceConfig) -> Optional[float]:
+        metric_window = f"{env.metric_window_seconds}s"
+
         metric_queries: Dict[ServiceMetric, Callable[[ServiceConfig], str]] = {
             "cpu": lambda c: (
                 f"avg(rate(container_cpu_usage_seconds_total{{"
                 f'job="cadvisor",'
-                f'name=~".*{c.service_name}.*"'
-                f"}}[2m])) * 100"
+                f'container_label_com_docker_swarm_service_name="{c.service_name}",'
+                f'cpu="total"'
+                f"}}[{metric_window}])) * 100"
             ),
             "memory": lambda c: (
                 f"avg(container_memory_usage_bytes{{"
                 f'job="cadvisor",'
-                f'name=~".*{c.service_name}.*"'
+                f'container_label_com_docker_swarm_service_name="{c.service_name}"'
                 f"}} / container_spec_memory_limit_bytes * 100)"
             ),
         }
@@ -140,6 +143,9 @@ class DockerService(object):
 
     @staticmethod
     def can_scale(service_name: str) -> bool:
+        if service_name not in DockerService.scale_records:
+            return True
+
         elapsed = (
             datetime.datetime.now() - DockerService.scale_records[service_name]
         ).total_seconds()
@@ -223,10 +229,10 @@ class DockerService(object):
                     except Exception as exception:
                         logger.error(f"error procesing {service.name}: {exception}")  # type: ignore
 
-                time.sleep(env.CHECK_INVERVAL)
+                time.sleep(env.CHECK_INTERVAL)
             except KeyboardInterrupt:
                 logger.info("autoscaler stopped by user")
                 break
             except Exception as exception:
                 logger.error(f"error in main loop: {exception}")
-                time.sleep(env.CHECK_INVERVAL)
+                time.sleep(env.CHECK_INTERVAL)

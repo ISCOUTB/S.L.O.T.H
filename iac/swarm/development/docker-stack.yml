@@ -15,7 +15,10 @@ services:
         networks:
             - monitoring
         ports:
-            - 9090:9090
+            - published: 9090
+              target: 9090
+              protocol: tcp
+              mode: host
         deploy:
             placement:
                 constraints:
@@ -27,29 +30,11 @@ services:
     cadvisor:
         image: gcr.io/cadvisor/cadvisor:latest
         volumes:
-            - type: bind
-              source: /var/run/docker.sock
-              target: /var/run/docker.sock
-              read_only: true
-
-            - type: bind
-              source: /
-              target: /rootfs
-              read_only: true
-
-            - type: bind
-              source: /var/run
-              target: /var/run
-
-            - type: bind
-              source: /sys
-              target: /sys
-              read_only: true
-
-            - type: bind
-              source: /var/lib/docker
-              target: /var/lib/docker
-              read_only: true
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - /:/rootfs:ro
+            - /var/run:/var/run
+            - /sys:/sys:ro
+            - /var/lib/docker:/var/lib/docker:ro
         command:
             - "--docker_only=true"
         networks:
@@ -90,6 +75,9 @@ services:
         environment:
             PROMETHEUS_URL: http://prometheus:9090
             STACK_NAME: dev
+            CHECK_INTERVAL: 30
+            COOLDOWN_PERIOD: 180
+            METRIC_WINDOW_MULTIPLIER: 4
         networks:
             - monitoring
         deploy:
@@ -102,7 +90,10 @@ services:
         networks:
             - monitoring
         ports:
-            - 8081:80
+            - published: 8081
+              target: 80
+              protocol: tcp
+              mode: host
         deploy:
             replicas: 1
             labels:
