@@ -78,6 +78,7 @@ services:
             CHECK_INTERVAL: 30
             COOLDOWN_PERIOD: 180
             METRIC_WINDOW_MULTIPLIER: 4
+            DEBUG: "True"
         networks:
             - monitoring
         deploy:
@@ -93,7 +94,7 @@ services:
             - published: 8081
               target: 80
               protocol: tcp
-              mode: host
+              mode: ingress
         deploy:
             replicas: 1
             labels:
@@ -101,8 +102,8 @@ services:
                 - scaler.min=1
                 - scaler.max=5
                 - scaler.metric=cpu
-                - scaler.up=10
-                - scaler.down=2
+                - scaler.up=40
+                - scaler.down=10
 
 networks:
     monitoring:

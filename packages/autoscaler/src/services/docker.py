@@ -1,4 +1,5 @@
 import datetime
+import functools
 import time
 from typing import Any, Callable, Dict, List, Optional, cast
 
@@ -15,7 +16,14 @@ class DockerService(object):
     scale_records: Dict[str, datetime.datetime] = {}
 
     @staticmethod
+    @functools.lru_cache(maxsize=1)
+    def get_services(client: DockerClient) -> List[Service]:
+        return cast(List[Service], client.services.list())  # type: ignore
+
+    @staticmethod
     def get_service_config(service: Service) -> Optional[ServiceConfig]:
+        logger.debug(f"checking service {service.name}")  # type: ignore
+
         specs: Dict[str, Any] = service.attrs.get("Spec", {})
         labels: Dict[str, Any] = specs.get("Labels", {})
 
@@ -159,7 +167,7 @@ class DockerService(object):
 
         metric_value = DockerService.get_metric_value(config=config)
         if metric_value is None:
-            logger.warning(f"no metrics for {service.name}")  # type: ignore
+            logger.debug(f"no valid metrics for {service.name} (value: {metric_value})")  # type: ignore
             return
 
         current_replicas = DockerService.get_current_replicas(
@@ -185,7 +193,7 @@ class DockerService(object):
         should_scale_down = metric_value < config.threshold_down
 
         if should_scale_up:
-            if config.is_on_demmand or current_replicas < config.max_replicas:
+            if config.is_on_demand or current_replicas < config.max_replicas:
                 reason = f"{config.metric}={metric_value:.1f}% > {config.threshold_up}%"
                 DockerService.scale_service(
                     client=client,
@@ -210,19 +218,29 @@ class DockerService(object):
                 reason=reason,
             )
 
+            return
+
+        logger.info(f"no actions required for {config.service_name}")
+
     @staticmethod
     def loop(client: DockerClient):
         logger.info("autoscaler init")
 
         while True:
             try:
-                services = cast(List[Service], client.services.list())  # type: ignore
+                logger.debug("checking...")
+
+                services = DockerService.get_services(client=client)  # type: ignore
+                logger.debug(f"found {len(services)} services")
 
                 for service in services:
+                    logger.debug(f"processing service {service.name}")  # type: ignore
                     try:
                         config = DockerService.get_service_config(service=service)
 
                         if config:
+                            logger.debug(f"config found for {config.service_name}")
+
                             DockerService.evaluate_service(
                                 client=client, service=service
                             )

@@ -11,6 +11,9 @@ if __name__ == "__main__":
 
     docker_client = docker.from_env()
 
+    if env.DEBUG:
+        logger.info(f"Debug Mode: {env.DEBUG}")
+
     logger.info(f"waiting {env.metric_window_seconds}s before starting monitoring")
     time.sleep(env.metric_window_seconds)
 

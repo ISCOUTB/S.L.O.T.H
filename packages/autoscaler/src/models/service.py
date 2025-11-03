@@ -16,7 +16,7 @@ class ServiceConfig:
     custom_query: Optional[str] = None
 
     @property
-    def is_on_demmand(self) -> bool:
+    def is_on_demand(self) -> bool:
         return self.max_replicas == -1
 
 
