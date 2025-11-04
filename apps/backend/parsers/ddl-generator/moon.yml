@@ -27,6 +27,13 @@ tasks:
             - --cov-report=xml
         toolchain: python
 
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
     run:
         command: uv
         args:
@@ -35,8 +42,7 @@ tasks:
             - -m
             - src.server
         toolchain: python
-        options:
-            runFromWorkspaceRoot: false
+        local: true
 
     docker-build:
         command: docker

@@ -124,6 +124,25 @@ services:
             labels:
                 - scaler.enabled=true
 
+    sql-builder:
+        image: vulcan99/sql-builder:latest
+        environment:
+            SQL_BUILDER_HOST: ${PARSERS_SQL_BUILDER_HOST}
+            SQL_BUILDER_PORT: ${PARSERS_SQL_BUILDER_PORT}
+            SQL_BUILDER_DEBUG: ${PARSERS_SQL_BUILDER_DEBUG}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+            labels:
+                - scaler.enabled=true
+
 networks:
     monitoring:
     parsers:
