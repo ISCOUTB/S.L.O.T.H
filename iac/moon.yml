@@ -6,13 +6,8 @@ project:
 
 tasks:
     swarm-dev:
-        command: docker
+        command: bash
         args:
-            - stack
-            - deploy
-            - -c
-            - swarm/development/docker-stack.yml
-            - dev
-            - --detach=true
+            - swarm/scripts/dev-deploy.sh
         options:
             cache: false

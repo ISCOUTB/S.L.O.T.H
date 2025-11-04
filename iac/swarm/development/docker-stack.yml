@@ -73,12 +73,12 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
-            PROMETHEUS_URL: http://prometheus:9090
-            STACK_NAME: dev
-            CHECK_INTERVAL: 30
-            COOLDOWN_PERIOD: 180
-            METRIC_WINDOW_MULTIPLIER: 4
-            DEBUG: "True"
+            NODE_ENV: development
+            PROMETHEUS_URL: ${SCALER_PROMETHEUS_URL}
+            STACK_NAME: ${GLOBAL_STACK_NAME}
+            CHECK_INTERVAL: ${SCALER_CHECK_INTERVAL}
+            COOLDOWN_PERIOD: ${SCALER_COOLDOWN_PERIOD}
+            METRIC_WINDOW_MULTIPLIER: ${SCALER_METRIC_WINDOW_MULTIPLIER}
         networks:
             - monitoring
         deploy:
