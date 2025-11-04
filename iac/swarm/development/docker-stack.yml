@@ -94,6 +94,7 @@ services:
             DEBUG_FORMULA_PARSER: ${PARSERS_DEBUG_FORMULA_PARSER}
         networks:
             - monitoring
+            - parsers
         deploy:
             replicas: 1
             resources:
@@ -104,8 +105,28 @@ services:
             labels:
                 - scaler.enabled=true
 
+    ddl-generator:
+        image: vulcan99/ddl-generator:latest
+        environment:
+            DDL_GENERATOR_HOST: ${PARSERS_DDL_GENERATOR_HOST}
+            DDL_GENERATOR_PORT: ${PARSERS_DDL_GENERATOR_PORT}
+            DDL_GENERATOR_DEBUG: ${PARSERS_DDL_GENERATOR_DEBUG}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+            labels:
+                - scaler.enabled=true
+
 networks:
     monitoring:
+    parsers:
 
 volumes:
     prometheus-data:

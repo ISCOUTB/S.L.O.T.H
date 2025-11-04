@@ -9,10 +9,6 @@
             "path": "../iac/"
         },
         {
-            "name": "[ App ] Excel-Reader",
-            "path": "../apps/backend/parsers/excel-reader"
-        },
-        {
             "name": "[ App ] Formula-Parser",
             "path": "../apps/backend/parsers/formula-parser"
         },
@@ -23,6 +19,10 @@
         {
             "name": "[ App ] SQL-Builder",
             "path": "../apps/backend/parsers/sql-builder"
+        },
+        {
+            "name": "[ App ] Excel-Reader",
+            "path": "../apps/backend/parsers/excel-reader"
         },
         {
             "name": "[ App ] Typechecking",
