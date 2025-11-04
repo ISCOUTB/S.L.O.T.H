@@ -86,24 +86,23 @@ services:
                 constraints:
                     - node.role == manager
 
-    test-app:
-        image: nginx:latest
+    formula-parser:
+        image: vulcan99/formula-parser:latest
+        environment:
+            FORMULA_PARSER_HOST: ${PARSERS_FORMULA_PARSER_HOST}
+            FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT}
+            DEBUG_FORMULA_PARSER: ${PARSERS_DEBUG_FORMULA_PARSER}
         networks:
             - monitoring
-        ports:
-            - published: 8081
-              target: 80
-              protocol: tcp
-              mode: ingress
         deploy:
             replicas: 1
+            resources:
+                reservations:
+                    memory: "128m"
+                limits:
+                    memory: "256m"
             labels:
                 - scaler.enabled=true
-                - scaler.min=1
-                - scaler.max=5
-                - scaler.metric=cpu
-                - scaler.up=40
-                - scaler.down=10
 
 networks:
     monitoring:
