@@ -3,7 +3,7 @@ import time
 import docker
 
 from src.config import env
-from src.services import DockerService
+from src.services.monitor import ServiceMonitor
 from src.utils import logger
 
 if __name__ == "__main__":
@@ -22,4 +22,4 @@ if __name__ == "__main__":
     else:
         logger.setLevel(logging.INFO)
 
-    DockerService.loop(client=docker_client)
+    ServiceMonitor.loop(client=docker_client)
