@@ -2,11 +2,11 @@
     "folders": [
         {
             "name": "ROOT",
-            "path": "../"
+            "path": ".."
         },
         {
             "name": "[ IAC ] Code",
-            "path": "../iac/"
+            "path": "../iac"
         },
         {
             "name": "[ App ] Formula-Parser",

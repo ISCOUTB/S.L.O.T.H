@@ -143,6 +143,31 @@ services:
             labels:
                 - scaler.enabled=true
 
+    excel-reader:
+        image: vulcan99/excel-reader:latest
+        environment:
+            FORMULA_PARSER_HOST: "formula-parser"
+            FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT}
+            DDL_GENERATOR_HOST: "ddl-generator"
+            DDL_GENERATOR_PORT: ${PARSERS_DDL_GENERATOR_PORT}
+            SQL_BUILDER_HOST: "sql-builder"
+            SQL_BUILDER_PORT: ${PARSERS_SQL_BUILDER_PORT}
+            EXCEL_READER_HOST: ${PARSERS_EXCEL_READER_HOST}
+            EXCEL_READER_PORT: ${PARSERS_EXCEL_READER_PORT}
+            EXCEL_READER_DEBUG: ${PARSERS_EXCEL_READER_DEBUG}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+            labels:
+                - scaler.enabled=true
+
 networks:
     monitoring:
     parsers:
