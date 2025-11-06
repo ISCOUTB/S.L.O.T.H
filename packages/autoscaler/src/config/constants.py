@@ -1,5 +1,6 @@
 class Constants(object):
     LABEL_ENABLED: str = "scaler.enabled"
+    LABEL_PRIORITY: str = "scaler.priority"
     LABEL_MIN: str = "scaler.min"
     LABEL_MAX: str = "scaler.max"
     LABEL_METRIC: str = "scaler.metric"

@@ -49,6 +49,7 @@ class ServiceConfigExtractor(object):
         return ServiceConfig(
             service_name=str(service_name),
             enabled=True,
+            priority=labels.get(Constants.LABEL_PRIORITY, "medium"),
             min_replicas=int(labels.get(Constants.LABEL_MIN, env.DEFAULT_MIN_REPLICAS)),
             max_replicas=max_replicas,
             metric=labels.get(Constants.LABEL_METRIC, "cpu"),

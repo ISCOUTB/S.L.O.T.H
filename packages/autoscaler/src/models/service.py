@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 
 type ServiceMetric = Literal["cpu", "memory"]
+type ServicePriority = Literal["low", "medium", "high"]
 
 
 @dataclass
@@ -13,6 +14,7 @@ class ServiceConfig:
     metric: ServiceMetric
     threshold_up: float
     threshold_down: float
+    priority: ServicePriority = "medium"
     custom_query: Optional[str] = None
 
     @property
