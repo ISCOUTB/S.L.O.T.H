@@ -9,8 +9,9 @@ with proper error handling and type hints.
 """
 
 import pymongo
-import pymongo.database
 import pymongo.collection
+import pymongo.database
+import pymongo.errors
 
 from src.core.config import settings
 
@@ -32,6 +33,21 @@ class MongoConnection:
         self.__client: pymongo.MongoClient = pymongo.MongoClient(uri)
         self.__database: pymongo.database.Database = self.__client[database]
         self.__collection: pymongo.collection.Collection = self.__database[collection]
+
+    def is_healthy(self) -> bool:
+        """Internal method to check MongoDB health.
+
+        Returns:
+            bool: True if MongoDB is healthy, False otherwise.
+        """
+        try:
+            self.__client.admin.command("ping")
+            return True
+        except (
+            pymongo.errors.ConnectionFailure,
+            pymongo.errors.ServerSelectionTimeoutError,
+        ):
+            return False
 
     # ==================== General Purpose ====================
     # To be honest, these functions are a little bit useless, but maybe in a future

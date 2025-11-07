@@ -9,11 +9,12 @@ The module includes task CRUD operations with built-in fallback mechanisms
 and data consistency management between the two storage systems.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from proto_utils.database import dtypes
-from src.core.database_redis import redis_db
+
 from src.core.database_mongo import mongo_tasks_connection
+from src.core.database_redis import redis_db
 
 
 class DatabaseTasksService:

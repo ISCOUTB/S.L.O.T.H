@@ -10,11 +10,11 @@ and retrieval with built-in schema comparison and version management
 through releases tracking.
 """
 
-import pymongo
-
 from typing import Dict
 
+import pymongo
 from proto_utils.database import dtypes
+
 from src.core.database_mongo import mongo_schemas_connection
 
 

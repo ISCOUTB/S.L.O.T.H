@@ -10,13 +10,13 @@ associated tasks.
 """
 
 import json
-from typing import Any, List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
-from redis import Redis
 import redis.exceptions
+from proto_utils.database.dtypes import ApiResponse
+from redis import Redis
 
 from src.core.config import settings
-from proto_utils.database.dtypes import ApiResponse
 
 
 class RedisConnection:
@@ -118,6 +118,17 @@ class RedisConnection:
             bool: True if the server is reachable, False otherwise.
         """
         return self.redis_client.ping()
+
+    def is_healthy(self) -> bool:
+        """Internal method to check Redis health.
+
+        Returns:
+            bool: True if Redis is healthy, False otherwise.
+        """
+        try:
+            return self.redis_client.ping()
+        except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError):
+            return False
 
     def _get_task_ttl(self, status: str) -> int:
         """
