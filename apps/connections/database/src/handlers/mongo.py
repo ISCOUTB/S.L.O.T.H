@@ -1,6 +1,7 @@
-from src.services.mongo import MongoSchemasService
-from proto_utils.generated.database import mongo_pb2
 from proto_utils.database.mongo_serde import MongoSerde
+from proto_utils.generated.database import mongo_pb2
+
+from src.services.mongo import MongoSchemasService
 
 
 class MongoHandler:

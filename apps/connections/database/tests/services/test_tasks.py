@@ -1,9 +1,10 @@
 from uuid import uuid4
-from proto_utils.database import dtypes
-from src.services.tasks import DatabaseTasksService
 
-from src.core.database_redis import redis_db
+from proto_utils.database import dtypes
+
 from src.core.database_mongo import mongo_tasks_connection
+from src.core.database_redis import redis_db
+from src.services.tasks import DatabaseTasksService
 
 
 def test_set_task_id() -> None:

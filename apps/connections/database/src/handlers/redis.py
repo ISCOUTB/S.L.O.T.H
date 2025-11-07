@@ -1,6 +1,7 @@
-from src.services.redis import RedisService
-from proto_utils.generated.database import redis_pb2
 from proto_utils.database.redis_serde import RedisSerde
+from proto_utils.generated.database import redis_pb2
+
+from src.services.redis import RedisService
 
 
 class RedisHandler:

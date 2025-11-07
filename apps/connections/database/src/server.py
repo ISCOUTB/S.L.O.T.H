@@ -29,6 +29,7 @@ from proto_utils.generated.database import (
     mongo_pb2,
     redis_pb2,
 )
+
 from src.core.config import settings
 from src.handlers.mongo import MongoHandler
 from src.handlers.redis import RedisHandler

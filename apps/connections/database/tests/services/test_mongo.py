@@ -1,6 +1,8 @@
-from uuid import uuid4
 from datetime import datetime, timedelta
+from uuid import uuid4
+
 from proto_utils.database import dtypes
+
 from src.services.mongo import MongoSchemasService
 
 
