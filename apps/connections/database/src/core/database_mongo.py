@@ -13,8 +13,6 @@ import pymongo.collection
 import pymongo.database
 import pymongo.errors
 
-from src.core.config import settings
-
 
 class MongoConnection:
     """MongoDB connection wrapper class.
@@ -147,16 +145,3 @@ class MongoConnection:
             pymongo.results.DeleteResult: Result of the delete operation.
         """
         return self.__collection.delete_one(filter)
-
-
-mongo_tasks_connection = MongoConnection(
-    str(settings.MONGO_URI),
-    settings.MONGO_DB,
-    settings.MONGO_TASKS_COLLECTION,
-)
-
-mongo_schemas_connection = MongoConnection(
-    str(settings.MONGO_URI),
-    settings.MONGO_DB,
-    settings.MONGO_SCHEMAS_COLLECTION,
-)

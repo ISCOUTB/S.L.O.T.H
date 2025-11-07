@@ -32,7 +32,7 @@ tasks:
             - pytest
             - -v
             - -n
-            - auto
+            - "0"
             - --cov=src
             - --cov-report=term-missing
             - --cov-report=html

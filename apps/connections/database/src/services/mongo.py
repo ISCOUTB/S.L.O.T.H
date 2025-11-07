@@ -15,7 +15,7 @@ from typing import Dict
 import pymongo
 from proto_utils.database import dtypes
 
-from src.core.database_mongo import mongo_schemas_connection
+from src.core.database_mongo import MongoConnection
 
 
 class MongoSchemasService:
@@ -90,7 +90,7 @@ class MongoSchemasService:
                         **{
                             # Convert value from str to its original type
                             k: MongoSchemasService.convert_datatype(v)
-                            for k, v in item[1]["extra"].items()
+                            for k, v in item[1].get("extra", {}).items()
                         },
                     },
                 ),
@@ -101,6 +101,8 @@ class MongoSchemasService:
     @staticmethod
     def insert_one_schema(
         request: dtypes.MongoInsertOneSchemaRequest,
+        *,
+        mongo_schemas_connection: MongoConnection,
     ) -> dtypes.MongoInsertOneSchemaResponse:
         """Insert or update a JSON schema in the database.
 
@@ -128,9 +130,12 @@ class MongoSchemasService:
             map(lambda release: release["properties"], request["schemas_releases"])
         )
 
-        total_documents = MongoSchemasService.count_all_documents()["amount"]
+        total_documents = MongoSchemasService.count_all_documents(
+            mongo_schemas_connection=mongo_schemas_connection
+        )["amount"]
         schemas_releases = MongoSchemasService.find_one_jsonschema(
-            dtypes.MongoInsertOneSchemaRequest(import_name=request["import_name"])
+            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"]),
+            mongo_schemas_connection=mongo_schemas_connection,
         )
 
         # Try to fetch the existing schema document, and if it's not, then insert a new one.
@@ -200,6 +205,8 @@ class MongoSchemasService:
     @staticmethod
     def count_all_documents(
         _: dtypes.MongoCountAllDocumentsRequest = None,
+        *,
+        mongo_schemas_connection: MongoConnection,
     ) -> dtypes.MongoCountAllDocumentsResponse:
         """Count all documents in the schemas collection.
 
@@ -220,6 +227,8 @@ class MongoSchemasService:
     @staticmethod
     def find_one_jsonschema(
         request: dtypes.MongoFindJsonSchemaRequest,
+        *,
+        mongo_schemas_connection: MongoConnection,
     ) -> dtypes.MongoFindJsonSchemaResponse:
         """Find a JSON schema by import name.
 
@@ -247,12 +256,14 @@ class MongoSchemasService:
             )
 
         return dtypes.MongoFindJsonSchemaResponse(
-            status="found", extra={}, schema=schema_doc["active_schema"]
+            status="found", extra={}, schema=schema_doc
         )
 
     @staticmethod
     def update_one_schema(
         request: dtypes.MongoUpdateOneJsonSchemaRequest,
+        *,
+        mongo_schemas_connection: MongoConnection,
     ) -> dtypes.MongoUpdateOneJsonSchemaResponse:
         """Update an existing JSON schema.
 
@@ -270,7 +281,8 @@ class MongoSchemasService:
         """
         # First, check if the schema document exists
         existing_schema = MongoSchemasService.find_one_jsonschema(
-            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
+            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"]),
+            mongo_schemas_connection=mongo_schemas_connection,
         )
 
         # If schema doesn't exist, return error
@@ -337,6 +349,8 @@ class MongoSchemasService:
     @staticmethod
     def delete_one_schema(
         request: dtypes.MongoDeleteOneJsonSchemaRequest,
+        *,
+        mongo_schemas_connection: MongoConnection,
     ) -> dtypes.MongoDeleteOneJsonSchemaResponse:
         """Delete the current active schema or revert to previous version.
 
@@ -353,7 +367,8 @@ class MongoSchemasService:
                 result (deleted, reverted, or error).
         """
         schema_doc = MongoSchemasService.find_one_jsonschema(
-            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"])
+            dtypes.MongoFindJsonSchemaRequest(import_name=request["import_name"]),
+            mongo_schemas_connection=mongo_schemas_connection,
         )
 
         if schema_doc["status"] != "found" or schema_doc["schema"] is None:
@@ -400,6 +415,8 @@ class MongoSchemasService:
     @staticmethod
     def delete_import_name(
         request: dtypes.MongoDeleteImportNameRequest,
+        *,
+        mongo_schemas_connection: MongoConnection,
     ) -> dtypes.MongoDeleteImportNameResponse:
         """Delete all schemas associated with an import name.
 
