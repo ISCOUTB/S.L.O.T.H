@@ -2,12 +2,15 @@ from uuid import uuid4
 
 from proto_utils.database import dtypes
 
-from src.core.database_mongo import mongo_tasks_connection
-from src.core.database_redis import redis_db
+from src.core.database_mongo import MongoConnection
+from src.core.database_redis import RedisConnection
 from src.services.tasks import DatabaseTasksService
 
 
-def test_set_task_id() -> None:
+def test_set_task_id(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test setting a task ID in both Redis and MongoDB."""
     task_id = str(uuid4())
     task = "test_task"
@@ -26,7 +29,9 @@ def test_set_task_id() -> None:
 
     # Call the method to set the task ID
     response = DatabaseTasksService.set_task_id(
-        dtypes.SetTaskIdRequest(task_id=task_id, value=api_response, task=task)
+        dtypes.SetTaskIdRequest(task_id=task_id, value=api_response, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -49,7 +54,10 @@ def test_set_task_id() -> None:
     assert mongo_task["data"]["import_name"] == "test_import"
 
 
-def test_update_task_id() -> None:
+def test_update_task_id(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test updating a task ID field in both Redis and MongoDB."""
     task_id = str(uuid4())
     task = "test_task"
@@ -63,7 +71,9 @@ def test_update_task_id() -> None:
     )
 
     DatabaseTasksService.set_task_id(
-        dtypes.SetTaskIdRequest(task_id=task_id, value=initial_api_response, task=task)
+        dtypes.SetTaskIdRequest(task_id=task_id, value=initial_api_response, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Now update the task
@@ -75,7 +85,9 @@ def test_update_task_id() -> None:
             task=task,
             message="Task completed successfully",
             data={"processing_status": "completed", "rows_processed": "1000"},
-        )
+        ),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -97,7 +109,10 @@ def test_update_task_id() -> None:
     assert mongo_task["message"] == "Task completed successfully"
 
 
-def test_get_task_id_from_redis() -> None:
+def test_get_task_id_from_redis(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test getting a task ID that exists in Redis."""
     task_id = str(uuid4())
     task = "test_task"
@@ -114,7 +129,9 @@ def test_get_task_id_from_redis() -> None:
 
     # Get the task
     response = DatabaseTasksService.get_task_id(
-        dtypes.GetTaskIdRequest(task_id=task_id, task=task)
+        dtypes.GetTaskIdRequest(task_id=task_id, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -124,7 +141,10 @@ def test_get_task_id_from_redis() -> None:
     assert response["value"]["data"]["source"] == "redis"
 
 
-def test_get_task_id_from_mongodb_fallback() -> None:
+def test_get_task_id_from_mongodb_fallback(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test getting a task ID that exists only in MongoDB (Redis fallback)."""
     task_id = str(uuid4())
     task = "test_task"
@@ -144,7 +164,9 @@ def test_get_task_id_from_mongodb_fallback() -> None:
 
     # Get the task (should fallback to MongoDB since Redis is empty)
     response = DatabaseTasksService.get_task_id(
-        dtypes.GetTaskIdRequest(task_id=task_id, task=task)
+        dtypes.GetTaskIdRequest(task_id=task_id, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -160,14 +182,19 @@ def test_get_task_id_from_mongodb_fallback() -> None:
     assert redis_task["data"]["source"] == "mongodb"
 
 
-def test_get_task_id_not_found() -> None:
+def test_get_task_id_not_found(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test getting a task ID that doesn't exist."""
     task_id = str(uuid4())
     task = "test_task"
 
     # Try to get a non-existent task
     response = DatabaseTasksService.get_task_id(
-        dtypes.GetTaskIdRequest(task_id=task_id, task=task)
+        dtypes.GetTaskIdRequest(task_id=task_id, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -175,7 +202,10 @@ def test_get_task_id_not_found() -> None:
     assert response["value"] is None
 
 
-def test_get_tasks_by_import_name_from_redis() -> None:
+def test_get_tasks_by_import_name_from_redis(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test getting tasks by import name from Redis."""
     import_name = f"test_import_{uuid4()}"
     task = "test_task"
@@ -193,7 +223,9 @@ def test_get_tasks_by_import_name_from_redis() -> None:
 
     # Get tasks by import name
     response = DatabaseTasksService.get_tasks_by_import_name(
-        dtypes.GetTasksByImportNameRequest(import_name=import_name, task=task)
+        dtypes.GetTasksByImportNameRequest(import_name=import_name, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -203,7 +235,10 @@ def test_get_tasks_by_import_name_from_redis() -> None:
         assert task_data["data"]["import_name"] == import_name
 
 
-def test_get_tasks_by_import_name_from_mongodb_fallback() -> None:
+def test_get_tasks_by_import_name_from_mongodb_fallback(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test getting tasks by import name from MongoDB (Redis fallback)."""
     import_name = f"mongodb_import_{uuid4()}"
     task = "test_task"
@@ -224,7 +259,9 @@ def test_get_tasks_by_import_name_from_mongodb_fallback() -> None:
 
     # Get tasks by import name (should fallback to MongoDB)
     response = DatabaseTasksService.get_tasks_by_import_name(
-        dtypes.GetTasksByImportNameRequest(import_name=import_name, task=task)
+        dtypes.GetTasksByImportNameRequest(import_name=import_name, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response
@@ -243,14 +280,19 @@ def test_get_tasks_by_import_name_from_mongodb_fallback() -> None:
             assert redis_task["data"]["import_name"] == import_name
 
 
-def test_get_tasks_by_import_name_empty_result() -> None:
+def test_get_tasks_by_import_name_empty_result(
+    redis_db: RedisConnection,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Test getting tasks by import name when none exist."""
     import_name = "nonexistent_import"
     task = "test_task"
 
     # Try to get tasks for a non-existent import name
     response = DatabaseTasksService.get_tasks_by_import_name(
-        dtypes.GetTasksByImportNameRequest(import_name=import_name, task=task)
+        dtypes.GetTasksByImportNameRequest(import_name=import_name, task=task),
+        redis_db=redis_db,
+        mongo_tasks_connection=mongo_tasks_connection,
     )
 
     # Assert the response

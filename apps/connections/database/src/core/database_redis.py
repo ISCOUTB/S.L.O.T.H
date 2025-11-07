@@ -231,11 +231,18 @@ class RedisConnection:
             None:
         """
         import_name = value["data"].get("import_name", "default")
-        value["data"] = json.dumps(value["data"])  # Just in case
+
+        # Create a copy to avoid modifying the original dict
+        redis_value = {
+            "status": value["status"],
+            "code": str(value["code"]),  # Convert to string for Redis
+            "message": value["message"],
+            "data": json.dumps(value["data"]),  # Serialize data dict
+        }
 
         task_key = f"{task}:task:{task_id}"
         import_key = f"{task}:import:{import_name}:tasks"
-        self.redis_client.hset(task_key, mapping=value)
+        self.redis_client.hset(task_key, mapping=redis_value)
         self.redis_client.sadd(import_key, task_id)
 
         ttl = self._get_task_ttl(value["status"])
@@ -254,6 +261,11 @@ class RedisConnection:
         """
         task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
 
+        if not task_data:
+            return None
+
+        # Since decode_responses=True in Redis client, data is already decoded
+        # Just need to convert types
         if "data" in task_data:
             task_data["data"] = json.loads(task_data["data"])
 
@@ -348,11 +360,3 @@ class RedisConnection:
             return self.redis_client.flushdb()
         except redis.exceptions.ConnectionError:
             return False
-
-
-redis_db = RedisConnection(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=settings.REDIS_DB,
-    password=settings.REDIS_PASSWORD,
-)

@@ -13,7 +13,7 @@ import json
 
 from proto_utils.database import dtypes
 
-from src.core.database_redis import redis_db
+from src.core.database_redis import RedisConnection
 
 
 class RedisService:
@@ -26,7 +26,11 @@ class RedisService:
     """
 
     @staticmethod
-    def get_keys(request: dtypes.RedisGetKeysRequest) -> dtypes.RedisGetKeysResponse:
+    def get_keys(
+        request: dtypes.RedisGetKeysRequest,
+        *,
+        redis_db: RedisConnection,
+    ) -> dtypes.RedisGetKeysResponse:
         """Retrieve keys matching the given pattern from Redis.
 
         Args:
@@ -40,7 +44,11 @@ class RedisService:
         return dtypes.RedisGetKeysResponse(keys=keys)
 
     @staticmethod
-    def set_value(request: dtypes.RedisSetRequest) -> dtypes.RedisSetResponse:
+    def set_value(
+        request: dtypes.RedisSetRequest,
+        *,
+        redis_db: RedisConnection,
+    ) -> dtypes.RedisSetResponse:
         """Set a key-value pair in Redis cache.
 
         Args:
@@ -61,7 +69,11 @@ class RedisService:
             return dtypes.RedisSetResponse(success=False)
 
     @staticmethod
-    def get_value(request: dtypes.RedisGetRequest) -> dtypes.RedisGetResponse:
+    def get_value(
+        request: dtypes.RedisGetRequest,
+        *,
+        redis_db: RedisConnection,
+    ) -> dtypes.RedisGetResponse:
         """Retrieve a value from the Redis cache by key.
 
         Args:
@@ -74,7 +86,11 @@ class RedisService:
         return dtypes.RedisGetResponse(value=value, found=value is not None)
 
     @staticmethod
-    def delete_key(request: dtypes.RedisDeleteRequest) -> dtypes.RedisDeleteResponse:
+    def delete_key(
+        request: dtypes.RedisDeleteRequest,
+        *,
+        redis_db: RedisConnection,
+    ) -> dtypes.RedisDeleteResponse:
         """Delete one or more keys from the Redis cache.
 
         Args:
@@ -87,7 +103,11 @@ class RedisService:
         return dtypes.RedisDeleteResponse(count=deleted_count)
 
     @staticmethod
-    def ping(_: dtypes.RedisPingRequest = None) -> dtypes.RedisPingResponse:
+    def ping(
+        _: dtypes.RedisPingRequest = None,
+        *,
+        redis_db: RedisConnection,
+    ) -> dtypes.RedisPingResponse:
         """Check if the Redis server is reachable.
 
         Args:
@@ -102,6 +122,8 @@ class RedisService:
     @staticmethod
     def get_cache(
         _: dtypes.RedisGetCacheRequest = None,
+        *,
+        redis_db: RedisConnection,
     ) -> dtypes.RedisGetCacheResponse:
         """Retrieve all keys and their values from the Redis cache.
 
@@ -121,6 +143,8 @@ class RedisService:
     @staticmethod
     def clear_cache(
         _: dtypes.RedisClearCacheRequest = None,
+        *,
+        redis_db: RedisConnection,
     ) -> dtypes.RedisClearCacheResponse:
         """Clear all keys and values from the Redis database.
 
