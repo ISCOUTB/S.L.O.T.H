@@ -1,9 +1,8 @@
-from fastapi import APIRouter, HTTPException, UploadFile, Depends
+from fastapi import APIRouter, HTTPException, UploadFile
 from messaging_utils.core.config import settings as mq_settings
-from proto_utils.database import dtypes, DatabaseClient
+from proto_utils.database import dtypes
 
-from src.api.deps import get_db_client
-from src.messaging.publisher import publisher
+from src.api.deps import DatabaseClientDep, PublisherDep
 
 TASK = "validation"
 router = APIRouter()
@@ -11,10 +10,11 @@ router = APIRouter()
 
 @router.post("/upload/{import_name}")
 async def validate(
+    publisher: PublisherDep,
+    database_client: DatabaseClientDep,
     spreadsheet_file: UploadFile,
     import_name: str,
     new: bool = False,
-    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Upload a spreadsheet file in order to be validated.
@@ -76,9 +76,9 @@ async def validate(
 
 @router.get("/status")
 async def get_validation_status(
+    database_client: DatabaseClientDep,
     task_id: str = "",
     import_name: str = "",
-    database_client: DatabaseClient = Depends(get_db_client),
 ) -> dtypes.ApiResponse | list[dtypes.ApiResponse]:
     """
     Get the status of the file being validated.
