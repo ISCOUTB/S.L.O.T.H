@@ -1,14 +1,12 @@
 import json
 
-from fastapi import APIRouter, HTTPException, Depends
-from src.api.deps import CurrentUser, Admin, SessionDep
-from src.api.utils import is_superuser, invalidate_user_cache
+from fastapi import APIRouter, Depends, HTTPException
+from proto_utils.database import DatabaseClient, dtypes
 
-from proto_utils.database import dtypes, DatabaseClient
-
-from src.api.deps import get_db_client
-from src.controllers.users import ControllerUsers
 import src.schemas as schemas
+from src.api.deps import Admin, CurrentUser, SessionDep, get_db_client
+from src.api.utils import invalidate_user_cache, is_superuser
+from src.controllers.users import ControllerUsers
 
 router = APIRouter()
 

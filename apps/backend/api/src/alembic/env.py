@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -19,8 +18,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from src.core.database_sql import BaseModel  # noqa: E402
 from src.core.config import settings  # noqa: E402
+from src.core.database_sql import BaseModel  # noqa: E402
 
 target_metadata = BaseModel.metadata
 

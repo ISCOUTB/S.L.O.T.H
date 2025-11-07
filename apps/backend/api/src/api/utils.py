@@ -1,7 +1,7 @@
+from proto_utils.database import DatabaseClient, dtypes
+
 import src.schemas as schemas
 from src.core.config import settings
-
-from proto_utils.database import dtypes, DatabaseClient
 
 
 # TODO: Improve this function to use a more robust method of checking superuser status

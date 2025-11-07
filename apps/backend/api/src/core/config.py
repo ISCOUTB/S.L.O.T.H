@@ -1,17 +1,15 @@
 import secrets
-
-from pydantic_core import MultiHostUrl
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import (
-    computed_field,
-    BeforeValidator,
-    AmqpDsn,
-    PostgresDsn,
-)
-
-from typing import Any, Annotated
+from typing import Annotated, Any
 
 from dotenv import load_dotenv
+from pydantic import (
+    AmqpDsn,
+    BeforeValidator,
+    PostgresDsn,
+    computed_field,
+)
+from pydantic_core import MultiHostUrl
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 load_dotenv()
 

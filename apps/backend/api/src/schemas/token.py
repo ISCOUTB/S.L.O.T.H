@@ -10,6 +10,7 @@ The module includes:
 """
 
 from pydantic import BaseModel
+
 from src.schemas.users import Roles
 
 

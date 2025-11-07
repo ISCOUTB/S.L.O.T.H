@@ -1,8 +1,8 @@
+from typing import Any, Dict
+
 from fastapi import APIRouter, HTTPException
 from messaging_utils.core.config import settings as mq_settings
 from proto_utils.database import dtypes
-
-from typing import Dict, Any
 
 from src.api.deps import DatabaseClientDep, PublisherDep
 
