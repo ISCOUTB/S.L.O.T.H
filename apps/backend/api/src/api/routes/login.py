@@ -1,15 +1,14 @@
 from datetime import timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
+from src import schemas
 from src.api.deps import CurrentUser, SessionDep
+from src.controllers.users import ControllerUsers
 from src.core.config import settings
 from src.core.security import create_access_token
-
-from src import schemas
-from src.controllers.users import ControllerUsers
 
 router = APIRouter()
 

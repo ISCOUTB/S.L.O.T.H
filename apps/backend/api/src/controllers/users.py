@@ -1,18 +1,18 @@
 import datetime
 
+import sqlalchemy.exc
+from sqlalchemy import Select, select
+from sqlalchemy.orm import Session
+
 import src.models as models
 import src.schemas as schemas
 from src.controllers.utils import (
-    validate_unique_fields,
     parse_integrity_error,
     valid_email_format,
     valid_phone_format,
+    validate_unique_fields,
 )
-from src.core.security import verify_password, get_password_hash
-
-import sqlalchemy.exc
-from sqlalchemy import select, Select
-from sqlalchemy.orm import Session
+from src.core.security import get_password_hash, verify_password
 
 
 class ControllerUsers:

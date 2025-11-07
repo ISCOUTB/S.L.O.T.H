@@ -4,19 +4,17 @@ from typing import Annotated
 import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
-
 from messaging_utils.core.connection_params import messaging_params
 from messaging_utils.messaging.publishers import Publisher
 from proto_utils.database.base_client import DatabaseClient
-
-from src.core import security
-from src.core.config import settings
-from src.core.database_sql import SessionLocal
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 import src.schemas as schemas
 from src.controllers.users import ControllerUsers
+from src.core import security
+from src.core.config import settings
+from src.core.database_sql import SessionLocal
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"

@@ -1,9 +1,10 @@
-import src.models as models
-
 import re
-from sqlalchemy import select, or_
-from sqlalchemy.orm import Session
 from typing import Dict, Optional
+
+from sqlalchemy import or_, select
+from sqlalchemy.orm import Session
+
+import src.models as models
 
 
 def valid_email_format(email: str) -> bool:
