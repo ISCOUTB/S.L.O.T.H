@@ -208,10 +208,15 @@ class MongoSerde:
         Returns:
             The serialized Protocol Buffer MongoFindJsonSchemaResponse message.
         """
+        # Handle None schema case (when schema is not found)
+        schema_proto = None
+        if response["schema"] is not None:
+            schema_proto = DatabaseUtilsSerde.serialize_jsonschema(response["schema"])
+
         return mongo_pb2.MongoFindJsonSchemaResponse(
             status=response["status"],
             extra=response["extra"],
-            schema=DatabaseUtilsSerde.serialize_jsonschema(response["schema"]),
+            schema=schema_proto,
         )
 
     @staticmethod
