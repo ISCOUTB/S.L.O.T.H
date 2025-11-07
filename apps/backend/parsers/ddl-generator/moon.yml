@@ -27,6 +27,13 @@ tasks:
             - --cov-report=xml
         toolchain: python
 
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
     run:
         command: uv
         args:
@@ -34,15 +41,15 @@ tasks:
             - python
             - -m
             - src.server
-        options:
-            runFromWorkspaceRoot: false
+        toolchain: python
+        local: true
 
     docker-build:
         command: docker
         args:
             - build
             - -t
-            - ddl-generator:1.0
+            - ddl-generator:latest
             - -f
             - ./apps/backend/parsers/ddl-generator/Dockerfile
             - .

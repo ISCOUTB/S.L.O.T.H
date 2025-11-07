@@ -1,0 +1,13 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
+project:
+    name: iac
+    description: cloud infraestructure
+
+tasks:
+    swarm-dev:
+        command: bash
+        args:
+            - swarm/scripts/dev-deploy.sh
+        options:
+            cache: false

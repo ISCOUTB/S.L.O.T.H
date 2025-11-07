@@ -1,0 +1,176 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+services:
+    prometheus:
+        image: prom/prometheus:latest
+        user: root
+        volumes:
+            - prometheus-data:/prometheus
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        command:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention.time=3d"
+        networks:
+            - monitoring
+        ports:
+            - published: 9090
+              target: 9090
+              protocol: tcp
+              mode: host
+        deploy:
+            placement:
+                constraints:
+                    - node.role == manager
+            resources:
+                limits:
+                    memory: 512M
+
+    cadvisor:
+        image: gcr.io/cadvisor/cadvisor:latest
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - /:/rootfs:ro
+            - /var/run:/var/run
+            - /sys:/sys:ro
+            - /var/lib/docker:/var/lib/docker:ro
+        command:
+            - "--docker_only=true"
+        networks:
+            - monitoring
+        ports:
+            - 8080:8080
+        deploy:
+            mode: global
+            labels:
+                - prometheus-job=cadvisor
+            resources:
+                limits:
+                    memory: 256M
+
+    node-exporter:
+        image: prom/node-exporter:latest
+        volumes:
+            - /:/rootfs:ro
+            - /sys:/host/sys:ro
+            - /proc:/host/proc:ro
+        command:
+            - "--path.procfs=/host/proc"
+            - "--path.sysfs=/host/sys"
+            - "--path.rootfs=/rootfs"
+        networks:
+            - monitoring
+        ports:
+            - 9100:9100
+        deploy:
+            mode: global
+            labels:
+                - prometheus-job=node-exporter
+
+    scaler:
+        image: vulcan99/autoscaler:latest
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        environment:
+            NODE_ENV: development
+            PROMETHEUS_URL: ${SCALER_PROMETHEUS_URL}
+            STACK_NAME: ${GLOBAL_STACK_NAME}
+            CHECK_INTERVAL: ${SCALER_CHECK_INTERVAL}
+            COOLDOWN_PERIOD: ${SCALER_COOLDOWN_PERIOD}
+            METRIC_WINDOW_MULTIPLIER: ${SCALER_METRIC_WINDOW_MULTIPLIER}
+        networks:
+            - monitoring
+        deploy:
+            placement:
+                constraints:
+                    - node.role == manager
+
+    formula-parser:
+        image: vulcan99/formula-parser:latest
+        environment:
+            FORMULA_PARSER_HOST: ${PARSERS_FORMULA_PARSER_HOST}
+            FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT}
+            DEBUG_FORMULA_PARSER: ${PARSERS_DEBUG_FORMULA_PARSER}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "128m"
+                limits:
+                    memory: "256m"
+            labels:
+                - scaler.enabled=true
+
+    ddl-generator:
+        image: vulcan99/ddl-generator:latest
+        environment:
+            DDL_GENERATOR_HOST: ${PARSERS_DDL_GENERATOR_HOST}
+            DDL_GENERATOR_PORT: ${PARSERS_DDL_GENERATOR_PORT}
+            DDL_GENERATOR_DEBUG: ${PARSERS_DDL_GENERATOR_DEBUG}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+            labels:
+                - scaler.enabled=true
+
+    sql-builder:
+        image: vulcan99/sql-builder:latest
+        environment:
+            SQL_BUILDER_HOST: ${PARSERS_SQL_BUILDER_HOST}
+            SQL_BUILDER_PORT: ${PARSERS_SQL_BUILDER_PORT}
+            SQL_BUILDER_DEBUG: ${PARSERS_SQL_BUILDER_DEBUG}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+            labels:
+                - scaler.enabled=true
+
+    excel-reader:
+        image: vulcan99/excel-reader:latest
+        environment:
+            FORMULA_PARSER_HOST: "formula-parser"
+            FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT}
+            DDL_GENERATOR_HOST: "ddl-generator"
+            DDL_GENERATOR_PORT: ${PARSERS_DDL_GENERATOR_PORT}
+            SQL_BUILDER_HOST: "sql-builder"
+            SQL_BUILDER_PORT: ${PARSERS_SQL_BUILDER_PORT}
+            EXCEL_READER_HOST: ${PARSERS_EXCEL_READER_HOST}
+            EXCEL_READER_PORT: ${PARSERS_EXCEL_READER_PORT}
+            EXCEL_READER_DEBUG: ${PARSERS_EXCEL_READER_DEBUG}
+        networks:
+            - monitoring
+            - parsers
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+            labels:
+                - scaler.enabled=true
+
+networks:
+    monitoring:
+    parsers:
+
+volumes:
+    prometheus-data:

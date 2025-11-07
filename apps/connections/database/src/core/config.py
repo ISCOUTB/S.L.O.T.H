@@ -1,8 +1,7 @@
+from dotenv import load_dotenv
+from pydantic import MongoDsn, RedisDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import computed_field, MongoDsn, RedisDsn
-
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -22,6 +21,9 @@ class Settings(BaseSettings):
     MONGO_DB: str
     MONGO_SCHEMAS_COLLECTION: str
     MONGO_TASKS_COLLECTION: str
+    MONGO_MAX_RETRIES: int = 5
+    MONGO_RETRY_DELAY_SECONDS: float = 0.5
+    MONGO_RETRY_BACKOFF_FACTOR: float = 2.0
 
     @computed_field
     @property
@@ -40,6 +42,9 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_PASSWORD: str
     REDIS_EXPIRE_SECONDS: int = 60 * 5  # 5 minutes by default
+    REDIS_MAX_RETRIES: int = 5
+    REDIS_RETRY_DELAY_SECONDS: float = 0.5
+    REDIS_RETRY_BACKOFF_FACTOR: float = 2.0
 
     @computed_field
     @property
@@ -78,3 +83,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+if __name__ == "__main__":
+    print(settings.model_dump_json(indent=4))
