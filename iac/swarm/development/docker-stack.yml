@@ -18,7 +18,7 @@ services:
             - published: 9090
               target: 9090
               protocol: tcp
-              mode: host
+              mode: ingress
         deploy:
             placement:
                 constraints:
@@ -39,8 +39,6 @@ services:
             - "--docker_only=true"
         networks:
             - monitoring
-        ports:
-            - 8080:8080
         deploy:
             mode: global
             labels:
@@ -61,8 +59,6 @@ services:
             - "--path.rootfs=/rootfs"
         networks:
             - monitoring
-        ports:
-            - 9100:9100
         deploy:
             mode: global
             labels:
