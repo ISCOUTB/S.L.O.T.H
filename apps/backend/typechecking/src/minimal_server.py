@@ -64,7 +64,7 @@ if __name__ == "__main__":
         reload=settings.MINIMAL_SERVER_DEBUG,
         reload_dirs=["src/"] if settings.MINIMAL_SERVER_DEBUG else None,
         reload_includes=["*.py"] if settings.MINIMAL_SERVER_DEBUG else None,
-        log_config=LOGGING_CONFIG,  # ✨ Usar configuración custom
+        log_config=LOGGING_CONFIG,
         log_level="info",
         use_colors=True,
         access_log=True,
