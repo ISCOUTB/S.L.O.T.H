@@ -44,7 +44,7 @@ def get_publisher() -> Generator[Publisher, None, None]:
     publisher = Publisher(
         params=params,
         exchange_info=exchange_info,
-        max_tries=settings.RABBITMQ_MAX_TRIES,
+        max_tries=settings.RABBITMQ_MAX_RETRIES,
         retry_delay=settings.RABBITMQ_RETRY_DELAY_SECONDS,
         backoff=settings.RABBITMQ_BACKOFF_MULTIPLIER,
     )
