@@ -40,6 +40,13 @@ class MongoHandler(BaseHandler):
         # just in case
         raise last_exception
 
+    def ping(self, request: mongo_pb2.MongoPingRequest) -> mongo_pb2.MongoPingResponse:
+        deserialized_request = MongoSerde.deserialize_ping_request(request)
+        service_response = self._execute_with_retry(
+            MongoSchemasService.ping, deserialized_request
+        )
+        return MongoSerde.serialize_ping_response(service_response)
+
     def insert_one_schema(
         self,
         request: mongo_pb2.MongoInsertOneSchemaRequest,

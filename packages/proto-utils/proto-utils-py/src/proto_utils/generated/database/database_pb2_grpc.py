@@ -80,6 +80,11 @@ class DatabaseServiceStub(object):
                 request_serializer=database_dot_redis__pb2.RedisClearCacheRequest.SerializeToString,
                 response_deserializer=database_dot_redis__pb2.RedisClearCacheResponse.FromString,
                 _registered_method=True)
+        self.MongoPing = channel.unary_unary(
+                '/database_service.DatabaseService/MongoPing',
+                request_serializer=database_dot_mongo__pb2.MongoPingRequest.SerializeToString,
+                response_deserializer=database_dot_mongo__pb2.MongoPingResponse.FromString,
+                _registered_method=True)
         self.MongoInsertOneSchema = channel.unary_unary(
                 '/database_service.DatabaseService/MongoInsertOneSchema',
                 request_serializer=database_dot_mongo__pb2.MongoInsertOneSchemaRequest.SerializeToString,
@@ -186,11 +191,17 @@ class DatabaseServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def MongoInsertOneSchema(self, request, context):
+    def MongoPing(self, request, context):
         """================== Mongo - Related to schemas ==================
         MongoDB operations specifically for JSON schema management
 
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MongoInsertOneSchema(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -290,6 +301,11 @@ def add_DatabaseServiceServicer_to_server(servicer, server):
                     servicer.RedisClearCache,
                     request_deserializer=database_dot_redis__pb2.RedisClearCacheRequest.FromString,
                     response_serializer=database_dot_redis__pb2.RedisClearCacheResponse.SerializeToString,
+            ),
+            'MongoPing': grpc.unary_unary_rpc_method_handler(
+                    servicer.MongoPing,
+                    request_deserializer=database_dot_mongo__pb2.MongoPingRequest.FromString,
+                    response_serializer=database_dot_mongo__pb2.MongoPingResponse.SerializeToString,
             ),
             'MongoInsertOneSchema': grpc.unary_unary_rpc_method_handler(
                     servicer.MongoInsertOneSchema,
@@ -537,6 +553,33 @@ class DatabaseService(object):
             '/database_service.DatabaseService/RedisClearCache',
             database_dot_redis__pb2.RedisClearCacheRequest.SerializeToString,
             database_dot_redis__pb2.RedisClearCacheResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def MongoPing(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/database_service.DatabaseService/MongoPing',
+            database_dot_mongo__pb2.MongoPingRequest.SerializeToString,
+            database_dot_mongo__pb2.MongoPingResponse.FromString,
             options,
             channel_credentials,
             insecure,

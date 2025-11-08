@@ -7,6 +7,16 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class MongoPingRequest(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
+class MongoPingResponse(_message.Message):
+    __slots__ = ("pong",)
+    PONG_FIELD_NUMBER: _ClassVar[int]
+    pong: bool
+    def __init__(self, pong: bool = ...) -> None: ...
+
 class MongoInsertOneSchemaRequest(_message.Message):
     __slots__ = ("import_name", "created_at", "active_schema", "schemas_releases")
     IMPORT_NAME_FIELD_NUMBER: _ClassVar[int]
