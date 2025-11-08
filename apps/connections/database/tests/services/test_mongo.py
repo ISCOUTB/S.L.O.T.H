@@ -528,3 +528,10 @@ def test_delete_import_name_not_found(
     )
 
     assert response["status"] == "error"
+
+
+def test_ping(mongo_schemas_connection: MongoConnection) -> None:
+    response = MongoSchemasService.ping(
+        mongo_schemas_connection=mongo_schemas_connection
+    )
+    assert response["pong"] is True

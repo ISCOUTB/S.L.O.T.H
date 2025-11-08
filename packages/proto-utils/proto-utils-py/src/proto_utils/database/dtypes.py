@@ -69,6 +69,9 @@ class JsonSchema(TypedDict):
     properties: Dict[str, Properties]
 
 
+# =============================== Redis ===============================
+
+
 class RedisGetKeysRequest(TypedDict):
     """Request message for retrieving keys that match a specific pattern.
 
@@ -212,6 +215,28 @@ class RedisClearCacheResponse(TypedDict):
     """
 
     success: bool
+
+
+# =============================== Mongo ===============================
+
+
+class MongoPingRequest(TypedDict):
+    """Request message for checking Mongo server connectivity.
+
+    No fields needed for ping operation.
+    """
+
+    pass
+
+
+class MongoPingResponse(TypedDict):
+    """Response message for ping operation.
+
+    Attributes:
+        pong (bool): Should always be true if the MongoDB server is reachable and responsive
+    """
+
+    pong: bool
 
 
 class MongoInsertOneSchemaRequest(TypedDict):
@@ -365,6 +390,9 @@ class MongoDeleteImportNameResponse(TypedDict):
     message: str
     status: Literal["deleted", "error"]
     extra: Dict[str, str]
+
+
+# =============================== Both ===============================
 
 
 class UpdateTaskIdRequest(TypedDict):

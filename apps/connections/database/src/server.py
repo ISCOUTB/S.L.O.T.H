@@ -72,6 +72,8 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         self.mongo_handler = MongoHandler()
         self.database_tasks_handler = DatabaseTasksHandler()
 
+    # =================== Redis - General Purpose ===================
+
     def RedisGetKeys(
         self,
         request: redis_pb2.RedisGetKeysRequest,
@@ -235,6 +237,8 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
             logger.error(f"[REDIS_PING] Health check failed: {e}")
             raise
 
+    # =================== Redis - Manage all cache ===================
+
     def RedisGetCache(
         self,
         request: redis_pb2.RedisGetCacheRequest,
@@ -294,6 +298,38 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
             return response
         except Exception as e:
             logger.error(f"[REDIS_CLEAR_CACHE] Operation failed: {e}")
+            raise
+
+    # ================== Mongo - Related to schemas ==================
+
+    def MongoPing(
+        self,
+        request: mongo_pb2.MongoPingRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> mongo_pb2.MongoPingResponse:
+        """Ping MongoDB to check connection status.
+
+        Args:
+            request: Ping request (typically empty).
+            context: gRPC service context for the request.
+
+        Returns:
+            MongoPingResponse indicating connection status.
+
+        Raises:
+            grpc.RpcError: If MongoDB connection fails.
+        """
+        logger.info(f"[MONGO_PING] Health check request from client {context.peer()}")
+
+        try:
+            response = self.mongo_handler.ping(request)
+            logger.info(
+                f"[MONGO_PING] Health check completed - "
+                f"Connection: {'OK' if response.pong else 'FAILED'}"
+            )
+            return response
+        except Exception as e:
+            logger.error(f"[MONGO_PING] Health check failed: {e}")
             raise
 
     def MongoInsertOneSchema(
@@ -495,6 +531,8 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         except Exception as e:
             logger.error(f"[MONGO_DELETE_IMPORT] Operation failed: {e}")
             raise
+
+    # ================== Both - Related to task IDs ==================
 
     def UpdateTaskId(
         self,

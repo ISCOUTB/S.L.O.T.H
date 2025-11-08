@@ -1,11 +1,9 @@
+from sqlalchemy.orm import Session
+
 import src.schemas as schemas
-
 from src.controllers.users import ControllerUsers
-
 from src.core.config import settings
 from src.core.database_sql import SessionLocal
-
-from sqlalchemy.orm import Session
 
 
 def init_db(db: Session) -> None:

@@ -4,6 +4,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /workspace/apps/backend/typechecking/
 
+# Install supervisor and curl
+RUN apt-get update && \
+    apt-get install -y supervisor curl && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.7.6 /uv /uvx /bin/
@@ -33,6 +38,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PYTHONPATH=.
 
+# Copy supervisor configuration
+COPY ./apps/backend/typechecking/supervisord.conf /etc/supervisord/conf.d/supervisord.conf
+
+# Copy source code
 COPY ./apps/backend/typechecking/pyproject.toml \
     ./apps/backend/typechecking/uv.lock \
     ./
@@ -43,4 +52,5 @@ COPY ./apps/backend/typechecking/src ./src
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
-CMD ["python", "-m", "src.main"]
+# Start supervisord
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord/conf.d/supervisord.conf"]
