@@ -12,6 +12,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # RabbitMQ Configuration
+    RABBITMQ_MAX_RETRIES: int = 5
+    RABBITMQ_RETRY_DELAY_SECONDS: float = 1.0
+    RABBITMQ_BACKOFF_MULTIPLIER: float = 2.0
+    RABBITMQ_THRESHOLD_SECONDS: float = 60.0
+
     # Workers Configuration
     MAX_WORKERS: int = 1
     WORKER_PREFETCH_COUNT: int = 1
