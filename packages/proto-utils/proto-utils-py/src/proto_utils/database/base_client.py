@@ -207,6 +207,16 @@ class DatabaseClient:
 
     # ============================ Mongo Methods ============================
 
+    def mongo_ping(
+        self, request: dtypes.MongoPingRequest = None
+    ) -> dtypes.MongoPingResponse:
+        def _operation() -> dtypes.MongoPingResponse:
+            request_proto = MongoSerde.serialize_ping_request(request)
+            response = self._stub.MongoPing(request_proto)
+            return MongoSerde.deserialize_ping_response(response)
+
+        return self._execute_with_retry(_operation, "MongoPing")
+
     def mongo_insert_one_schema(
         self, request: dtypes.MongoInsertOneSchemaRequest
     ) -> dtypes.MongoInsertOneSchemaResponse:

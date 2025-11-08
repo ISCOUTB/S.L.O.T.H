@@ -99,6 +99,22 @@ class MongoSchemasService:
         )
 
     @staticmethod
+    def ping(
+        _: dtypes.MongoPingRequest = None,
+        *,
+        mongo_schemas_connection: MongoConnection,
+    ) -> dtypes.MongoPingResponse:
+        """Ping the MongoDB server to check connectivity.
+
+        Args:
+            _ (dtypes.MongoPingRequest, optional): Unused request parameter.
+
+        Returns:
+            dtypes.MongoPingResponse: Response indicating the ping status.
+        """
+        return dtypes.MongoPingResponse(pong=mongo_schemas_connection.is_healthy())
+
+    @staticmethod
     def insert_one_schema(
         request: dtypes.MongoInsertOneSchemaRequest,
         *,

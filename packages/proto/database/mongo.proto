@@ -8,6 +8,16 @@ package mongo;
 // This file contains Protocol Buffer definitions for MongoDB operations
 // specifically focused on JSON schema storage, retrieval, and management.
 
+// Request message for checking Mongo server connectivity
+message MongoPingRequest {
+    // No fields needed for ping operation
+}
+
+// Response message for ping operation
+message MongoPingResponse {
+    bool pong = 1; // Should always be true if the Redis server is reachable and responsive
+}
+
 // ================== Mongo - Related to schemas ==================
 
 // Request message for inserting a new schema document into MongoDB
