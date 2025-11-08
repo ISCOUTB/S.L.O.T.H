@@ -40,8 +40,8 @@ if __name__ == "__main__":
         host=settings.MINIMAL_SERVER_HOST,
         port=settings.MINIMAL_SERVER_PORT,
         reload=settings.MINIMAL_SERVER_DEBUG,
-        reload_dirs=["src/"],
-        reload_includes=["*.py"],
+        reload_dirs=["src/"] if settings.MINIMAL_SERVER_DEBUG else None,
+        reload_includes=["*.py"] if settings.MINIMAL_SERVER_DEBUG else None,
         log_level="info",
         use_colors=True,
     )

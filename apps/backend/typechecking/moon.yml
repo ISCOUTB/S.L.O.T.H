@@ -50,6 +50,17 @@ tasks:
         options:
             runFromWorkspaceRoot: false
 
+    server:
+        command: uv
+        args:
+            - run
+            - -m
+            - src.minimal_server
+        toolchain: python
+        local: true
+        options:
+            runFromWorkspaceRoot: false
+
     docker-build:
         command: docker
         args:
