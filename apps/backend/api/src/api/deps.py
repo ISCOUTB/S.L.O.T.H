@@ -39,7 +39,7 @@ def get_sql_db() -> Generator[Session, None, None]:
 
 def get_publisher() -> Generator[Publisher, None, None]:
     params = messaging_params.copy()
-    exchange_info = messaging_params.pop("exchange")
+    exchange_info = params.pop("exchange")
 
     publisher = Publisher(
         params=params,
