@@ -28,7 +28,7 @@ from messaging_utils.schemas import SchemaMessage
 from proto_utils.database import dtypes
 
 from src.core.config import settings
-from src.core.database_client import database_client
+from src.core.database_client import DatabaseClient, get_database_client
 from src.handlers.schemas import create_schema, remove_schema, save_schema
 from src.schemas.workers import SchemaUpdated
 from src.utils import create_component_logger, get_datetime_now
@@ -54,6 +54,16 @@ class SchemaWorker:
     """
 
     TASK = "schemas"
+
+    def __init__(self) -> None:
+        """Initialize the SchemaWorker instance.
+
+        Sets up initial state for the worker, including connection and channel
+        placeholders. Actual connection setup is performed in start_consuming().
+        """
+        self.db_client = get_database_client(logger)
+        self.connection: pika.BlockingConnection | None = None
+        self.channel: pika.channel.Channel | None = None
 
     def start_consuming(self) -> None:
         """Start consuming messages from the RabbitMQ queue.
@@ -103,12 +113,16 @@ class SchemaWorker:
         the shutdown process for monitoring purposes.
         """
         try:
+            logger.info("Stopping SchemaWorker...")
+
+            self.db_client.close()
+
             if self.channel and self.channel.is_open:
                 self.channel.stop_consuming()
                 RabbitMQConnectionFactory.close_thread_connections()
-                logger.info("ValidationWorker: Connections closed")
+                logger.info("SchemaWorker: Connections closed")
         except Exception as e:
-            logger.error(f"ValidationWorker: Error closing connections: {e}")
+            logger.error(f"SchemaWorker: Error closing connections: {e}")
 
     def process_schema_update(self, ch, method, properties, body) -> None:
         """Process incoming schema update messages.
@@ -143,6 +157,7 @@ class SchemaWorker:
                 # Update the task status to 'processing'
                 logger.info(f"Processing schema update: {task_id}")
                 update_task_status(
+                    database_client=self.db_client,
                     task_id=task_id,
                     field="status",
                     value="received-schema-update",
@@ -152,11 +167,12 @@ class SchemaWorker:
                         "update_date": get_datetime_now(),
                     },
                 )
-                result = self._update_schema(message)
+                result = self._update_schema(message, db_client=self.db_client)
 
             if task == "remove_schema":
                 logger.info(f"Removing schema: {task_id}")
                 update_task_status(
+                    database_client=self.db_client,
                     task_id=task_id,
                     field="status",
                     value="received-removing-schema",
@@ -166,14 +182,16 @@ class SchemaWorker:
                         "update_date": get_datetime_now(),
                     },
                 )
-                result = self._remove_schema(message)
+                result = self._remove_schema(message, db_client=self.db_client)
 
             # Add more cases here if needed for other tasks
 
             # Here could be implemented a callback to notify other services
             # e.g. using webhooks or other messaging patterns.
             # And, maybe, not use another queue of results for that.
-            self._publish_result(task_id, result)  # Meanwhile
+
+            # Meanwhile
+            self._publish_result(task_id, result, db_client=self.db_client)
 
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -182,7 +200,9 @@ class SchemaWorker:
             logger.error(f"Error processing schema update: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
-    def _update_schema(self, message: SchemaMessage) -> SchemaUpdated:
+    def _update_schema(
+        self, message: SchemaMessage, db_client: DatabaseClient
+    ) -> SchemaUpdated:
         """Update the schema based on the incoming message.
 
         Processes a schema update request by creating a new schema from the
@@ -190,11 +210,12 @@ class SchemaWorker:
         Returns a structured result containing the operation status and details.
 
         Args:
-            message: Dictionary containing schema update parameters including:
+            message (SchemaMessage): Dictionary containing schema update parameters including:
                 - task_id: Unique task identifier
                 - import_name: Schema import identifier
                 - schema: Parameters for schema creation
                 - raw: Boolean indicating if the schema is raw
+            db_client (DatabaseClient): Database client for task status updates.
 
         Returns:
             SchemaUpdated: Dictionary containing the update result with fields:
@@ -214,6 +235,7 @@ class SchemaWorker:
 
         # Update the task status
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="creating-schema",
@@ -226,6 +248,7 @@ class SchemaWorker:
         try:
             schema = create_schema(raw, message["schema"])
             update_task_status(
+                database_client=db_client,
                 task_id=task_id,
                 field="status",
                 value="schema-created",
@@ -236,6 +259,7 @@ class SchemaWorker:
         except SchemaError as e:
             logger.error(f"Schema creation failed: {e}")
             update_task_status(
+                database_client=db_client,
                 task_id=task_id,
                 field="status",
                 value="failed-creating-schema",
@@ -254,6 +278,7 @@ class SchemaWorker:
 
         # Save the schema and return the result
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="saving-schema",
@@ -261,13 +286,18 @@ class SchemaWorker:
             data={"update_date": get_datetime_now()},
         )
         try:
-            result = save_schema(schema.copy(), import_name)
+            result = save_schema(
+                schema.copy(),
+                import_name,
+                database_client=db_client,
+            )
             status = "completed"
         except Exception as e:
             result = repr(e)
             status = "failed-saving-schema"
 
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value=status,
@@ -291,7 +321,9 @@ class SchemaWorker:
             result=result,
         )
 
-    def _remove_schema(self, message: SchemaMessage) -> SchemaUpdated:
+    def _remove_schema(
+        self, message: SchemaMessage, db_client: DatabaseClient
+    ) -> SchemaUpdated:
         """Remove the schema based on the incoming message.
 
         Processes a schema removal request by deleting the schema associated
@@ -299,9 +331,10 @@ class SchemaWorker:
         the operation status and details.
 
         Args:
-            message: Dictionary containing schema removal parameters including:
+            message (SchemaMessage): Dictionary containing schema removal parameters including:
                 - task_id: Unique task identifier
                 - import_name: Schema import identifier
+            db_client (DatabaseClient): Database client instance for database operations.
 
         Returns:
             SchemaUpdated: Dictionary containing the removal result with fields:
@@ -319,6 +352,7 @@ class SchemaWorker:
 
         # Update the task status
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="removing-schema",
@@ -329,13 +363,14 @@ class SchemaWorker:
 
         # Remove the schema and return the result
         try:
-            result = remove_schema(import_name)
+            result = remove_schema(import_name, database_client=db_client)
             status = "completed"
         except Exception as e:
             result = repr(e)
             status = "failed-removing-schema"
 
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value=status,
@@ -355,16 +390,19 @@ class SchemaWorker:
             result=result,
         )
 
-    def _publish_result(self, task_id: str, result: SchemaUpdated) -> None:
+    def _publish_result(
+        self, task_id: str, result: SchemaUpdated, db_client: DatabaseClient
+    ) -> None:
         """Publish the result of the schema update to the RabbitMQ exchange.
 
         Sends the schema update result to the 'typechecking.exchange' with
         routing key 'schema.result' for downstream consumers to process.
 
         Args:
-            task_id: Unique identifier for the completed task, used for logging.
-            result: Dictionary containing the schema update result to be published.
+            task_id (str): Unique identifier for the completed task, used for logging.
+            result (SchemaUpdated): Dictionary containing the schema update result to be published.
                 Should be JSON-serializable.
+            db_client (DatabaseClient): Database client for task status updates.
 
         Raises:
             Exception: If message publishing fails due to connection issues
@@ -372,13 +410,14 @@ class SchemaWorker:
                 for proper error handling and message acknowledgment.
         """
         if result["status"] != "completed":
-            upload_date = database_client.get_task_id(
+            upload_date = db_client.get_task_id(
                 dtypes.GetTaskIdRequest(
                     task_id=task_id,
                     task=self.TASK,
                 )
             )["value"]["data"].get("upload_date", get_datetime_now())
             update_task_status(
+                database_client=db_client,
                 task_id=task_id,
                 field="status",
                 value="failed-publishing-result",
@@ -400,6 +439,7 @@ class SchemaWorker:
             body=json.dumps(result),
         )
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="published",

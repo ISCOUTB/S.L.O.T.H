@@ -3,7 +3,7 @@ from typing import Any, Dict
 from jsonschema import Draft7Validator
 from proto_utils.database import dtypes
 
-from src.core.database_client import database_client
+from src.core.database_client import DatabaseClient
 from src.utils import get_datetime_now
 
 
@@ -15,12 +15,15 @@ def compare_schemas(schema1: Dict[str, Any], schema2: Dict[str, Any]) -> bool:
     return schema1 == schema2
 
 
-def get_active_schema(import_name: str) -> dtypes.JsonSchema | None:
+def get_active_schema(
+    import_name: str, database_client: DatabaseClient
+) -> dtypes.JsonSchema | None:
     """
     Get the active schema for a given import name.
 
     Args:
         import_name (str): The name of the import.
+        database_client (DatabaseClient): The database client to use for fetching the schema.
 
     Returns:
         Dict | None: The active schema if found, None otherwise.
@@ -61,7 +64,7 @@ def create_schema(raw: bool, kwargs) -> Dict:
 
 
 def save_schema(
-    schema: dict, import_name: str
+    schema: dict, import_name: str, database_client: DatabaseClient
 ) -> dtypes.MongoInsertOneSchemaResponse:
     """
     Save the schema to the MongoDB collection.
@@ -71,6 +74,7 @@ def save_schema(
     Args:
         schema (dict): The JSON schema to save.
         import_name (str): The name of the import, used as a unique identifier.
+        database_client (DatabaseClient): The database client to use for saving the schema.
     Returns:
         proto_utils.database.dtypes.MongoInsertOneSchemaResponse:
         The result of the insert or update operation.
@@ -86,7 +90,9 @@ def save_schema(
                 item[0],
                 {
                     "type": item[1]["type"],
-                    "extra": {k: str(v) for k, v in item[1].items() if k != "type"},
+                    "extra": {
+                        k: str(v) for k, v in item[1].items() if k != "type"
+                    },
                 },
             ),
             schema["properties"].items(),
@@ -103,7 +109,10 @@ def save_schema(
     )
 
 
-def remove_schema(import_name: str) -> dtypes.MongoDeleteOneJsonSchemaResponse:
+def remove_schema(
+    import_name: str,
+    database_client: DatabaseClient,
+) -> dtypes.MongoDeleteOneJsonSchemaResponse:
     """
     Remove or revert a schema based on its import name.
 
@@ -114,6 +123,7 @@ def remove_schema(import_name: str) -> dtypes.MongoDeleteOneJsonSchemaResponse:
 
     Args:
         import_name (str): The unique identifier for the schema to be removed.
+        database_client (DatabaseClient): The database client to use for the operation.
 
     Returns:
         proto_utils.database.dtypes.MongoDeleteOneJsonSchemaResponse: Returns
