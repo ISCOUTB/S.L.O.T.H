@@ -2,6 +2,8 @@ from typing import Any, Dict, Optional
 
 from proto_utils.database import dtypes
 
+from src.core.database_client import DatabaseClient
+
 
 def update_task_status(
     *,
@@ -9,7 +11,7 @@ def update_task_status(
     field: str,
     value: Any,
     task: str,
-    database_client: Optional[dtypes.DatabaseClient] = None,
+    database_client: Optional[DatabaseClient] = None,
     message: str = "",
     data: Optional[Dict[str, str]] = None,
     reset_data: bool = False,
@@ -21,7 +23,7 @@ def update_task_status(
         field (str): The field to update (e.g., "status", "progress").
         value (Any): The new value for the specified field.
         task (str): The type of task (e.g., "schema_validation").
-        database_client (Optional[dtypes.DatabaseClient]): The database client to use.
+        database_client (Optional[DatabaseClient]): The database client to use.
             If None, a default client will be used.
         message (str): An optional message to include with the update.
         data (Optional[Dict[str, str]]): Additional data to attach to the task.
