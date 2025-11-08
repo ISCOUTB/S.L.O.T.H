@@ -22,7 +22,12 @@ reusable_oauth2 = OAuth2PasswordBearer(
 
 
 def get_db_client() -> Generator[DatabaseClient, None, None]:
-    db_client = DatabaseClient(settings.DATABASE_CONNECTION_CHANNEL)
+    db_client = DatabaseClient(
+        settings.DATABASE_CONNECTION_CHANNEL,
+        max_retries=settings.DATABASE_MAX_RETRIES,
+        retry_delay=settings.DATABASE_RETRY_DELAY_SECONDS,
+        backoff=settings.DATABASE_BACKOFF_MULTIPLIER,
+    )
     try:
         yield db_client
     finally:
