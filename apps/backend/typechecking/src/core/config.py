@@ -14,7 +14,6 @@ class Settings(BaseSettings):
 
     # Workers Configuration
     MAX_WORKERS: int = 1
-    WORKER_CONCURRENCY: int = 4
     WORKER_PREFETCH_COUNT: int = 1
 
     # Database connection configuration
