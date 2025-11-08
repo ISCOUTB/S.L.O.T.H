@@ -12,6 +12,11 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Minimal server configuration for health checks
+    MINIMAL_SERVER_HOST: str = "0.0.0.0"
+    MINIMAL_SERVER_PORT: int = 8080
+    MINIMAL_SERVER_DEBUG: bool = False
+
     # RabbitMQ Configuration
     RABBITMQ_MAX_RETRIES: int = 5
     RABBITMQ_RETRY_DELAY_SECONDS: float = 1.0
