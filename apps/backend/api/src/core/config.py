@@ -96,6 +96,9 @@ class Settings(BaseSettings):
     # Database Connection Configuration
     DATABASE_CONNECTION_HOST: str
     DATABASE_CONNECTION_PORT: int
+    DATABASE_MAX_RETRIES: int = 5
+    DATABASE_RETRY_DELAY_SECONDS: float = 1.0
+    DATABASE_BACKOFF_MULTIPLIER: float = 2.0
 
     @computed_field
     @property

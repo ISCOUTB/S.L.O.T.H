@@ -10,6 +10,7 @@ for reliable delivery and processing.
 """
 
 import json
+import logging
 import time
 import uuid
 from datetime import datetime
@@ -64,6 +65,7 @@ class Publisher:
         max_tries: int = 5,
         retry_delay: float = 1.0,
         backoff: float = 2.0,
+        logger: Optional[logging.Logger] = None,
         *_: Any,
         **__: Any,
     ) -> None:
@@ -75,6 +77,11 @@ class Publisher:
         self.max_retries = max_tries
         self.retry_delay = retry_delay
         self.backoff = backoff
+
+        if logger is None:
+            logging.basicConfig(level=logging.DEBUG)
+            logger = logging.getLogger(__name__)
+        self.logger = logger
 
         if params is None:
             tmp = messaging_params.copy()
@@ -163,13 +170,13 @@ class Publisher:
                 last_exception = e
 
                 if attempt == self.max_retries:
-                    print(
+                    self.logger.warning(
                         f"[Publisher] {operation_name} failed after "
                         f"{self.max_retries} attempts: {e}"
                     )
                     raise
 
-                print(
+                self.logger.warning(
                     f"[Publisher] {operation_name} failed "
                     f"(attempt {attempt}/{self.max_retries}): {e}. "
                     f"Retrying in {current_delay}s..."
