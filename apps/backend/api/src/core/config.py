@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     RABBITMQ_VHOST: str
     RABBITMQ_USER: str
     RABBITMQ_PASSWORD: str
-    RABBITMQ_MAX_TRIES: int = 5
+    RABBITMQ_MAX_RETRIES: int = 5
     RABBITMQ_RETRY_DELAY_SECONDS: float = 1.0
     RABBITMQ_BACKOFF_MULTIPLIER: float = 2.0
 
