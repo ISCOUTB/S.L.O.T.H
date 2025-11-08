@@ -21,6 +21,7 @@ import asyncio
 import json
 from io import BytesIO
 
+import pika
 from fastapi import UploadFile
 from messaging_utils.core.config import settings as mq_settings
 from messaging_utils.messaging.connection_factory import (
@@ -30,7 +31,7 @@ from messaging_utils.schemas import ValidationMessage
 from proto_utils.database import dtypes
 
 from src.core.config import settings
-from src.core.database_client import database_client
+from src.core.database_client import DatabaseClient, get_database_client
 from src.handlers.validation import (
     get_validation_summary,
     validate_file_against_schema,
@@ -61,6 +62,16 @@ class ValidationWorker:
     """
 
     TASK: str = "validation"
+
+    def __init__(self) -> None:
+        """Initialize the SchemaWorker instance.
+
+        Sets up initial state for the worker, including connection and channel
+        placeholders. Actual connection setup is performed in start_consuming().
+        """
+        self.db_client = get_database_client(logger)
+        self.connection: pika.BlockingConnection | None = None
+        self.channel: pika.channel.Channel | None = None
 
     def start_consuming(self) -> None:
         """Start consuming messages from the RabbitMQ queue.
@@ -109,6 +120,10 @@ class ValidationWorker:
         the shutdown process for monitoring purposes.
         """
         try:
+            logger.info("Stopping validation worker...")
+
+            self.db_client.close()
+
             if self.channel and self.channel.is_open:
                 self.channel.stop_consuming()
                 RabbitMQConnectionFactory.close_thread_connections()
@@ -149,6 +164,7 @@ class ValidationWorker:
             if task == "sample_validation":
                 logger.info(f"Process validation request: {task_id}")
                 update_task_status(
+                    database_client=self.db_client,
                     task_id=task_id,
                     field="status",
                     value="received-sample-validation",
@@ -158,14 +174,18 @@ class ValidationWorker:
                         "update_date": get_datetime_now(),
                     },
                 )
-                result = asyncio.run(self._validate_data(message))
+                result = asyncio.run(
+                    self._validate_data(message, db_client=self.db_client)
+                )
 
             # Add more cases here if needed for other tasks
 
             # Here could be implemented a callback to notify other services
             # e.g. using webhooks or other messaging patterns.
             # And, maybe, not use another queue of results for that.
-            self._publish_result(task_id, result)  # Meanwhile
+
+            # Meanwhile
+            self._publish_result(task_id, result, db_client=self.db_client)
 
             ch.basic_ack(delivery_tag=method.delivery_tag)
             logger.info(f"Validation completed for task: {task_id}")
@@ -173,7 +193,9 @@ class ValidationWorker:
             logger.error(f"Error processing validation request: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
-    async def _validate_data(self, message: ValidationMessage) -> DataValidated:
+    async def _validate_data(
+        self, message: ValidationMessage, db_client: DatabaseClient
+    ) -> DataValidated:
         """Validate the incoming message data.
 
         Processes file validation by converting hexadecimal file data back to
@@ -181,11 +203,12 @@ class ValidationWorker:
         against the specified schema. Returns a structured validation result.
 
         Args:
-            message: Dictionary containing validation parameters including:
+            message (ValidationMessage): Dictionary containing validation parameters including:
                 - task_id: Unique task identifier
                 - file_data: Hexadecimal-encoded file content
                 - import_name: Schema identifier for validation
                 - filename: Optional original filename (defaults to 'uploaded_file')
+            db_client (DatabaseClient): DatabaseClient instance for updating task status.
 
         Returns:
             DataValidated: Dictionary containing the validation result with fields:
@@ -205,6 +228,7 @@ class ValidationWorker:
         """
         task_id = message["id"]
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="processing-file",
@@ -218,6 +242,7 @@ class ValidationWorker:
         )
 
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="validating-file",
@@ -234,11 +259,15 @@ class ValidationWorker:
         summary = get_validation_summary(results)
 
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value=summary["status"],
             task=self.TASK,
-            data={"results": json.dumps(summary), "update_date": get_datetime_now()},
+            data={
+                "results": json.dumps(summary),
+                "update_date": get_datetime_now(),
+            },
         )
 
         return DataValidated(
@@ -247,17 +276,20 @@ class ValidationWorker:
             results=summary,
         )
 
-    def _publish_result(self, task_id: str, result: DataValidated) -> str:
+    def _publish_result(
+        self, task_id: str, result: DataValidated, db_client: DatabaseClient
+    ) -> str:
         """Publish the validation result back to the exchange.
 
         Sends the validation result to the 'typechecking.exchange' with
         routing key 'validation.result' for downstream consumers to process.
 
         Args:
-            task_id: Unique identifier for the completed validation task,
+            task_id (str): Unique identifier for the completed validation task,
                 used for logging and correlation.
-            result: Dictionary containing the validation result to be published.
+            result (str): Dictionary containing the validation result to be published.
                 Should be JSON-serializable and contain validation summary data.
+            db_client (DatabaseClient): DatabaseClient instance for updating task status.
 
         Returns:
             str: Confirmation message indicating the result was published.
@@ -268,13 +300,14 @@ class ValidationWorker:
                 for proper error handling and message acknowledgment.
         """
         if result["status"] == "error":
-            upload_date = database_client.get_task_id(
+            upload_date = db_client.get_task_id(
                 dtypes.GetTaskIdRequest(
                     task_id=task_id,
                     task=self.TASK,
                 )
             )["value"]["data"].get("upload_date", get_datetime_now())
             update_task_status(
+                database_client=db_client,
                 task_id=task_id,
                 field="status",
                 value="failed-publishing-result",
@@ -296,6 +329,7 @@ class ValidationWorker:
             body=json.dumps(result),
         )
         update_task_status(
+            database_client=db_client,
             task_id=task_id,
             field="status",
             value="published",
