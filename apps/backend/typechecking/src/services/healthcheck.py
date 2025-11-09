@@ -41,7 +41,7 @@ def check_database_client_connection(
         redis_health = db_client.redis_ping()["pong"]
     except Exception:
         redis_health = False
-    
+
     try:
         mongo_health = db_client.mongo_ping()["pong"]
     except Exception:

@@ -13,9 +13,7 @@ class FileProcessor:
     SUPPORTED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
 
     @classmethod
-    async def process_file(
-        cls, file: UploadFile
-    ) -> Tuple[bool, List[Dict], str]:
+    async def process_file(cls, file: UploadFile) -> Tuple[bool, List[Dict], str]:
         """
         Process an uploaded file and convert it to a list of dictionaries.
 
@@ -60,14 +58,10 @@ class FileProcessor:
             return False
 
         filename_lower = filename.lower()
-        return any(
-            filename_lower.endswith(ext) for ext in cls.SUPPORTED_EXTENSIONS
-        )
+        return any(filename_lower.endswith(ext) for ext in cls.SUPPORTED_EXTENSIONS)
 
     @classmethod
-    def _process_csv_content(
-        cls, content: bytes
-    ) -> Tuple[bool, List[Dict], str]:
+    def _process_csv_content(cls, content: bytes) -> Tuple[bool, List[Dict], str]:
         """
         Process CSV file content.
 
@@ -104,9 +98,7 @@ class FileProcessor:
             return False, [], f"Error processing CSV file: {str(e)}"
 
     @classmethod
-    def _process_excel_content(
-        cls, content: bytes
-    ) -> Tuple[bool, List[Dict], str]:
+    def _process_excel_content(cls, content: bytes) -> Tuple[bool, List[Dict], str]:
         """
         Process Excel file content.
 

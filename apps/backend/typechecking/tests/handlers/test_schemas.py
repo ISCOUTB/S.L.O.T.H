@@ -199,9 +199,7 @@ class TestSaveSchema:
         """Test that save_schema properly transforms property structures."""
         mock_datetime.return_value = "2024-01-01T12:00:00"
         mock_db_client = MagicMock()
-        mock_db_client.mongo_insert_one_schema.return_value = {
-            "status": "success"
-        }
+        mock_db_client.mongo_insert_one_schema.return_value = {"status": "success"}
 
         schema = {
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -222,18 +220,14 @@ class TestSaveSchema:
         assert active_schema["properties"]["name"]["type"] == "string"
         assert "extra" in active_schema["properties"]["name"]
         assert active_schema["properties"]["name"]["extra"]["minLength"] == "1"
-        assert (
-            active_schema["properties"]["name"]["extra"]["maxLength"] == "100"
-        )
+        assert active_schema["properties"]["name"]["extra"]["maxLength"] == "100"
 
     @patch("src.handlers.schemas.get_datetime_now")
     def test_save_schema_removes_schema_key(self, mock_datetime):
         """Test that $schema key is removed and stored separately."""
         mock_datetime.return_value = "2024-01-01T12:00:00"
         mock_db_client = MagicMock()
-        mock_db_client.mongo_insert_one_schema.return_value = {
-            "status": "success"
-        }
+        mock_db_client.mongo_insert_one_schema.return_value = {"status": "success"}
 
         schema = {
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -247,18 +241,14 @@ class TestSaveSchema:
         active_schema = request["active_schema"]
 
         assert "$schema" not in active_schema
-        assert (
-            active_schema["schema"] == "http://json-schema.org/draft-07/schema#"
-        )
+        assert active_schema["schema"] == "http://json-schema.org/draft-07/schema#"
 
     @patch("src.handlers.schemas.get_datetime_now")
     def test_save_schema_with_custom_schema_version(self, mock_datetime):
         """Test saving schema with custom $schema version."""
         mock_datetime.return_value = "2024-01-01T12:00:00"
         mock_db_client = MagicMock()
-        mock_db_client.mongo_insert_one_schema.return_value = {
-            "status": "success"
-        }
+        mock_db_client.mongo_insert_one_schema.return_value = {"status": "success"}
 
         schema = {
             "$schema": "http://json-schema.org/draft-04/schema#",
@@ -271,9 +261,7 @@ class TestSaveSchema:
         request = mock_db_client.mongo_insert_one_schema.call_args.args[0]
         active_schema = request["active_schema"]
 
-        assert (
-            active_schema["schema"] == "http://json-schema.org/draft-04/schema#"
-        )
+        assert active_schema["schema"] == "http://json-schema.org/draft-04/schema#"
 
 
 class TestRemoveSchema:
@@ -345,9 +333,7 @@ class TestIntegrationSchemas:
             "inserted_id": "schema_123",
         }
 
-        save_result = save_schema(
-            created_schema.copy(), "test_import", mock_db_client
-        )
+        save_result = save_schema(created_schema.copy(), "test_import", mock_db_client)
         assert save_result["status"] == "success"
 
         # 3. Get active schema

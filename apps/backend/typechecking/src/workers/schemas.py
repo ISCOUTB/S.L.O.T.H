@@ -124,15 +124,11 @@ class SchemaWorker:
         t0 = time.perf_counter()
         while attempts < self.max_retries:
             try:
-                self.connection = (
-                    RabbitMQConnectionFactory.get_thread_connection()
-                )
+                self.connection = RabbitMQConnectionFactory.get_thread_connection()
                 self.channel = RabbitMQConnectionFactory.get_thread_channel()
                 RabbitMQConnectionFactory.setup_infrastructure(self.channel)
 
-                self.channel.basic_qos(
-                    prefetch_count=settings.WORKER_PREFETCH_COUNT
-                )
+                self.channel.basic_qos(prefetch_count=settings.WORKER_PREFETCH_COUNT)
                 self.channel.basic_consume(
                     queue=mq_settings.RABBITMQ_QUEUE_SCHEMAS,
                     on_message_callback=self.process_schema_update,
@@ -142,8 +138,7 @@ class SchemaWorker:
                 logger.info("Schema worker started. Waiting for messages...")
                 connection_time = time.perf_counter() - t0
                 logger.debug(
-                    f"Schema worker connected to RabbitMQ in "
-                    f"{connection_time:.2f}s."
+                    f"Schema worker connected to RabbitMQ in {connection_time:.2f}s."
                 )
 
                 t0 = time.perf_counter()
@@ -404,9 +399,7 @@ class SchemaWorker:
             message="Validation completed and uploaded to the database.",
             data={
                 "results": (
-                    repr(result)
-                    if result
-                    else "Schema is the same, no update needed."
+                    repr(result) if result else "Schema is the same, no update needed."
                 ),
                 "update_date": get_datetime_now(),
             },

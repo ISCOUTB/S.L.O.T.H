@@ -132,24 +132,18 @@ class ValidationWorker:
         t0 = time.perf_counter()
         while attempts < self.max_retries:
             try:
-                self.connection = (
-                    RabbitMQConnectionFactory.get_thread_connection()
-                )
+                self.connection = RabbitMQConnectionFactory.get_thread_connection()
                 self.channel = RabbitMQConnectionFactory.get_thread_channel()
                 RabbitMQConnectionFactory.setup_infrastructure(self.channel)
 
-                self.channel.basic_qos(
-                    prefetch_count=settings.WORKER_PREFETCH_COUNT
-                )
+                self.channel.basic_qos(prefetch_count=settings.WORKER_PREFETCH_COUNT)
                 self.channel.basic_consume(
                     queue=mq_settings.RABBITMQ_QUEUE_VALIDATIONS,
                     on_message_callback=self.process_validation_request,
                     auto_ack=False,
                 )
 
-                logger.info(
-                    "Validation worker started. Waiting for messages..."
-                )
+                logger.info("Validation worker started. Waiting for messages...")
 
                 connection_time = time.perf_counter() - t0
                 logger.debug(

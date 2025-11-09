@@ -149,9 +149,7 @@ class TestProcessSchemaUpdate:
         schema_worker._publish_result.assert_called_once_with(
             "task_123", mock_result, db_client=schema_worker.db_client
         )
-        mock_channel.basic_ack.assert_called_once_with(
-            delivery_tag="delivery_123"
-        )
+        mock_channel.basic_ack.assert_called_once_with(delivery_tag="delivery_123")
 
     def test_process_remove_schema_success(
         self, schema_worker, sample_remove_schema_message
@@ -368,13 +366,10 @@ class TestUpdateSchema:
 
         # Check specific status values
         call_args_list = [
-            call[0][0]
-            for call in schema_worker.db_client.update_task_id.call_args_list
+            call[0][0] for call in schema_worker.db_client.update_task_id.call_args_list
         ]
         statuses = [
-            args["value"]
-            for args in call_args_list
-            if args["field"] == "status"
+            args["value"] for args in call_args_list if args["field"] == "status"
         ]
 
         assert "creating-schema" in statuses
@@ -449,13 +444,10 @@ class TestRemoveSchema:
         assert schema_worker.db_client.update_task_id.call_count >= 2
 
         call_args_list = [
-            call[0][0]
-            for call in schema_worker.db_client.update_task_id.call_args_list
+            call[0][0] for call in schema_worker.db_client.update_task_id.call_args_list
         ]
         statuses = [
-            args["value"]
-            for args in call_args_list
-            if args["field"] == "status"
+            args["value"] for args in call_args_list if args["field"] == "status"
         ]
 
         assert "removing-schema" in statuses
@@ -516,8 +508,7 @@ class TestPublishResult:
 
         # Verify status was updated to failed-publishing-result
         update_calls = [
-            call[0][0]
-            for call in schema_worker.db_client.update_task_id.call_args_list
+            call[0][0] for call in schema_worker.db_client.update_task_id.call_args_list
         ]
         statuses = [c["value"] for c in update_calls if c["field"] == "status"]
         assert "failed-publishing-result" in statuses

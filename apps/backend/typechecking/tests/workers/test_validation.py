@@ -139,9 +139,7 @@ class TestProcessValidationRequest:
             mock_validation_result,
             db_client=validation_worker.db_client,
         )
-        mock_channel.basic_ack.assert_called_once_with(
-            delivery_tag="delivery_123"
-        )
+        mock_channel.basic_ack.assert_called_once_with(delivery_tag="delivery_123")
 
     def test_process_validation_request_invalid_json(self, validation_worker):
         """Test handling of invalid JSON in message."""
@@ -346,9 +344,7 @@ class TestValidateData:
             for call in validation_worker.db_client.update_task_id.call_args_list
         ]
         statuses = [
-            args["value"]
-            for args in call_args_list
-            if args["field"] == "status"
+            args["value"] for args in call_args_list if args["field"] == "status"
         ]
         assert "processing-file" in statuses
         assert "validating-file" in statuses

@@ -126,9 +126,7 @@ class TestCheckDatabaseClientConnection:
     def test_database_connection_redis_unhealthy(self, mock_db_client):
         """Test when Redis connection is unhealthy."""
         # Mock Redis failing
-        mock_db_client.redis_ping.side_effect = Exception(
-            "Redis connection error"
-        )
+        mock_db_client.redis_ping.side_effect = Exception("Redis connection error")
 
         # Execute
         result = check_database_client_connection(mock_db_client)
@@ -141,9 +139,7 @@ class TestCheckDatabaseClientConnection:
     def test_database_connection_mongodb_unhealthy(self, mock_db_client):
         """Test when MongoDB connection is unhealthy."""
         # Mock MongoDB failing
-        mock_db_client.mongo_ping.side_effect = Exception(
-            "MongoDB connection error"
-        )
+        mock_db_client.mongo_ping.side_effect = Exception("MongoDB connection error")
 
         # Execute
         result = check_database_client_connection(mock_db_client)
