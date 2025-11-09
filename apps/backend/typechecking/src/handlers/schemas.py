@@ -1,18 +1,10 @@
-from typing import Any, Dict
+from typing import Dict
 
 from jsonschema import Draft7Validator
 from proto_utils.database import dtypes
 
 from src.core.database_client import DatabaseClient
 from src.utils import get_datetime_now
-
-
-def compare_schemas(schema1: Dict[str, Any], schema2: Dict[str, Any]) -> bool:
-    """
-    Compare two JSON schemas for equality.
-    Returns True if they are equal, False otherwise.
-    """
-    return schema1 == schema2
 
 
 def get_active_schema(
@@ -79,9 +71,7 @@ def save_schema(
         proto_utils.database.dtypes.MongoInsertOneSchemaResponse:
         The result of the insert or update operation.
     """
-    schema_key_value = schema.pop(
-        "$schema", "http://json-schema.org/draft-07/schema#"
-    )
+    schema_key_value = schema.pop("$schema", "http://json-schema.org/draft-07/schema#")
     schema["schema"] = schema_key_value
 
     schema["properties"] = dict(
@@ -90,9 +80,7 @@ def save_schema(
                 item[0],
                 {
                     "type": item[1]["type"],
-                    "extra": {
-                        k: str(v) for k, v in item[1].items() if k != "type"
-                    },
+                    "extra": {k: str(v) for k, v in item[1].items() if k != "type"},
                 },
             ),
             schema["properties"].items(),

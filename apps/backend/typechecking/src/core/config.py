@@ -37,9 +37,7 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def DATABASE_CONNECTION_CHANNEL(self) -> str:
-        return (
-            f"{self.DATABASE_CONNECTION_HOST}:{self.DATABASE_CONNECTION_PORT}"
-        )
+        return f"{self.DATABASE_CONNECTION_HOST}:{self.DATABASE_CONNECTION_PORT}"
 
 
 settings = Settings()

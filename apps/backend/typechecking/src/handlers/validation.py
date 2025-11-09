@@ -300,9 +300,7 @@ def _convert_data_types(
                         converted_row[key] = float(value)
 
                 elif prop_type == "string":
-                    converted_row[key] = (
-                        str(value) if value is not None else None
-                    )
+                    converted_row[key] = str(value) if value is not None else None
 
                 else:
                     # For other types (array, object, etc.), keep as is
