@@ -46,9 +46,7 @@ class TestRootEndpoint:
         response = client.get("/")
 
         assert response.status_code == 200
-        assert response.json() == {
-            "message": "Minimal Typechecking Server is running."
-        }
+        assert response.json() == {"message": "Minimal Typechecking Server is running."}
 
     def test_root_content_type(self, client):
         """Test that root endpoint returns JSON."""
@@ -308,9 +306,7 @@ class TestEndpointIntegration:
         # For health, we need to mock since it has dependencies
         with (
             patch("src.minimal_server.get_database_client") as mock_get_db,
-            patch(
-                "src.minimal_server.check_databases_connection"
-            ) as mock_check,
+            patch("src.minimal_server.check_databases_connection") as mock_check,
         ):
             mock_db = MagicMock()
             mock_db.close = MagicMock()

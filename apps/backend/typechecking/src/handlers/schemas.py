@@ -71,9 +71,7 @@ def save_schema(
         proto_utils.database.dtypes.MongoInsertOneSchemaResponse:
         The result of the insert or update operation.
     """
-    schema_key_value = schema.pop(
-        "$schema", "http://json-schema.org/draft-07/schema#"
-    )
+    schema_key_value = schema.pop("$schema", "http://json-schema.org/draft-07/schema#")
     schema["schema"] = schema_key_value
 
     schema["properties"] = dict(
@@ -82,9 +80,7 @@ def save_schema(
                 item[0],
                 {
                     "type": item[1]["type"],
-                    "extra": {
-                        k: str(v) for k, v in item[1].items() if k != "type"
-                    },
+                    "extra": {k: str(v) for k, v in item[1].items() if k != "type"},
                 },
             ),
             schema["properties"].items(),

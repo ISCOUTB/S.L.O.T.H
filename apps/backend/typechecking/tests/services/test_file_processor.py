@@ -45,9 +45,7 @@ class TestFileProcessor:
 
     def test_process_csv_content_utf8(self, sample_csv_content: bytes):
         """Test processing CSV with UTF-8 encoding."""
-        success, data, error = FileProcessor._process_csv_content(
-            sample_csv_content
-        )
+        success, data, error = FileProcessor._process_csv_content(sample_csv_content)
 
         assert success is True
         assert error == ""
@@ -71,9 +69,7 @@ class TestFileProcessor:
 
     def test_process_csv_content_empty(self, empty_csv_content: bytes):
         """Test processing empty CSV (headers only)."""
-        success, data, error = FileProcessor._process_csv_content(
-            empty_csv_content
-        )
+        success, data, error = FileProcessor._process_csv_content(empty_csv_content)
 
         assert success is True
         assert error == ""
@@ -81,19 +77,14 @@ class TestFileProcessor:
 
     def test_process_csv_content_invalid(self, invalid_csv_content: bytes):
         """Test processing corrupted CSV content."""
-        success, data, error = FileProcessor._process_csv_content(
-            invalid_csv_content
-        )
+        success, data, error = FileProcessor._process_csv_content(invalid_csv_content)
 
         # The corrupted data may succeed or fail depending on polars behavior
         # If it succeeds, it should have empty or unexpected data
         # If it fails, error message should be present
         if not success:
             assert data == []
-            assert (
-                "Error processing CSV file" in error
-                or "Unable to decode" in error
-            )
+            assert "Error processing CSV file" in error or "Unable to decode" in error
         else:
             # If polars managed to parse it, the data structure might be unexpected
             # Just verify we got back a consistent response
@@ -132,9 +123,7 @@ class TestFileProcessor:
         """Test processing corrupted Excel content."""
         invalid_content = b"\x00\x01\x02\xff\xfe invalid excel data"
 
-        success, data, error = FileProcessor._process_excel_content(
-            invalid_content
-        )
+        success, data, error = FileProcessor._process_excel_content(invalid_content)
 
         assert success is False
         assert data == []
@@ -143,13 +132,9 @@ class TestFileProcessor:
     # ==================== Test process_file (main method) ====================
 
     @pytest.mark.asyncio
-    async def test_process_file_csv_success(
-        self, sample_upload_file_csv: UploadFile
-    ):
+    async def test_process_file_csv_success(self, sample_upload_file_csv: UploadFile):
         """Test successful processing of CSV file via process_file."""
-        success, data, error = await FileProcessor.process_file(
-            sample_upload_file_csv
-        )
+        success, data, error = await FileProcessor.process_file(sample_upload_file_csv)
 
         assert success is True
         assert error == ""

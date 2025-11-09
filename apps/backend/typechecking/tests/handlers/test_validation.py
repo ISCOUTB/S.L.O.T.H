@@ -101,9 +101,7 @@ class TestConvertDataTypes:
         assert isinstance(result[0]["score"], float)
         assert result[1]["score"] == 87.3
 
-    def test_convert_handles_none_and_empty_string(
-        self, sample_json_schema: Dict
-    ):
+    def test_convert_handles_none_and_empty_string(self, sample_json_schema: Dict):
         """Test that None and empty strings are handled correctly."""
         data = [
             {
@@ -125,9 +123,7 @@ class TestConvertDataTypes:
         assert result[0]["age"] is None
         assert result[1]["age"] is None
 
-    def test_convert_invalid_conversion_keeps_original(
-        self, sample_json_schema: Dict
-    ):
+    def test_convert_invalid_conversion_keeps_original(self, sample_json_schema: Dict):
         """Test that invalid conversions keep original value for validation to catch."""
         data = [
             {
@@ -229,9 +225,7 @@ class TestValidateChunks:
         assert "Item 0" in errors[0]
         assert "Item 1" in errors[1]
 
-    def test_validate_chunks_mixed_valid_invalid(
-        self, sample_json_schema: Dict
-    ):
+    def test_validate_chunks_mixed_valid_invalid(self, sample_json_schema: Dict):
         """Test chunk validation with mixed valid and invalid items."""
         data = [
             {
@@ -261,9 +255,7 @@ class TestValidateChunks:
         assert len(errors) == 1
         assert "Item 1" in errors[0]
 
-    def test_validate_chunks_missing_required_field(
-        self, sample_json_schema: Dict
-    ):
+    def test_validate_chunks_missing_required_field(self, sample_json_schema: Dict):
         """Test chunk validation with missing required fields."""
         data = [
             {
@@ -367,9 +359,7 @@ class TestValidateDataParallel:
             for i in range(100)
         ]
 
-        result = validate_data_parallel(
-            invalid_data, sample_json_schema, n_workers=2
-        )
+        result = validate_data_parallel(invalid_data, sample_json_schema, n_workers=2)
 
         assert result["is_valid"] is False
         assert len(result["errors"]) == 50  # Limited to 50 errors
@@ -501,9 +491,7 @@ class TestValidateFileAgainstSchema:
         assert result["success"] is False
         assert result["validation_results"]["is_valid"] is False
         assert result["validation_results"]["total_items"] == 0
-        assert (
-            "File is empty but valid" in result["validation_results"]["message"]
-        )
+        assert "File is empty but valid" in result["validation_results"]["message"]
 
     @pytest.mark.asyncio
     @patch("src.handlers.validation.get_active_schema")
