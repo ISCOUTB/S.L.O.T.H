@@ -26,6 +26,8 @@ tasks:
             - --cov-report=html
             - --cov-report=xml
         toolchain: python
+        options:
+            runFromWorkspaceRoot: false
 
     format:
         command: uv
