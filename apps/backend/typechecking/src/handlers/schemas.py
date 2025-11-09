@@ -1,18 +1,10 @@
-from typing import Any, Dict
+from typing import Dict
 
 from jsonschema import Draft7Validator
 from proto_utils.database import dtypes
 
 from src.core.database_client import DatabaseClient
 from src.utils import get_datetime_now
-
-
-def compare_schemas(schema1: Dict[str, Any], schema2: Dict[str, Any]) -> bool:
-    """
-    Compare two JSON schemas for equality.
-    Returns True if they are equal, False otherwise.
-    """
-    return schema1 == schema2
 
 
 def get_active_schema(
