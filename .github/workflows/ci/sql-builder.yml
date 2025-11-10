@@ -1,0 +1,15 @@
+name: CI - SQL Builder Tests
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+    paths:
+      - "apps/backend/parsers/sql-builder/**"
+      - "packages/proto-utils/proto-utils-py/**"
+
+jobs:
+  sql_builder-tests:
+    uses: ./.github/workflows/reusable/ci-tests.yml
+    with:
+      service_name: "sql-builder"
