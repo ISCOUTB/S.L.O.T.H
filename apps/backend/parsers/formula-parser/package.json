@@ -4,9 +4,9 @@
     "license": "ISC",
     "dependencies": {
         "@etl-design/packages-proto-utils-js": "workspace:*",
-        "@grpc/grpc-js": "^1.14.0",
+        "@grpc/grpc-js": "^1.14.1",
         "@grpc/proto-loader": "^0.8.0",
-        "effect": "^3.18.4",
+        "effect": "^3.19.3",
         "excel-formula-ast": "^1.1.1",
         "excel-formula-tokenizer": "^3.0.0",
         "google-protobuf": "^4.0.0",
@@ -18,14 +18,14 @@
         "@etl-design/tools-eslint": "workspace:*",
         "@etl-design/tools-tsconfig": "workspace:*",
         "@types/lodash": "^4.17.20",
-        "@types/node": "^24.9.0",
-        "@vitest/coverage-v8": "^3.2.4",
+        "@types/node": "^24.10.0",
+        "@vitest/coverage-v8": "^4.0.8",
         "consola": "^3.4.2",
-        "eslint": "^9.38.0",
+        "eslint": "^9.39.1",
         "lodash": "^4.17.21",
         "tsconfig-paths": "^4.2.0",
         "tsup": "^8.5.0",
         "typescript": "^5.9.3",
-        "vitest": "^3.2.4"
+        "vitest": "^4.0.8"
     }
 }
