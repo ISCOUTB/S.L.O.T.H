@@ -11,8 +11,10 @@ The module includes:
 """
 
 from typing import Optional
+
 from pydantic import BaseModel
-from src.schemas.users import Sex, Roles
+
+from src.schemas.users import Roles, Sex
 
 
 class UserInfo(BaseModel):

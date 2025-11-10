@@ -1,10 +1,10 @@
 from sqlalchemy import (
+    Boolean,
     Column,
     Date,
+    ForeignKey,
     Integer,
     String,
-    Boolean,
-    ForeignKey,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship

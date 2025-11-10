@@ -9,11 +9,12 @@ The module includes task CRUD operations with built-in fallback mechanisms
 and data consistency management between the two storage systems.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from proto_utils.database import dtypes
-from src.core.database_redis import redis_db
-from src.core.database_mongo import mongo_tasks_connection
+
+from src.core.database_mongo import MongoConnection
+from src.core.database_redis import RedisConnection
 
 
 class DatabaseTasksService:
@@ -28,6 +29,9 @@ class DatabaseTasksService:
     @staticmethod
     def update_task_id(
         request: dtypes.UpdateTaskIdRequest,
+        *,
+        redis_db: RedisConnection,
+        mongo_tasks_connection: MongoConnection,
     ) -> dtypes.UpdateTaskIdResponse:
         """Update a specific field in a task across both Redis and MongoDB.
 
@@ -38,6 +42,8 @@ class DatabaseTasksService:
         Args:
             request (dtypes.UpdateTaskIdRequest): Request containing task ID,
                 field to update, new value, and optional message and data.
+            redis_db (RedisConnection): Active Redis connection.
+            mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
         Returns:
             dtypes.UpdateTaskIdResponse: Response indicating success or failure
@@ -64,6 +70,7 @@ class DatabaseTasksService:
                 message=request.get("message", ""),
                 data=request.get("data", None),
                 reset_data=request.get("reset_data", False),
+                mongo_tasks_connection=mongo_tasks_connection,
             )
 
             return dtypes.UpdateTaskIdResponse(
@@ -76,7 +83,12 @@ class DatabaseTasksService:
             )
 
     @staticmethod
-    def set_task_id(request: dtypes.SetTaskIdRequest) -> dtypes.SetTaskIdResponse:
+    def set_task_id(
+        request: dtypes.SetTaskIdRequest,
+        *,
+        redis_db: RedisConnection,
+        mongo_tasks_connection: MongoConnection,
+    ) -> dtypes.SetTaskIdResponse:
         """Create or replace a task in both Redis and MongoDB.
 
         This method sets task data in both storage systems simultaneously
@@ -85,6 +97,8 @@ class DatabaseTasksService:
         Args:
             request (dtypes.SetTaskIdRequest): Request containing task ID,
                 task data, and context information.
+            redis_db (RedisConnection): Active Redis connection.
+            mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
         Returns:
             dtypes.SetTaskIdResponse: Response indicating success or failure
@@ -103,6 +117,7 @@ class DatabaseTasksService:
                 task_id=request["task_id"],
                 value=request["value"].copy(),
                 task=request["task"],
+                mongo_tasks_connection=mongo_tasks_connection,
             )
 
             return dtypes.SetTaskIdResponse(
@@ -114,7 +129,11 @@ class DatabaseTasksService:
             )
 
     @staticmethod
-    def get_task_id(request: dtypes.GetTaskIdRequest) -> dtypes.GetTaskIdResponse:
+    def get_task_id(
+        request: dtypes.GetTaskIdRequest,
+        redis_db: RedisConnection,
+        mongo_tasks_connection: MongoConnection,
+    ) -> dtypes.GetTaskIdResponse:
         """Retrieve a task by ID with fallback mechanism.
 
         This method attempts to retrieve the task from Redis first (for speed),
@@ -123,6 +142,8 @@ class DatabaseTasksService:
 
         Args:
             request (dtypes.GetTaskIdRequest): Request containing task ID and context.
+            redis_db (RedisConnection): Active Redis connection.
+            mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
         Returns:
             dtypes.GetTaskIdResponse: Response containing the task data or indicating
@@ -135,7 +156,9 @@ class DatabaseTasksService:
                 return dtypes.GetTaskIdResponse(value=redis_result, found=True)
 
             # Fallback to MongoDB
-            mongo_result = _get_task_id_mongo(request["task_id"], request["task"])
+            mongo_result = _get_task_id_mongo(
+                request["task_id"], request["task"], mongo_tasks_connection
+            )
             if mongo_result:
                 # Cache the result in Redis for future queries
                 redis_db.set_task_id(
@@ -152,6 +175,8 @@ class DatabaseTasksService:
     @staticmethod
     def get_tasks_by_import_name(
         request: dtypes.GetTasksByImportNameRequest,
+        redis_db: RedisConnection,
+        mongo_tasks_connection: MongoConnection,
     ) -> dtypes.GetTasksByImportNameResponse:
         """Retrieve all tasks associated with a specific import name.
 
@@ -162,6 +187,8 @@ class DatabaseTasksService:
         Args:
             request (dtypes.GetTasksByImportNameRequest): Request containing
                 import name and context.
+            redis_db (RedisConnection): Active Redis connection.
+            mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
         Returns:
             dtypes.GetTasksByImportNameResponse: Response containing the list of
@@ -177,7 +204,7 @@ class DatabaseTasksService:
 
             # Fallback to MongoDB
             mongo_tasks = _get_tasks_by_import_name_mongo(
-                request["import_name"], request["task"]
+                request["import_name"], request["task"], mongo_tasks_connection
             )
 
             # Cache all found tasks in Redis for future queries
@@ -207,6 +234,7 @@ def _update_task_id_mongo(
     message: str = "",
     data: Optional[Dict[str, Any]] = None,
     reset_data: bool = False,
+    mongo_tasks_connection: MongoConnection,
 ) -> None:
     """Update a specific field in a task ID's data in MongoDB.
 
@@ -222,6 +250,7 @@ def _update_task_id_mongo(
         message (str): Optional message to log or store with the update.
         data (Optional[Dict[str, Any]]): Optional additional data to merge with existing task data.
         reset_data (bool): If True, reset the existing data before merging new data.
+        mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
     Returns:
         None:
@@ -247,7 +276,12 @@ def _update_task_id_mongo(
     mongo_tasks_connection.update_one(filter_query, update_ops)
 
 
-def _set_task_id_mongo(task_id: str, value: dtypes.ApiResponse, task: str) -> None:
+def _set_task_id_mongo(
+    task_id: str,
+    value: dtypes.ApiResponse,
+    task: str,
+    mongo_tasks_connection: MongoConnection,
+) -> None:
     """Set a task ID with associated data in MongoDB.
 
     This is a helper function that handles the MongoDB-specific insertion/update
@@ -258,6 +292,7 @@ def _set_task_id_mongo(task_id: str, value: dtypes.ApiResponse, task: str) -> No
         task_id (str): Unique identifier for the task.
         value (dtypes.ApiResponse): ApiResponse object containing task data.
         task (str): The task or context under which the task is being stored.
+        mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
     Returns:
         None:
@@ -280,7 +315,11 @@ def _set_task_id_mongo(task_id: str, value: dtypes.ApiResponse, task: str) -> No
     mongo_tasks_connection.collection.replace_one(filter_query, document, upsert=True)
 
 
-def _get_task_id_mongo(task_id: str, task: str) -> Optional[dtypes.ApiResponse]:
+def _get_task_id_mongo(
+    task_id: str,
+    task: str,
+    mongo_tasks_connection: MongoConnection,
+) -> Optional[dtypes.ApiResponse]:
     """Retrieve a task by its ID from MongoDB.
 
     This is a helper function that handles the MongoDB-specific retrieval
@@ -289,6 +328,7 @@ def _get_task_id_mongo(task_id: str, task: str) -> Optional[dtypes.ApiResponse]:
     Args:
         task_id (str): Unique identifier for the task.
         task (str): The task or context under which the task is stored.
+        mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
     Returns:
         Optional[dtypes.ApiResponse]: ApiResponse object if task exists, None otherwise.
@@ -311,7 +351,9 @@ def _get_task_id_mongo(task_id: str, task: str) -> Optional[dtypes.ApiResponse]:
 
 
 def _get_tasks_by_import_name_mongo(
-    import_name: str, task: str
+    import_name: str,
+    task: str,
+    mongo_tasks_connection: MongoConnection,
 ) -> List[dtypes.ApiResponse]:
     """Retrieve all tasks associated with a specific import name from MongoDB.
 
@@ -322,6 +364,7 @@ def _get_tasks_by_import_name_mongo(
     Args:
         import_name (str): The import name to filter tasks by.
         task (str): The task or context under which the tasks are stored.
+        mongo_tasks_connection (MongoConnection): Active MongoDB tasks connection.
 
     Returns:
         List[dtypes.ApiResponse]: List of ApiResponse objects for all tasks with the given import name.

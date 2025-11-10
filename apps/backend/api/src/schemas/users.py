@@ -12,8 +12,9 @@ The module includes:
 - Output schema for API responses
 """
 
-from pydantic import BaseModel
 from typing import Literal, Optional, TypedDict
+
+from pydantic import BaseModel
 
 # Type definitions
 Roles = Literal["admin", "user"]

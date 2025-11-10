@@ -1,17 +1,15 @@
 import secrets
-
-from pydantic_core import MultiHostUrl
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import (
-    computed_field,
-    BeforeValidator,
-    AmqpDsn,
-    PostgresDsn,
-)
-
-from typing import Any, Annotated
+from typing import Annotated, Any
 
 from dotenv import load_dotenv
+from pydantic import (
+    AmqpDsn,
+    BeforeValidator,
+    PostgresDsn,
+    computed_field,
+)
+from pydantic_core import MultiHostUrl
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 load_dotenv()
 
@@ -60,6 +58,9 @@ class Settings(BaseSettings):
     RABBITMQ_VHOST: str
     RABBITMQ_USER: str
     RABBITMQ_PASSWORD: str
+    RABBITMQ_MAX_RETRIES: int = 5
+    RABBITMQ_RETRY_DELAY_SECONDS: float = 1.0
+    RABBITMQ_BACKOFF_MULTIPLIER: float = 2.0
 
     @computed_field
     @property
@@ -95,6 +96,9 @@ class Settings(BaseSettings):
     # Database Connection Configuration
     DATABASE_CONNECTION_HOST: str
     DATABASE_CONNECTION_PORT: int
+    DATABASE_MAX_RETRIES: int = 5
+    DATABASE_RETRY_DELAY_SECONDS: float = 1.0
+    DATABASE_BACKOFF_MULTIPLIER: float = 2.0
 
     @computed_field
     @property

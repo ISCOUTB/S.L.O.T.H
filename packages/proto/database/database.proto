@@ -39,6 +39,7 @@ service DatabaseService {
     // ================== Mongo - Related to schemas ==================
     // MongoDB operations specifically for JSON schema management
 
+    rpc MongoPing(mongo.MongoPingRequest) returns (mongo.MongoPingResponse) {}
     rpc MongoInsertOneSchema(mongo.MongoInsertOneSchemaRequest) returns (mongo.MongoInsertOneSchemaResponse) {}
     rpc MongoCountAllDocuments(mongo.MongoCountAllDocumentsRequest) returns (mongo.MongoCountAllDocumentsResponse) {}
     rpc MongoFindJsonSchema(mongo.MongoFindJsonSchemaRequest) returns (mongo.MongoFindJsonSchemaResponse) {}

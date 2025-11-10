@@ -2,11 +2,11 @@
     "folders": [
         {
             "name": "ROOT",
-            "path": "../"
+            "path": ".."
         },
         {
-            "name": "[ App ] Excel-Reader",
-            "path": "../apps/backend/parsers/excel-reader"
+            "name": "[ IAC ] Code",
+            "path": "../iac"
         },
         {
             "name": "[ App ] Formula-Parser",
@@ -21,6 +21,10 @@
             "path": "../apps/backend/parsers/sql-builder"
         },
         {
+            "name": "[ App ] Excel-Reader",
+            "path": "../apps/backend/parsers/excel-reader"
+        },
+        {
             "name": "[ App ] Typechecking",
             "path": "../apps/backend/typechecking"
         },
@@ -33,6 +37,10 @@
             "path": "../packages/proto-utils/proto-utils-py"
         },
         {
+            "name": "[ Package ] [ IAC ] AutoScaler",
+            "path": "../packages/autoscaler"
+        },
+        {
             "name": "[ Tool ] Eslint",
             "path": "../tools/eslint"
         },
@@ -43,10 +51,10 @@
     ],
     "settings": {
         "files.exclude": {
-            "**/.git": true,
-            "**/.svn": true,
-            "**/.hg": true,
             "**/.DS_Store": true,
+            "**/.git": true,
+            "**/.hg": true,
+            "**/.svn": true,
             "**/Thumbs.db": true
         }
     }

@@ -29,10 +29,12 @@ from proto_utils.generated.database import (
     mongo_pb2,
     redis_pb2,
 )
+
 from src.core.config import settings
-from src.handlers.mongo import MongoHandler
-from src.handlers.redis import RedisHandler
-from src.handlers.tasks import DatabaseTasksHandler
+from src.core.connection_manager import get_connection_manager
+from src.handlers.mongo_handler import MongoHandler
+from src.handlers.redis_handler import RedisHandler
+from src.handlers.tasks_handler import DatabaseTasksHandler
 from src.utils.logger import logger
 
 
@@ -66,6 +68,12 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
             f"Debug Mode: {settings.DATABASE_CONNECTION_DEBUG}"
         )
 
+        self.redis_handler = RedisHandler()
+        self.mongo_handler = MongoHandler()
+        self.database_tasks_handler = DatabaseTasksHandler()
+
+    # =================== Redis - General Purpose ===================
+
     def RedisGetKeys(
         self,
         request: redis_pb2.RedisGetKeysRequest,
@@ -89,7 +97,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = RedisHandler.get_keys(request)
+            response = self.redis_handler.get_keys(request)
             key_count = len(response.keys)
             logger.info(f"[REDIS_GET_KEYS] Successfully retrieved {key_count} keys")
             return response
@@ -123,7 +131,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = RedisHandler.set(request)
+            response = self.redis_handler.set(request)
             logger.info(
                 f"[REDIS_SET] Key operation completed - "
                 f"Key: '{request.key}', Success: {response.success}"
@@ -155,7 +163,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = RedisHandler.get(request)
+            response = self.redis_handler.get(request)
             logger.info(
                 f"[REDIS_GET] Key lookup completed - "
                 f"Key: '{request.key}', Found: {response.found}"
@@ -189,7 +197,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = RedisHandler.delete(request)
+            response = self.redis_handler.delete(request)
             logger.info(
                 f"[REDIS_DELETE] Key deletion completed - "
                 f"RequestedKeys: {key_count}, DeletedKeys: {response.count}"
@@ -219,7 +227,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         logger.info(f"[REDIS_PING] Health check request from client {context.peer()}")
 
         try:
-            response = RedisHandler.ping(request)
+            response = self.redis_handler.ping(request)
             logger.info(
                 f"[REDIS_PING] Health check completed - "
                 f"Connection: {'OK' if response.pong else 'FAILED'}"
@@ -228,6 +236,8 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         except Exception as e:
             logger.error(f"[REDIS_PING] Health check failed: {e}")
             raise
+
+    # =================== Redis - Manage all cache ===================
 
     def RedisGetCache(
         self,
@@ -249,7 +259,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         logger.info(f"[REDIS_GET_CACHE] Request from client {context.peer()}")
 
         try:
-            response = RedisHandler.get_cache(request)
+            response = self.redis_handler.get_cache(request)
             cache_size = len(response.cache)
             logger.info(
                 f"[REDIS_GET_CACHE] Cache retrieval completed - "
@@ -280,7 +290,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         logger.info(f"[REDIS_CLEAR_CACHE] Request from client {context.peer()}")
 
         try:
-            response = RedisHandler.clear_cache(request)
+            response = self.redis_handler.clear_cache(request)
             logger.info(
                 f"[REDIS_CLEAR_CACHE] Cache clear completed - "
                 f"Success: {response.success}"
@@ -288,6 +298,38 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
             return response
         except Exception as e:
             logger.error(f"[REDIS_CLEAR_CACHE] Operation failed: {e}")
+            raise
+
+    # ================== Mongo - Related to schemas ==================
+
+    def MongoPing(
+        self,
+        request: mongo_pb2.MongoPingRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> mongo_pb2.MongoPingResponse:
+        """Ping MongoDB to check connection status.
+
+        Args:
+            request: Ping request (typically empty).
+            context: gRPC service context for the request.
+
+        Returns:
+            MongoPingResponse indicating connection status.
+
+        Raises:
+            grpc.RpcError: If MongoDB connection fails.
+        """
+        logger.info(f"[MONGO_PING] Health check request from client {context.peer()}")
+
+        try:
+            response = self.mongo_handler.ping(request)
+            logger.info(
+                f"[MONGO_PING] Health check completed - "
+                f"Connection: {'OK' if response.pong else 'FAILED'}"
+            )
+            return response
+        except Exception as e:
+            logger.error(f"[MONGO_PING] Health check failed: {e}")
             raise
 
     def MongoInsertOneSchema(
@@ -314,7 +356,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = MongoHandler.insert_one_schema(request)
+            response = self.mongo_handler.insert_one_schema(request)
             logger.info(
                 f"[MONGO_INSERT_SCHEMA] Schema insertion completed - "
                 f"ImportName: '{request.import_name}', Status: '{response.status}'"
@@ -344,7 +386,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         logger.info(f"[MONGO_COUNT_DOCS] Request from client {context.peer()}")
 
         try:
-            response = MongoHandler.count_all_documents(request)
+            response = self.mongo_handler.count_all_documents(request)
             logger.info(
                 f"[MONGO_COUNT_DOCS] Document count completed - "
                 f"Count: {response.amount}"
@@ -377,7 +419,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = MongoHandler.find_jsonschema(request)
+            response = self.mongo_handler.find_jsonschema(request)
             has_schema = response.HasField("schema")
             logger.info(
                 f"[MONGO_FIND_SCHEMA] Schema search completed - "
@@ -412,7 +454,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = MongoHandler.update_one_jsonschema(request)
+            response = self.mongo_handler.update_one_jsonschema(request)
             logger.info(
                 f"[MONGO_UPDATE_SCHEMA] Schema update completed - "
                 f"ImportName: '{request.import_name}', Status: '{response.status}'"
@@ -445,7 +487,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = MongoHandler.delete_one_jsonschema(request)
+            response = self.mongo_handler.delete_one_jsonschema(request)
             logger.info(
                 f"[MONGO_DELETE_SCHEMA] Schema deletion completed - "
                 f"ImportName: '{request.import_name}', Success: {response.success}, "
@@ -479,7 +521,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = MongoHandler.delete_import_name(request)
+            response = self.mongo_handler.delete_import_name(request)
             logger.info(
                 f"[MONGO_DELETE_IMPORT] Import deletion completed - "
                 f"ImportName: '{request.import_name}', Success: {response.success}, "
@@ -489,6 +531,8 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         except Exception as e:
             logger.error(f"[MONGO_DELETE_IMPORT] Operation failed: {e}")
             raise
+
+    # ================== Both - Related to task IDs ==================
 
     def UpdateTaskId(
         self,
@@ -514,7 +558,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = DatabaseTasksHandler.update_task_id(request)
+            response = self.database_tasks_handler.update_task_id(request)
             logger.info(
                 f"[TASKS_UPDATE] Task update completed - "
                 f"TaskID: '{request.task_id}', Success: {response.success}"
@@ -547,7 +591,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = DatabaseTasksHandler.get_task_id(request)
+            response = self.database_tasks_handler.get_task_id(request)
             has_value = response.HasField("value")
             logger.info(
                 f"[TASKS_GET] Task lookup completed - "
@@ -582,7 +626,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = DatabaseTasksHandler.get_tasks_by_import_name(request)
+            response = self.database_tasks_handler.get_tasks_by_import_name(request)
             task_count = len(response.tasks)
             logger.info(
                 f"[TASKS_GET_BY_IMPORT] Task lookup completed - "
@@ -616,7 +660,7 @@ class DatabaseServicer(database_pb2_grpc.DatabaseServiceServicer):
         )
 
         try:
-            response = DatabaseTasksHandler.set_task_id(request)
+            response = self.database_tasks_handler.set_task_id(request)
             logger.info(
                 f"[TASKS_SET] Task set completed - "
                 f"TaskID: '{request.task_id}', Success: {response.success}"
@@ -689,6 +733,7 @@ if __name__ == "__main__":
         asyncio.run(serve())
     except KeyboardInterrupt:
         logger.info("[MAIN] Application terminated by user")
+        get_connection_manager().close_all()
     except Exception as e:
         logger.error(f"[MAIN] Fatal error: {e}")
         raise

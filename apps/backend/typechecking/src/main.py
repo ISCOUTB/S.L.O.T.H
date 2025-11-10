@@ -35,6 +35,7 @@ from messaging_utils.messaging.connection_factory import (
     RabbitMQConnectionFactory,
 )
 
+from src.core.config import settings
 from src.utils import create_component_logger
 from src.workers.schemas import SchemaWorker
 from src.workers.validation import ValidationWorker
@@ -66,8 +67,14 @@ class WorkerManager:
         the initial state for worker management. Workers are not started
         until start_workers() is called.
         """
-        self.validation_worker = ValidationWorker()
-        self.schema_worker = SchemaWorker()
+        retry_options = (
+            settings.RABBITMQ_MAX_RETRIES,
+            settings.RABBITMQ_RETRY_DELAY_SECONDS,
+            settings.RABBITMQ_BACKOFF_MULTIPLIER,
+            settings.RABBITMQ_THRESHOLD_SECONDS,
+        )
+        self.validation_worker = ValidationWorker(*retry_options)
+        self.schema_worker = SchemaWorker(*retry_options)
         self.workers_running = True
 
     async def start_workers(self):

@@ -1,46 +1,16 @@
 import asyncio
-from typing import Dict
+from typing import Any, Dict
 
 import aio_pika
-from motor.motor_asyncio import AsyncIOMotorClient  # noqa: F401
-from proto_utils.database import dtypes
+from messaging_utils.core.config import settings as mq_settings
 
-from src.core.config import settings
-from src.core.database_client import database_client
-
-# TODO: Re-enable MongoDB health check when needed
-# async def check_mongodb_connection() -> Dict[str, str]:
-#     """Check MongoDB connection health."""
-#     try:
-#         mongo_url = str(settings.MONGO_URI)
-#         client = AsyncIOMotorClient(mongo_url)
-
-#         # Ping the database with a timeout
-#         await asyncio.wait_for(client.admin.command("ping"), timeout=5.0)
-
-#         # Get server info
-#         server_info = await client.server_info()
-#         client.close()
-
-#         return {
-#             "status": "healthy",
-#             "version": server_info.get("version", "unknown"),
-#             "response_time_ms": "< 5000",
-#         }
-#     except asyncio.TimeoutError:
-#         return {
-#             "status": "unhealthy",
-#             "error": "Connection timeout",
-#             "response_time_ms": "> 5000",
-#         }
-#     except Exception as e:
-#         return {"status": "unhealthy", "error": str(e)}
+from src.core.database_client import DatabaseClient
 
 
 async def check_rabbitmq_connection() -> Dict[str, str]:
     """Check RabbitMQ connection health."""
     try:
-        rabbitmq_url = str(settings.RABBITMQ_URI)
+        rabbitmq_url = str(mq_settings.RABBITMQ_URI)
 
         # Connect with timeout
         connection = await asyncio.wait_for(
@@ -63,32 +33,43 @@ async def check_rabbitmq_connection() -> Dict[str, str]:
         return {"status": "unhealthy", "error": str(e)}
 
 
-async def check_redis_connection() -> Dict[str, str]:
-    """Check Redis connection health."""
+def check_database_client_connection(
+    db_client: DatabaseClient,
+) -> Dict[str, str]:
+    """Check overall database client connection health."""
     try:
-        # Test Redis connection with ping and a simple operation
-        def test_redis():
-            # Test ping
-            database_client.redis_ping()
+        redis_health = db_client.redis_ping()["pong"]
+    except Exception:
+        redis_health = False
 
-            # Test basic operations
-            test_key = "healthcheck:test"
-            database_client.redis_set(dtypes.RedisSetRequest(key=test_key, value="test_value", expiration=10))
-            result = database_client.redis_get(dtypes.RedisGetRequest(key=test_key))["value"]
-            return result == "test_value"
+    try:
+        mongo_health = db_client.mongo_ping()["pong"]
+    except Exception:
+        mongo_health = False
 
-        # Run Redis operations with timeout
-        await asyncio.wait_for(
-            asyncio.get_event_loop().run_in_executor(None, test_redis),
-            timeout=5.0,
-        )
+    overall_status = "healthy" if mongo_health and redis_health else "unhealthy"
+    return {
+        "status": overall_status,
+        "mongodb": mongo_health,
+        "redis": redis_health,
+    }
 
-        return {"status": "healthy", "response_time_ms": "< 5000"}
-    except asyncio.TimeoutError:
-        return {
-            "status": "unhealthy",
-            "error": "Connection timeout",
-            "response_time_ms": "> 5000",
-        }
-    except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
+
+async def check_databases_connection(
+    db_client: DatabaseClient,
+) -> Dict[str, Dict[str, Any]]:
+    """Check overall database connection health."""
+    rabbitmq_health = await check_rabbitmq_connection()
+    database_health = check_database_client_connection(db_client)
+
+    overall_status = (
+        "healthy"
+        if database_health["status"] == "healthy"
+        and rabbitmq_health["status"] == "healthy"
+        else "unhealthy"
+    )
+    return {
+        "status": overall_status,
+        "database": database_health,
+        "rabbitmq": rabbitmq_health,
+    }

@@ -10,13 +10,13 @@ associated tasks.
 """
 
 import json
-from typing import Any, List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
-from redis import Redis
 import redis.exceptions
+from proto_utils.database.dtypes import ApiResponse
+from redis import Redis
 
 from src.core.config import settings
-from proto_utils.database.dtypes import ApiResponse
 
 
 class RedisConnection:
@@ -119,6 +119,17 @@ class RedisConnection:
         """
         return self.redis_client.ping()
 
+    def is_healthy(self) -> bool:
+        """Internal method to check Redis health.
+
+        Returns:
+            bool: True if Redis is healthy, False otherwise.
+        """
+        try:
+            return self.redis_client.ping()
+        except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError):
+            return False
+
     def _get_task_ttl(self, status: str) -> int:
         """
         Get TTL based on task status.
@@ -220,11 +231,18 @@ class RedisConnection:
             None:
         """
         import_name = value["data"].get("import_name", "default")
-        value["data"] = json.dumps(value["data"])  # Just in case
+
+        # Create a copy to avoid modifying the original dict
+        redis_value = {
+            "status": value["status"],
+            "code": str(value["code"]),  # Convert to string for Redis
+            "message": value["message"],
+            "data": json.dumps(value["data"]),  # Serialize data dict
+        }
 
         task_key = f"{task}:task:{task_id}"
         import_key = f"{task}:import:{import_name}:tasks"
-        self.redis_client.hset(task_key, mapping=value)
+        self.redis_client.hset(task_key, mapping=redis_value)
         self.redis_client.sadd(import_key, task_id)
 
         ttl = self._get_task_ttl(value["status"])
@@ -243,6 +261,11 @@ class RedisConnection:
         """
         task_data = self.redis_client.hgetall(f"{task}:task:{task_id}")
 
+        if not task_data:
+            return None
+
+        # Since decode_responses=True in Redis client, data is already decoded
+        # Just need to convert types
         if "data" in task_data:
             task_data["data"] = json.loads(task_data["data"])
 
@@ -337,11 +360,3 @@ class RedisConnection:
             return self.redis_client.flushdb()
         except redis.exceptions.ConnectionError:
             return False
-
-
-redis_db = RedisConnection(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=settings.REDIS_DB,
-    password=settings.REDIS_PASSWORD,
-)

@@ -26,6 +26,8 @@ tasks:
             - --cov-report=html
             - --cov-report=xml
         toolchain: python
+        options:
+            runFromWorkspaceRoot: false
 
     format:
         command: uv
@@ -45,6 +47,17 @@ tasks:
             - python
             - -m
             - src.main
+        toolchain: python
+        local: true
+        options:
+            runFromWorkspaceRoot: false
+
+    server:
+        command: uv
+        args:
+            - run
+            - -m
+            - src.minimal_server
         toolchain: python
         local: true
         options:

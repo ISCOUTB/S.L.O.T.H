@@ -21,6 +21,65 @@ class MongoSerde:
     """
 
     @staticmethod
+    def serialize_ping_request(
+        request: dtypes.MongoPingRequest = None,
+    ) -> mongo_pb2.MongoPingRequest:
+        """Serialize a MongoPingRequest dictionary to Protocol Buffer format.
+
+        Args:
+            request: The MongoDB ping request dictionary to serialize (optional).
+
+        Returns:
+            The serialized Protocol Buffer MongoPingRequest message.
+        """
+        return mongo_pb2.MongoPingRequest()
+
+    @staticmethod
+    def deserialize_ping_request(
+        proto: mongo_pb2.MongoPingRequest,
+    ) -> dtypes.MongoPingRequest:
+        """Deserialize a Protocol Buffer MongoPingRequest to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer MongoPingRequest message to deserialize.
+
+        Returns:
+            The deserialized MongoDB ping request dictionary.
+        """
+        return dtypes.MongoPingRequest()
+
+    def serialize_ping_response(
+        response: dtypes.MongoPingResponse,
+    ) -> mongo_pb2.MongoPingResponse:
+        """Serialize a MongoPingResponse dictionary to Protocol Buffer format.
+
+        Args:
+            response: The MongoDB ping response dictionary to serialize.
+
+        Returns:
+            The serialized Protocol Buffer MongoPingResponse message.
+        """
+        return mongo_pb2.MongoPingResponse(
+            pong=response["pong"],
+        )
+
+    @staticmethod
+    def deserialize_ping_response(
+        proto: mongo_pb2.MongoPingResponse,
+    ) -> dtypes.MongoPingResponse:
+        """Deserialize a Protocol Buffer MongoPingResponse to dictionary format.
+
+        Args:
+            proto: The Protocol Buffer MongoPingResponse message to deserialize.
+
+        Returns:
+            The deserialized MongoDB ping response dictionary.
+        """
+        return dtypes.MongoPingResponse(
+            pong=proto.pong,
+        )
+
+    @staticmethod
     def serialize_insert_one_schema_request(
         request: dtypes.MongoInsertOneSchemaRequest,
     ) -> mongo_pb2.MongoInsertOneSchemaRequest:
@@ -208,10 +267,15 @@ class MongoSerde:
         Returns:
             The serialized Protocol Buffer MongoFindJsonSchemaResponse message.
         """
+        # Handle None schema case (when schema is not found)
+        schema_proto = None
+        if response["schema"] is not None:
+            schema_proto = DatabaseUtilsSerde.serialize_jsonschema(response["schema"])
+
         return mongo_pb2.MongoFindJsonSchemaResponse(
             status=response["status"],
             extra=response["extra"],
-            schema=DatabaseUtilsSerde.serialize_jsonschema(response["schema"]),
+            schema=schema_proto,
         )
 
     @staticmethod

@@ -1,7 +1,7 @@
 import json
 
 from fastapi import APIRouter, Depends
-from proto_utils.database import dtypes, DatabaseClient
+from proto_utils.database import DatabaseClient, dtypes
 
 from src.api.deps import get_db_client
 
