@@ -34,6 +34,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Update .env.example with CI values
         run: |
           # Verify that the .env.example file exists
@@ -41,39 +42,40 @@ jobs:
             ENV_DIR=$(dirname "$ENV_EXAMPLE_FILE")
             echo "Error: $ENV_EXAMPLE_FILE does not exist"
             echo "Available files in ${ENV_DIR}/:"
-            ls -la ${ENV_DIR}/ || echo "Directory does not exist"
+            ls -la "${ENV_DIR}/" || echo "Directory does not exist"
             exit 1
           fi
 
           # Backup the original .env.example file
           cp "$ENV_EXAMPLE_FILE" "$ENV_EXAMPLE_FILE.backup"
 
-          # Update values for CI environment using sed
+          # Update values for CI environment using sed with validation
           sed -i 's/^MONGO_HOST=.*/MONGO_HOST=localhost/' "$ENV_EXAMPLE_FILE"
           sed -i 's/^REDIS_HOST=.*/REDIS_HOST=localhost/' "$ENV_EXAMPLE_FILE"
-
-          # Ensure CI-specific values are set
           sed -i 's/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=admin/' "$ENV_EXAMPLE_FILE"
           sed -i 's/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=admin/' "$ENV_EXAMPLE_FILE"
           sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=admin/' "$ENV_EXAMPLE_FILE"
 
+          # Validate modifications were successful
+          echo "Validating modifications..."
+          grep -q "MONGO_HOST=localhost" "$ENV_EXAMPLE_FILE" || echo "Warning: MONGO_HOST not updated"
+          grep -q "REDIS_HOST=localhost" "$ENV_EXAMPLE_FILE" || echo "Warning: REDIS_HOST not updated"
+
           echo "Updated .env.example for CI:"
           cat "$ENV_EXAMPLE_FILE"
-
-          # Verify the file exists after modifications
-          echo "File exists after modifications: $(ls -la "$ENV_EXAMPLE_FILE")"
 
       - name: Upload modified .env.example
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: ${{ github.workspace }}/${{ env.ENV_EXAMPLE_FILE}}
+          path: ./apps/connections/database/.env.example
           retention-days: 1
           if-no-files-found: error
+
   database-tests:
     uses: ./.github/workflows/reusable-ci-tests.yml
     needs: setup-databases
     with:
       service_name: "database"
-      env_example_file: "${{ env.ENV_EXAMPLE_FILE }}"
+      env_example_file: "apps/connections/database/.env.example"
       artifact_name: "env-file-modified"
