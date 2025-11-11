@@ -4,7 +4,7 @@ on:
     branches:
       - main
       - staging
-      - feat/CI  # Temporal
+      - feat/CI # Temporal
     paths:
       - "apps/connections/database/**"
       - "packages/messaging-utils/messaging-utils-py/**"
@@ -65,31 +65,26 @@ jobs:
           echo "Updated .env.example for CI:"
           cat "$ENV_EXAMPLE_FILE"
 
-      - name: Debug before upload
-        run: |
-          echo "=== DEBUG BEFORE UPLOAD ==="
-          echo "Working directory: $(pwd)"
-          echo "ENV_EXAMPLE_FILE: $ENV_EXAMPLE_FILE"
-          
-          # Verificar ambas rutas
-          echo "Checking without ./:"
-          ls -la "$ENV_EXAMPLE_FILE" || echo "Not found: $ENV_EXAMPLE_FILE"
-          
-          echo "Checking with ./:"
-          ls -la "./$ENV_EXAMPLE_FILE" || echo "Not found: ./$ENV_EXAMPLE_FILE"
-          
-          # Buscar todos los .env.example
-          echo "All .env.example files:"
-          find . -name ".env.example" -type f
-          
-          echo "File content:"
-          cat "$ENV_EXAMPLE_FILE" || echo "Cannot read file"
-
       - name: Upload modified .env.example
+        run: |
+          # Use find to locate the .env.example file
+          file_path=$(find . -name ".env.example" -path "*/apps/connections/database/*" -type f)
+
+          if [[ -f "$file_path" ]]; then
+            echo "Uploading: $file_path"
+          else
+            echo "File not found"
+            exit 1
+          fi
+
+          # Save the file path to an environment variable for later steps
+          echo "UPLOAD_PATH=$file_path" >> $GITHUB_ENV
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: apps/connections/database/.env.example
+          path: ${{ env.UPLOAD_PATH }}
           retention-days: 1
           if-no-files-found: error
 
