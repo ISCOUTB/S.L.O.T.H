@@ -308,5 +308,3 @@ The service provides comprehensive error handling:
 -   **Request Logging**: Logs incoming formulas and generated ASTs
 -   **Error Tracking**: Comprehensive error reporting with stack traces
 -   **Performance Monitoring**: Built-in timing for parsing operations
-
-<!-- A comment just to test github actions -->

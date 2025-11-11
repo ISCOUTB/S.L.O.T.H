@@ -338,5 +338,3 @@ worker.start_consuming()  # Process validation messages
 - [Database Service](../../connections/database/): gRPC service for data storage
 - [Messaging Utils](../../../packages/messaging-utils/): RabbitMQ connection library
 - [Protocol Definitions](../../../packages/proto/): Shared interface specifications
-
-<!-- A comment just to test github actions -->

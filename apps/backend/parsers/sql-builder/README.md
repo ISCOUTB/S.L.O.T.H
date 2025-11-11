@@ -412,5 +412,3 @@ Uses sqlglot for:
 - **Dependency Analysis**: Logs dependency resolution process
 - **Error Tracking**: Comprehensive error reporting with context
 - **Performance Monitoring**: Built-in timing for SQL generation
-
-<!-- A comment just to test github actions -->
