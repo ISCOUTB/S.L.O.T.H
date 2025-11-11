@@ -35,6 +35,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - run: pwd  # Debugging step to print the current directory
+      - run: ls -la apps/connections/database/  # Debugging step to list
 
       - name: Update .env.example with CI values
         run: |
@@ -65,25 +67,25 @@ jobs:
           echo "Updated .env.example for CI:"
           cat "$ENV_EXAMPLE_FILE"
 
-      - name: Upload modified .env.example
-        run: |
-          # Get the absolute path of the directory containing the target file/directory
-          abs_dir="$(cd "$(dirname "$ENV_EXAMPLE_FILE")" && pwd -P)"
+      # - name: Upload modified .env.example
+      #   run: |
+      #     # Get the absolute path of the directory containing the target file/directory
+      #     abs_dir="$(cd "$(dirname "$ENV_EXAMPLE_FILE")" && pwd -P)"
 
-          # Get the basename of the target file/directory
-          basename="$(basename "$ENV_EXAMPLE_FILE")"
+      #     # Get the basename of the target file/directory
+      #     basename="$(basename "$ENV_EXAMPLE_FILE")"
 
-          # Construct the full absolute path
-          file_path="$abs_dir/$basename"
+      #     # Construct the full absolute path
+      #     file_path="$abs_dir/$basename"
 
-          # Save the file path to an environment variable for later steps
-          echo "UPLOAD_PATH=$file_path" >> $GITHUB_ENV
+      #     # Save the file path to an environment variable for later steps
+      #     echo "UPLOAD_PATH=$file_path" >> $GITHUB_ENV
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: ${{ env.UPLOAD_PATH }}
+          path: ./apps/connections/database/.env.example
           retention-days: 1
           if-no-files-found: error
 
