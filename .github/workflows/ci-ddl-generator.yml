@@ -10,6 +10,6 @@ on:
 
 jobs:
   ddl_generator-tests:
-    uses: ./.github/workflows/reusable/ci-tests.yml
+    uses: ./.github/workflows/reusable-ci-tests.yml
     with:
       service_name: "ddl-generator"

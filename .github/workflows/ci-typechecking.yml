@@ -1,16 +1,16 @@
-name: CI - Database Tests
+name: CI - Typechecking Tests
 on:
   pull_request:
     branches:
       - main
       - staging
     paths:
-      - "apps/connections/database/**"
+      - "apps/backend/typechecking/**"
       - "packages/messaging-utils/messaging-utils-py/**"
       - "packages/proto-utils/proto-utils-py/**"
 
 jobs:
-  database-tests:
-    uses: ./.github/workflows/reusable/ci-tests.yml
+  typechecking-tests:
+    uses: ./.github/workflows/reusable-ci-tests.yml
     with:
-      service_name: "database"
+      service_name: "typechecking"
