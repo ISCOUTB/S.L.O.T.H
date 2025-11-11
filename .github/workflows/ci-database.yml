@@ -9,6 +9,9 @@ on:
       - "packages/messaging-utils/messaging-utils-py/**"
       - "packages/proto-utils/proto-utils-py/**"
 
+env:
+  ENV_EXAMPLE_FILE: "apps/connections/database/.env.example"
+
 jobs:
   setup-databases:
     runs-on: ubuntu-latest
@@ -33,33 +36,44 @@ jobs:
       - uses: actions/checkout@v4
       - name: Update .env.example with CI values
         run: |
-          ENV_FILE="apps/connections/database/.env.example"
+          # Verificar que el archivo existe
+          if [[ ! -f "$ENV_EXAMPLE_FILE" ]]; then
+            ENV_DIR=$(dirname "$ENV_EXAMPLE_FILE")
+            echo "Error: $ENV_EXAMPLE_FILE does not exist"
+            echo "Available files in ${ENV_DIR}/:"
+            ls -la ${ENV_DIR}/ || echo "Directory does not exist"
+            exit 1
+          fi
 
           # Backup original
-          cp "$ENV_FILE" "$ENV_FILE.backup"
+          cp "$ENV_EXAMPLE_FILE" "$ENV_EXAMPLE_FILE.backup"
 
           # Update values for CI environment using sed
-          sed -i 's/^MONGO_HOST=.*/MONGO_HOST=localhost/' "$ENV_FILE"
-          sed -i 's/^REDIS_HOST=.*/REDIS_HOST=localhost/' "$ENV_FILE"
+          sed -i 's/^MONGO_HOST=.*/MONGO_HOST=localhost/' "$ENV_EXAMPLE_FILE"
+          sed -i 's/^REDIS_HOST=.*/REDIS_HOST=localhost/' "$ENV_EXAMPLE_FILE"
 
           # Ensure CI-specific values are set
-          sed -i 's/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=admin/' "$ENV_FILE"
-          sed -i 's/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=admin/' "$ENV_FILE"
-          sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=admin/' "$ENV_FILE"
+          sed -i 's/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=admin/' "$ENV_EXAMPLE_FILE"
+          sed -i 's/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=admin/' "$ENV_EXAMPLE_FILE"
+          sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=admin/' "$ENV_EXAMPLE_FILE"
 
           echo "Updated .env.example for CI:"
-          cat "$ENV_FILE"
+          cat "$ENV_EXAMPLE_FILE"
+
+          # Verificar que el archivo sigue existiendo después de las modificaciones
+          echo "File exists after modifications: $(ls -la "$ENV_EXAMPLE_FILE")"
+
       - name: Upload modified .env.example
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: apps/connections/database/.env.example
+          path: ${{ env.ENV_EXAMPLE_FILE}}
           retention-days: 1
-
+          if-no-files-found: error
   database-tests:
     uses: ./.github/workflows/reusable-ci-tests.yml
     needs: setup-databases
     with:
       service_name: "database"
-      env_example_file: "apps/connections/database/.env.example"
+      env_example_file: "${{ env.ENV_EXAMPLE_FILE }}"
       artifact_name: "env-file-modified"
