@@ -12,3 +12,4 @@ jobs:
     uses: ./.github/workflows/reusable-ci-tests.yml
     with:
       service_name: "api"
+      env_example_file: "apps/backend/api/.env.example"

@@ -14,3 +14,4 @@ jobs:
     uses: ./.github/workflows/reusable-ci-tests.yml
     with:
       service_name: "database"
+      env_example_file: "apps/connections/database/.env.example"

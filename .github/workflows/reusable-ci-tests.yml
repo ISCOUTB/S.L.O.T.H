@@ -6,6 +6,9 @@ on:
       service_name:
         required: true
         type: string
+      env_example_file:
+        required: false
+        type: string
 
 jobs:
   unit-tests:
@@ -28,6 +31,11 @@ jobs:
             ~/.cache/uv
             .moon/cache
           key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
+      - name: Set up environment variables
+        run: |
+          envdir=$(dirname "${{ inputs.env_example_file }}")
+          echo "Copying {{ inputs.env_example_file }} -> $envdir/.env"
+          cp ${{ inputs.env_example_file }} "$envdir/.env"
       - name: Run tests
         run: moon run ${{ inputs.service_name }}:test
 
