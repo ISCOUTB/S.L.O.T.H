@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Update .env.example with CI values
         run: |
-          # Verificar que el archivo existe
+          # Verify that the .env.example file exists
           if [[ ! -f "$ENV_EXAMPLE_FILE" ]]; then
             ENV_DIR=$(dirname "$ENV_EXAMPLE_FILE")
             echo "Error: $ENV_EXAMPLE_FILE does not exist"
@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
 
-          # Backup original
+          # Backup the original .env.example file
           cp "$ENV_EXAMPLE_FILE" "$ENV_EXAMPLE_FILE.backup"
 
           # Update values for CI environment using sed
@@ -60,14 +60,14 @@ jobs:
           echo "Updated .env.example for CI:"
           cat "$ENV_EXAMPLE_FILE"
 
-          # Verificar que el archivo sigue existiendo después de las modificaciones
+          # Verify the file exists after modifications
           echo "File exists after modifications: $(ls -la "$ENV_EXAMPLE_FILE")"
 
       - name: Upload modified .env.example
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: ${{ env.ENV_EXAMPLE_FILE}}
+          path: ${{ github.workspace }}/${{ env.ENV_EXAMPLE_FILE}}
           retention-days: 1
           if-no-files-found: error
   database-tests:
