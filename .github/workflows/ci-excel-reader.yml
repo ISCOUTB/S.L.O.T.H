@@ -13,3 +13,4 @@ jobs:
     uses: ./.github/workflows/reusable-ci-tests.yml
     with:
       service_name: "excel-reader"
+      env_example_file: "apps/backend/parsers/excel-reader/.env.example"
