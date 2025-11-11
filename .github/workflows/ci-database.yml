@@ -10,8 +10,57 @@ on:
       - "packages/proto-utils/proto-utils-py/**"
 
 jobs:
+  setup-databases:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin
+
+      redis:
+        image: redis:7.4.1
+        ports:
+          - 6379:6379
+        options: >-
+          --entrypoint sh
+          -c "redis-server --requirepass admin"
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update .env.example with CI values
+        run: |
+          ENV_FILE="apps/connections/database/.env.example"
+
+          # Backup original
+          cp "$ENV_FILE" "$ENV_FILE.backup"
+
+          # Update values for CI environment using sed
+          sed -i 's/^MONGO_HOST=.*/MONGO_HOST=localhost/' "$ENV_FILE"
+          sed -i 's/^REDIS_HOST=.*/REDIS_HOST=localhost/' "$ENV_FILE"
+
+          # Ensure CI-specific values are set
+          sed -i 's/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=admin/' "$ENV_FILE"
+          sed -i 's/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=admin/' "$ENV_FILE"
+          sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=admin/' "$ENV_FILE"
+
+          echo "Updated .env.example for CI:"
+          cat "$ENV_FILE"
+      - name: Upload modified .env.example
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file-modified
+          path: apps/connections/database/.env.example
+          retention-days: 1
+
   database-tests:
     uses: ./.github/workflows/reusable-ci-tests.yml
+    needs: setup-databases
     with:
       service_name: "database"
       env_example_file: "apps/connections/database/.env.example"
+      artifact_name: "env-file-modified"
