@@ -67,15 +67,14 @@ jobs:
 
       - name: Upload modified .env.example
         run: |
-          # Use find to locate the .env.example file
-          file_path=$(find . -name ".env.example" -path "*/apps/connections/database/*" -type f)
+          # Get the absolute path of the directory containing the target file/directory
+          abs_dir="$(cd "$(dirname "$ENV_EXAMPLE_FILE")" && pwd -P)"
 
-          if [[ -f "$file_path" ]]; then
-            echo "Uploading: $file_path"
-          else
-            echo "File not found"
-            exit 1
-          fi
+          # Get the basename of the target file/directory
+          basename="$(basename "$ENV_EXAMPLE_FILE")"
+
+          # Construct the full absolute path
+          file_path="$abs_dir/$basename"
 
           # Save the file path to an environment variable for later steps
           echo "UPLOAD_PATH=$file_path" >> $GITHUB_ENV
