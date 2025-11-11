@@ -58,7 +58,7 @@ The API Service acts as the communication layer between users and the processing
 
 ### Data Flow Separation
 
-- **Cache & Schemas**: API ↔ Database Service (gRPC) ↔ Redis/MongoDB  
+- **Cache & Schemas**: API ↔ Database Service (gRPC) ↔ Redis/MongoDB
 - **Users & Auth**: API ↔ PostgreSQL (Direct SQLAlchemy)
 - **Task Notifications**: Workers → Webhook Server → Client notifications
 
@@ -88,11 +88,11 @@ The API Service orchestrates different ETL workflows that can be executed indepe
 
 ### Future Workflow Endpoints *(Design in Progress)*
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/workflows/*` | Workflow execution endpoints (design TBD) |
-| `GET` | `/api/v1/workflows/status/{task_id}` | Track workflow progress |
-| `GET` | `/api/v1/workflows/results/{task_id}` | Download workflow results |
+| Method   | Endpoint                                | Description                               |
+| -------- | --------------------------------------- | ----------------------------------------- |
+| `POST` | `/api/v1/workflows/*`                 | Workflow execution endpoints (design TBD) |
+| `GET`  | `/api/v1/workflows/status/{task_id}`  | Track workflow progress                   |
+| `GET`  | `/api/v1/workflows/results/{task_id}` | Download workflow results                 |
 
 ### Integration Points
 
@@ -110,59 +110,59 @@ The API provides comprehensive REST endpoints with automatic OpenAPI documentati
 
 ### 🔐 Authentication
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
+| Method   | Endpoint                       | Description                    |
+| -------- | ------------------------------ | ------------------------------ |
 | `POST` | `/api/v1/login/access-token` | Login and get JWT access token |
-| `GET` | `/api/v1/login/test-token` | Test token validity |
+| `GET`  | `/api/v1/login/test-token`   | Test token validity            |
 
 ### 👥 User Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/users/info` | Get current user information |
-| `GET` | `/api/v1/users/search/{username}` | Get specific user details |
-| `GET` | `/api/v1/users/search` | List all users (paginated) |
-| `POST` | `/api/v1/users/create` | Create new user |
-| `PATCH` | `/api/v1/users/update/{username}` | Update user information |
-| `DELETE` | `/api/v1/users/delete/{username}` | Delete user |
+| Method     | Endpoint                            | Description                  |
+| ---------- | ----------------------------------- | ---------------------------- |
+| `GET`    | `/api/v1/users/info`              | Get current user information |
+| `GET`    | `/api/v1/users/search/{username}` | Get specific user details    |
+| `GET`    | `/api/v1/users/search`            | List all users (paginated)   |
+| `POST`   | `/api/v1/users/create`            | Create new user              |
+| `PATCH`  | `/api/v1/users/update/{username}` | Update user information      |
+| `DELETE` | `/api/v1/users/delete/{username}` | Delete user                  |
 
 ### 🏷️ Schema Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/schemas/upload/{import_name}` | Upload JSON schema with versioning |
-| `GET` | `/api/v1/schemas/status` | Get schema upload status and metadata |
-| `DELETE` | `/api/v1/schemas/remove/{import_name}` | Remove schema with rollback support |
+| Method     | Endpoint                                 | Description                           |
+| ---------- | ---------------------------------------- | ------------------------------------- |
+| `POST`   | `/api/v1/schemas/upload/{import_name}` | Upload JSON schema with versioning    |
+| `GET`    | `/api/v1/schemas/status`               | Get schema upload status and metadata |
+| `DELETE` | `/api/v1/schemas/remove/{import_name}` | Remove schema with rollback support   |
 
 ### 📄 File Validation
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/validation/upload/{import_name}` | Upload and validate spreadsheet files |
-| `GET` | `/api/v1/validation/status` | Check validation task status and progress |
+| Method   | Endpoint                                    | Description                               |
+| -------- | ------------------------------------------- | ----------------------------------------- |
+| `POST` | `/api/v1/validation/upload/{import_name}` | Upload and validate spreadsheet files     |
+| `GET`  | `/api/v1/validation/status`               | Check validation task status and progress |
 
 ### 💾 Cache Management
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/cache` | Get cache statistics and stored keys |
-| `DELETE` | `/api/v1/cache/clear` | Clear all cached data |
+| Method     | Endpoint                | Description                          |
+| ---------- | ----------------------- | ------------------------------------ |
+| `GET`    | `/api/v1/cache`       | Get cache statistics and stored keys |
+| `DELETE` | `/api/v1/cache/clear` | Clear all cached data                |
 
 ### 🏥 Health & Monitoring
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/health` | Basic health check with service status |
+| Method  | Endpoint             | Description                                 |
+| ------- | -------------------- | ------------------------------------------- |
+| `GET` | `/health`          | Basic health check with service status      |
 | `GET` | `/health/detailed` | Detailed health info including dependencies |
-| `GET` | `/metrics` | Application metrics for monitoring systems |
+| `GET` | `/metrics`         | Application metrics for monitoring systems  |
 
 ### 🔔 Webhook Endpoints *(Planned)*
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/webhooks/task-completed` | Receive task completion notifications |
-| `POST` | `/webhooks/validation-results` | Receive validation task results |
-| `POST` | `/webhooks/parsing-results` | Receive parsing task results |
+| Method   | Endpoint                         | Description                           |
+| -------- | -------------------------------- | ------------------------------------- |
+| `POST` | `/webhooks/task-completed`     | Receive task completion notifications |
+| `POST` | `/webhooks/validation-results` | Receive validation task results       |
+| `POST` | `/webhooks/parsing-results`    | Receive parsing task results          |
 
 **Note**: Webhook server will run on a separate port and be used exclusively for receiving task completion notifications from background workers. Client notifications will be implemented via WebSockets, Server-Sent Events, or similar real-time mechanisms.
 
@@ -409,7 +409,7 @@ api/
 **Design Goals**:
 
 - Independent workflow execution options
-- User-configurable processing requirements  
+- User-configurable processing requirements
 - Flexible result delivery (separate or combined)
 
 **Note**: Specific workflow implementations and integration patterns are currently being designed.
