@@ -23,12 +23,11 @@ jobs:
           MONGO_INITDB_ROOT_PASSWORD: admin
 
       redis:
-        image: redis:7.4.1
+        image: bitnami/redis:latest
         ports:
           - 6379:6379
-        options: >-
-          --entrypoint sh
-          -c "redis-server --requirepass admin"
+        env:
+          REDIS_PASSWORD: admin
 
     steps:
       - uses: actions/checkout@v4
