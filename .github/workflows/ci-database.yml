@@ -34,9 +34,7 @@ jobs:
           REDIS_PASSWORD: admin
 
     steps:
-      - uses: actions/checkout@v4
-      - run: pwd  # Debugging step to print the current directory
-      - run: ls -la apps/connections/database/  # Debugging step to list
+      - uses: actions/checkout@v3
 
       - name: Update .env.example with CI values
         run: |
@@ -85,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: ./apps/connections/database/.env.example
+          path: ${{ env.ENV_EXAMPLE_FILE }}
           retention-days: 1
           if-no-files-found: error
 
