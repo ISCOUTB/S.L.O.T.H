@@ -1,11 +1,11 @@
-name: CI/CD Staging - API
+name: CI/CD Staging - Formula Parser
 on:
   push:
     branches:
       - staging
     paths:
-      - "apps/backend/api/**"
-      - "packages/messaging-utils/messaging-utils-py/**"
+      - "apps/backend/parsers/formula-parser/**"
+      - "packages/proto-utils/proto-utils-py/**"
 
 permissions:
   contents: write # to create tags
@@ -30,12 +30,12 @@ jobs:
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
         with:
-          service_name: "api"
+          service_name: "formula-parser"
           verify_image: "true"
           push_image: "true"
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_name: "etl-api"
+          image_name: "formula-parser"
           image_tag: ${{ steps.version.outputs.version }}
 
   # When docker stack is ready, there should be another job here to
