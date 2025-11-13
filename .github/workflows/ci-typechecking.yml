@@ -11,6 +11,7 @@ on:
 
 jobs:
   typechecking-tests:
-    uses: ./.github/workflows/reusable/ci-tests.yml
+    uses: ./.github/workflows/reusable-ci-tests.yml
     with:
       service_name: "typechecking"
+      env_example_file: "apps/backend/typechecking/.env.example"

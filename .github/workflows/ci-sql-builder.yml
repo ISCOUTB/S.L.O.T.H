@@ -10,6 +10,7 @@ on:
 
 jobs:
   sql_builder-tests:
-    uses: ./.github/workflows/reusable/ci-tests.yml
+    uses: ./.github/workflows/reusable-ci-tests.yml
     with:
       service_name: "sql-builder"
+      env_example_file: "apps/backend/parsers/sql-builder/.env.example"
