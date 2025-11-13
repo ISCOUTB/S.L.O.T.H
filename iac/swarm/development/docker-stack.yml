@@ -172,6 +172,7 @@ services:
             RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
         networks:
             - monitoring
+            - rabbit
         ports:
             - published: 5672
               target: 5672
@@ -191,8 +192,6 @@ services:
                     memory: "512m"
                 limits:
                     memory: "1024m"
-            labels:
-                - scaler.enabled=true
 
     mongo:
         image: mongo:7.0
@@ -201,6 +200,7 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
         networks:
             - monitoring
+            - mongo
         ports:
             - published: 27017
               target: 27017
@@ -215,9 +215,6 @@ services:
                     memory: "512m"
                 limits:
                     memory: "1024m"
-            labels:
-                - scaler.enabled=true
-                - scaler.max=1
 
     redis:
         image: redis:7-alpine
@@ -229,6 +226,7 @@ services:
             REDIS_PASSWORD: ${REDIS_PASSWORD}
         networks:
             - monitoring
+            - redis
         ports:
             - published: 6379
               target: 6379
@@ -243,8 +241,6 @@ services:
                     memory: "256m"
                 limits:
                     memory: "512m"
-            labels:
-                - scaler.enabled=true
 
     postgres:
         image: postgres:17
@@ -255,6 +251,7 @@ services:
             PGDATA: /var/lib/postgresql/data/pgdata
         networks:
             - monitoring
+            - postgres
         ports:
             - published: 5431
               target: 5432
@@ -269,9 +266,6 @@ services:
                     memory: "256m"
                 limits:
                     memory: "512m"
-            labels:
-                - scaler.enabled=true
-                - scaler.max=1
 
     database:
         image: vulcan99/database:latest
@@ -292,6 +286,9 @@ services:
             DATABASE_CONNECTION_DEBUG: ${DATABASE_CONNECTION_DEBUG}
         networks:
             - monitoring
+            - mongo
+            - redis
+            - grpc
         deploy:
             replicas: 1
             resources:
@@ -302,9 +299,41 @@ services:
             labels:
                 - scaler.enabled=true
 
+    typechecking:
+        image: vulcan99/typechecking
+        environment:
+            MINIMAL_SERVER_HOST: ${DATABASE_CONNECTION_HOST}
+            MINIMAL_SERVER_PORT: ${DATABASE_CONNECTION_PORT}
+            MINIMAL_SERVER_DEBUG: ${DATABASE_CONNECTION_DEBUG}
+            DATABASE_CONNECTION_HOST: database
+            DATABASE_CONNECTION_PORT: ${DATABASE_CONNECTION_PORT}
+            RABBITMQ_HOST: rabbitmq
+            RABBITMQ_PORT: 5672
+            RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+            RABBITMQ_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+        networks:
+            - monitoring
+            - rabbit
+            - grpc
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "768m"
+                limits:
+                    memory: "1536m"
+            labels:
+                - scaler.enabled=true
+
 networks:
     monitoring:
     parsers:
+    redis:
+    postgres:
+    mongo:
+    rabbit:
+    grpc:
 
 volumes:
     prometheus-data:
