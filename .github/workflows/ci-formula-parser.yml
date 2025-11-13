@@ -10,7 +10,9 @@ on:
 
 jobs:
   formula_parser-tests:
-    uses: ./.github/workflows/reusable/ci-tests.yml
-    with:
-      service_name: "formula-parser"
-      env_example_file: "apps/backend/parsers/formula-parser/.env.example"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/run-tests
+        with:
+          service_name: "formula-parser"
+          env_example_file: "apps/backend/parsers/formula-parser/.env.example"

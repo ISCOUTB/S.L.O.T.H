@@ -10,7 +10,9 @@ on:
 
 jobs:
   ddl_generator-tests:
-    uses: ./.github/workflows/reusable/ci-tests.yml
-    with:
-      service_name: "ddl-generator"
-      env_example_file: "apps/backend/parsers/ddl-generator/.env.example"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/run-tests
+        with:
+          service_name: "ddl-generator"
+          env_example_file: "apps/backend/parsers/ddl-generator/.env.example"

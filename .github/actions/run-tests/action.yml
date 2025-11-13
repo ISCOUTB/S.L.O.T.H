@@ -1,0 +1,81 @@
+name: "Run Tests"
+description: "Run unit tests for a service with uv and moon"
+
+inputs:
+  service_name:
+    description: "Name of the service to test"
+    required: true
+  env_example_file:
+    description: "Path to .env.example file"
+    required: true
+  mongo_username:
+    description: "MongoDB username"
+    required: false
+    default: ""
+  mongo_password:
+    description: "MongoDB password"
+    required: false
+    default: ""
+  mongo_host:
+    description: "MongoDB host"
+    required: false
+    default: ""
+  redis_password:
+    description: "Redis password"
+    required: false
+    default: ""
+  redis_host:
+    description: "Redis host"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.8.22"
+
+    - uses: moonrepo/setup-toolchain@v0
+      with:
+        auto-install: true
+
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/uv
+          .moon/cache
+        key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
+
+    - name: Prepare .env
+      shell: bash
+      run: |
+        ENV_EXAMPLE_FILE="${{ inputs.env_example_file }}"
+
+        # Update .env.example keys
+        if [ -n "${{ inputs.mongo_username }}" ]; then
+          sed -i "s/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=${{ inputs.mongo_username }}/" "$ENV_EXAMPLE_FILE"
+        fi
+        if [ -n "${{ inputs.mongo_password }}" ]; then
+          sed -i "s/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=${{ inputs.mongo_password }}/" "$ENV_EXAMPLE_FILE"
+        fi
+        if [ -n "${{ inputs.mongo_host }}" ]; then
+          sed -i "s/^MONGO_HOST=.*/MONGO_HOST=${{ inputs.mongo_host }}/" "$ENV_EXAMPLE_FILE"
+        fi
+        if [ -n "${{ inputs.redis_password }}" ]; then
+          sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${{ inputs.redis_password }}/" "$ENV_EXAMPLE_FILE"
+        fi
+        if [ -n "${{ inputs.redis_host }}" ]; then
+          sed -i "s/^REDIS_HOST=.*/REDIS_HOST=${{ inputs.redis_host }}/" "$ENV_EXAMPLE_FILE"
+        fi
+
+        cp "$ENV_EXAMPLE_FILE" "$(dirname "$ENV_EXAMPLE_FILE")/.env"
+
+    - name: Run tests
+      shell: bash
+      run: moon run ${{ inputs.service_name }}:test
