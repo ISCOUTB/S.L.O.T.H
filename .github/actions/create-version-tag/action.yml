@@ -1,0 +1,146 @@
+name: "Create Version Tag"
+description: "Calculate next version and create a Git tag with format x.xx-rc"
+
+inputs:
+  bump_type:
+    description: "Version bump type: auto (default), minor, or major"
+    required: false
+    default: "auto"
+  custom_version:
+    description: "Custom version to use instead of auto-increment (e.g., 2.00-rc)"
+    required: false
+    default: ""
+  tag_pattern:
+    description: "Pattern to match existing tags"
+    required: false
+    default: "*.??-rc"
+  suffix:
+    description: "Suffix to append to version (e.g., rc, beta, alpha)"
+    required: false
+    default: "rc"
+  dry_run:
+    description: "If true, calculate version but don't create or push tag"
+    required: false
+    default: "false"
+
+outputs:
+  version:
+    description: "The calculated version (e.g., 1.05-rc)"
+    value: ${{ steps.calculate.outputs.version }}
+  major:
+    description: "Major version number"
+    value: ${{ steps.calculate.outputs.major }}
+  minor:
+    description: "Minor version number"
+    value: ${{ steps.calculate.outputs.minor }}
+  previous_version:
+    description: "Previous version tag"
+    value: ${{ steps.calculate.outputs.previous_version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Calculate version
+      id: calculate
+      shell: bash
+      run: |
+        # If custom version is provided, use it
+        if [ -n "${{ inputs.custom_version }}" ]; then
+          VERSION="${{ inputs.custom_version }}"
+          echo "Using custom version: $VERSION"
+ 
+          # Extract major and minor from custom version
+          MAJOR=$(echo $VERSION | cut -d'.' -f1)
+          MINOR=$(echo $VERSION | cut -d'.' -f2 | cut -d'-' -f1)
+        else
+          # Get the last tag that matches the pattern
+          LAST_TAG=$(git tag -l "${{ inputs.tag_pattern }}" | sort -V | tail -n 1)
+
+          if [ -z "$LAST_TAG" ]; then
+            # If there's no previous tag, start with 1.00
+            MAJOR=1
+            MINOR=0
+            echo "No previous tags found, starting at 1.00-${{ inputs.suffix }}"
+          else
+            # Extract major and minor from the last tag
+            MAJOR=$(echo $LAST_TAG | cut -d'.' -f1)
+            MINOR=$(echo $LAST_TAG | cut -d'.' -f2 | cut -d'-' -f1)
+
+            echo "Last tag: $LAST_TAG (major=$MAJOR, minor=$MINOR)"
+
+            BUMP_TYPE="${{ inputs.bump_type }}"
+
+            case $BUMP_TYPE in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                echo "Major bump: $MAJOR.00-${{ inputs.suffix }}"
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                echo "Minor bump: $MAJOR.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+                ;;
+              auto)
+                MINOR=$((MINOR + 1))
+                if [ $MINOR -ge 100 ]; then
+                  MAJOR=$((MAJOR + 1))
+                  MINOR=0
+                  echo "Auto bump: Reached 100, incrementing to $MAJOR.00-${{ inputs.suffix }}"
+                else
+                  echo "Auto bump: $MAJOR.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+                fi
+                ;;
+              *)
+                echo "Invalid bump_type: $BUMP_TYPE"
+                exit 1
+                ;;
+            esac
+          fi
+
+          # Format version with leading zeros for minor
+          VERSION="${MAJOR}.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+        fi
+
+        # Output results
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "major=$MAJOR" >> $GITHUB_OUTPUT
+        echo "minor=$MINOR" >> $GITHUB_OUTPUT
+        echo "previous_version=${LAST_TAG:-none}" >> $GITHUB_OUTPUT
+
+        echo ""
+        echo "Version: $VERSION"
+        echo "Major: $MAJOR"
+        echo "Minor: $MINOR"
+        echo "Previous: ${LAST_TAG:-none}"
+
+    - name: Create and push tag
+      if: inputs.dry_run != 'true'
+      shell: bash
+      run: |
+        VERSION="${{ steps.calculate.outputs.version }}"
+
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Check if tag already exists
+        if git rev-parse "$VERSION" >/dev/null 2>&1; then
+          echo "⚠️  Tag $VERSION already exists, skipping creation"
+          exit 0
+        fi
+
+        # Create annotated tag
+        git tag -a "$VERSION" -m "Release candidate $VERSION"
+
+        # Push tag to remote
+        git push origin "$VERSION"
+
+        echo "Tag $VERSION created and pushed successfully"
+
+    - name: Dry run summary
+      if: inputs.dry_run == 'true'
+      shell: bash
+      run: |
+        VERSION="${{ steps.calculate.outputs.version }}"
+        echo "DRY RUN MODE - Tag would be: $VERSION"
+        echo "   (Tag was NOT created or pushed)"
