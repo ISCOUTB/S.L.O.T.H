@@ -9,7 +9,21 @@ on:
       env_example_file:
         required: true
         type: string
-      artifact_name:
+
+      # Add more inputs as neede
+      mongo_username:
+        required: false
+        type: string
+      mongo_password:
+        required: false
+        type: string
+      mongo_host:
+        required: false
+        type: string
+      redis_password:
+        required: false
+        type: string
+      redis_host:
         required: false
         type: string
 
@@ -21,38 +35,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Download modified env example
-        if: ${{ inputs.artifact_name }}
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.artifact_name }}
-          path: artifacts/
-      - name: Setup environment file
-        run: |
-          envdir=$(dirname "${{ inputs.env_example_file }}")
 
-          if [[ "${{ inputs.artifact_name }}" ]]; then
-            echo "Using modified env file from artifact"
-            artifact_file="artifacts/$(basename "${{ inputs.env_example_file }}")"
-            
-            if [[ -f "$artifact_file" ]]; then
-              echo "Moving $artifact_file -> ${{ inputs.env_example_file }}"
-              cp "$artifact_file" "${{ inputs.env_example_file }}"
-            else
-              echo "Error: Artifact file not found at $artifact_file"
-              echo "Available files in artifacts/:"
-              ls -la artifacts/ || echo "No artifacts directory"
-              exit 1
-            fi
-          else
-            echo "Using original env file: ${{ inputs.env_example_file }}"
-          fi
-
-          echo "Copying ${{ inputs.env_example_file }} -> $envdir/.env"
-          cp "${{ inputs.env_example_file }}" "$envdir/.env"
-
-          echo "Final .env contents:"
-          cat "$envdir/.env"
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -66,6 +49,30 @@ jobs:
             ~/.cache/uv
             .moon/cache
           key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
+
+      - name: Prepare .env
+        run: |
+          ENV_EXAMPLE_FILE=${{ inputs.env_example_file || '.env.example' }}
+
+          # Update .env.example keys
+          if [ -n "${{ inputs.mongo_username }}" ]; then
+            sed -i "s/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=${{ inputs.mongo_username }}/" "$ENV_EXAMPLE_FILE"
+          fi
+          if [ -n "${{ inputs.mongo_password }}" ]; then
+            sed -i "s/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=${{ inputs.mongo_password }}/" "$ENV_EXAMPLE_FILE"
+          fi
+          if [ -n "${{ inputs.mongo_host }}" ]; then
+            sed -i "s/^MONGO_HOST=.*/MONGO_HOST=${{ inputs.mongo_host }}/" "$ENV_EXAMPLE_FILE"
+          fi
+          if [ -n "${{ inputs.redis_password }}" ]; then
+            sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${{ inputs.redis_password }}/" "$ENV_EXAMPLE_FILE"
+          fi
+          if [ -n "${{ inputs.redis_host }}" ]; then
+            sed -i "s/^REDIS_HOST=.*/REDIS_HOST=${{ inputs.redis_host }}/" "$ENV_EXAMPLE_FILE"
+          fi
+
+          cp "$ENV_EXAMPLE_FILE" "$(dirname "$ENV_EXAMPLE_FILE")/.env"
+
       - name: Run tests
         run: moon run ${{ inputs.service_name }}:test
 
