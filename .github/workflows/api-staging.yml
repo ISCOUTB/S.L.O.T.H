@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - staging
+      - chore/test-ci # temporal
     paths:
       - "apps/backend/api/**"
       - "packages/messaging-utils/messaging-utils-py/**"
