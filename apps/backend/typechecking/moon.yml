@@ -70,8 +70,6 @@ tasks:
             - -f
             - apps/backend/typechecking/Dockerfile
             - .
-            - -t
-            - typechecking-service:1.0
         options:
             runFromWorkspaceRoot: true
             cache: false

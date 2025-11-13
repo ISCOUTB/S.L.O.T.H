@@ -1,0 +1,28 @@
+name: CI - Formula Parser Tests
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+    paths:
+      - "apps/backend/parsers/formula-parser/**"
+      - "packages/proto-utils/proto-utils-py/**"
+
+jobs:
+  formula_parser-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/run-unit-tests
+        with:
+          service_name: "formula-parser"
+          env_example_file: "apps/backend/parsers/formula-parser/.env.example"
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "formula-parser"
+          verify_image: "true"
+          push_image: "false"

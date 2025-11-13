@@ -48,8 +48,6 @@ tasks:
         command: docker
         args:
             - build
-            - -t
-            - ddl-generator:latest
             - -f
             - ./apps/backend/parsers/ddl-generator/Dockerfile
             - .

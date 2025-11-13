@@ -1,0 +1,28 @@
+name: CI - DDL Generator Tests
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+    paths:
+      - "apps/backend/parsers/ddl-generator/**"
+      - "packages/proto-utils/proto-utils-py/**"
+
+jobs:
+  ddl_generator-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/run-unit-tests
+        with:
+          service_name: "ddl-generator"
+          env_example_file: "apps/backend/parsers/ddl-generator/.env.example"
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "ddl-generator"
+          verify_image: "true"
+          push_image: "false"
