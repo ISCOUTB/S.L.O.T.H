@@ -274,7 +274,7 @@ services:
                 - scaler.max=1
 
     database:
-        image: /...vulcan99/database:latest/
+        image: vulcan99/database:latest
         environment:
             MONGO_HOST: mongo
             MONGO_PORT: 27017

@@ -58,6 +58,6 @@ tasks:
             - apps/connections/database/Dockerfile
             - .
             - -t
-            - database:1.0
+            - database:latest
         options:
             runFromWorkspaceRoot: true
