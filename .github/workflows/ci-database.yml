@@ -4,7 +4,6 @@ on:
     branches:
       - main
       - staging
-      - feat/CI # temporal
     paths:
       - "apps/connections/database/**"
       - "packages/messaging-utils/messaging-utils-py/**"
@@ -49,8 +48,4 @@ jobs:
         with:
           service_name: "database"
           verify_image: "true"
-          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
-          registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_name: "etl-database"
-          image_tag: ${{ github.sha }}
-          push_image: "true"
+          push_image: "false"

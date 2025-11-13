@@ -4,7 +4,6 @@ on:
     branches:
       - main
       - staging
-      - feat/CI # temporal
     paths:
       - "apps/backend/typechecking/**"
       - "packages/messaging-utils/messaging-utils-py/**"
@@ -26,3 +25,5 @@ jobs:
         uses: ./.github/actions/build-docker-image
         with:
           service_name: "typechecking"
+          verify_image: "true"
+          push_image: "false"

@@ -4,7 +4,6 @@ on:
     branches:
       - main
       - staging
-      - feat/CI # temporal
     paths:
       - "apps/backend/parsers/formula-parser/**"
       - "packages/proto-utils/proto-utils-py/**"
@@ -25,3 +24,5 @@ jobs:
         uses: ./.github/actions/build-docker-image
         with:
           service_name: "formula-parser"
+          verify_image: "true"
+          push_image: "false"
