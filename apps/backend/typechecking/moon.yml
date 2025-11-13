@@ -29,6 +29,13 @@ tasks:
         options:
             runFromWorkspaceRoot: false
 
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
     format:
         command: uv
         args:
@@ -71,7 +78,7 @@ tasks:
             - apps/backend/typechecking/Dockerfile
             - .
             - -t
-            - typechecking-service:1.0
+            - typechecking:latest
         options:
             runFromWorkspaceRoot: true
             cache: false

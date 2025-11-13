@@ -164,9 +164,122 @@ services:
             labels:
                 - scaler.enabled=true
 
+    rabbitmq:
+        image: rabbitmq:4-management
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+            RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+        networks:
+            - monitoring
+        ports:
+            - published: 5672
+              target: 5672
+              protocol: tcp
+              mode: ingress
+
+            - published: 15672
+              target: 15672
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+            labels:
+                - scaler.enabled=true
+
+    mongo:
+        image: mongo:7.0
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+        networks:
+            - monitoring
+        ports:
+            - published: 27017
+              target: 27017
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - mongo-data:/data/db
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+            labels:
+                - scaler.enabled=true
+                - scaler.max=1
+
+    redis:
+        image: redis:7-alpine
+        command:
+            - "redis-server"
+            - "--requirepass"
+            - "${REDIS_PASSWORD}"
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+        networks:
+            - monitoring
+        ports:
+            - published: 6379
+              target: 6379
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - redis-data:/data
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+            labels:
+                - scaler.enabled=true
+
+    postgres:
+        image: postgres:17
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        networks:
+            - monitoring
+        ports:
+            - published: 5432
+              target: 5432
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+            labels:
+                - scaler.enabled=true
+                - scaler.max=1
+
 networks:
     monitoring:
     parsers:
 
 volumes:
     prometheus-data:
+    rabbitmq-data:
+    mongo-data:
+    redis-data:
+    postgres-data:
