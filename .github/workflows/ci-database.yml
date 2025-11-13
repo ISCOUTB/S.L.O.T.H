@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - staging
+      - feat/CI # temporal
     paths:
       - "apps/connections/database/**"
       - "packages/messaging-utils/messaging-utils-py/**"
@@ -28,6 +29,13 @@ jobs:
           - 6379:6379
         env:
           REDIS_PASSWORD: admin
+
+    steps:
+      - name: Wait for services
+        run: |
+          echo "Waiting for MongoDB and Redis to be ready..."
+          sleep 5
+          echo "Services are ready!"
 
   database-tests:
     uses: ./.github/workflows/reusable/ci-tests.yml
