@@ -72,10 +72,10 @@ runs:
         else
           # Get the last tag that matches the pattern
           if [ -n "${{ inputs.suffix }}" ]; then
-            LAST_TAG=$(git tag -l "$TAG_PATTERN" | sort -V | tail -n 1)
+            LAST_TAG=$(git tag -l "$TAG_PATTERN" | sort -V | tail -n 1 || true)
           else
             # For production (no suffix), exclude tags with hyphens
-            LAST_TAG=$(git tag -l "$TAG_PATTERN" | grep -v "\-" | sort -V | tail -n 1)
+            LAST_TAG=$(git tag -l "$TAG_PATTERN" | grep -v "\-" | sort -V | tail -n 1 || true)
           fi
 
           if [ -z "$LAST_TAG" ]; then
