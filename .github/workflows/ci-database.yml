@@ -34,7 +34,7 @@ jobs:
           REDIS_PASSWORD: admin
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Update .env.example with CI values
         run: |
@@ -65,25 +65,18 @@ jobs:
           echo "Updated .env.example for CI:"
           cat "$ENV_EXAMPLE_FILE"
 
-      # - name: Upload modified .env.example
-      #   run: |
-      #     # Get the absolute path of the directory containing the target file/directory
-      #     abs_dir="$(cd "$(dirname "$ENV_EXAMPLE_FILE")" && pwd -P)"
-
-      #     # Get the basename of the target file/directory
-      #     basename="$(basename "$ENV_EXAMPLE_FILE")"
-
-      #     # Construct the full absolute path
-      #     file_path="$abs_dir/$basename"
-
-      #     # Save the file path to an environment variable for later steps
-      #     echo "UPLOAD_PATH=$file_path" >> $GITHUB_ENV
+      - name: Prepare artifact
+        run: |
+          mkdir -p /tmp/artifacts
+          cp "${{ env.ENV_EXAMPLE_FILE }}" /tmp/artifacts/
+          echo "Artifact prepared:"
+          ls -lh /tmp/artifacts
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-file-modified
-          path: ${{ env.ENV_EXAMPLE_FILE }}
+          path: /tmp/artifacts/.env.example
           retention-days: 1
           if-no-files-found: error
 
