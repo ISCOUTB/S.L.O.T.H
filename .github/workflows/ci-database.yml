@@ -10,9 +10,6 @@ on:
       - "packages/messaging-utils/messaging-utils-py/**"
       - "packages/proto-utils/proto-utils-py/**"
 
-env:
-  ENV_EXAMPLE_FILE: "apps/connections/database/.env.example"
-
 jobs:
   setup-databases:
     runs-on: ubuntu-latest
@@ -33,57 +30,14 @@ jobs:
         env:
           REDIS_PASSWORD: admin
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Update .env.example with CI values
-        run: |
-          # Verify that the .env.example file exists
-          if [[ ! -f "$ENV_EXAMPLE_FILE" ]]; then
-            ENV_DIR=$(dirname "$ENV_EXAMPLE_FILE")
-            echo "Error: $ENV_EXAMPLE_FILE does not exist"
-            echo "Available files in ${ENV_DIR}/:"
-            ls -la "${ENV_DIR}/" || echo "Directory does not exist"
-            exit 1
-          fi
-
-          # Backup the original .env.example file
-          cp "$ENV_EXAMPLE_FILE" "$ENV_EXAMPLE_FILE.backup"
-
-          # Update values for CI environment using sed with validation
-          sed -i 's/^MONGO_HOST=.*/MONGO_HOST=localhost/' "$ENV_EXAMPLE_FILE"
-          sed -i 's/^REDIS_HOST=.*/REDIS_HOST=localhost/' "$ENV_EXAMPLE_FILE"
-          sed -i 's/^MONGO_INITDB_ROOT_USERNAME=.*/MONGO_INITDB_ROOT_USERNAME=admin/' "$ENV_EXAMPLE_FILE"
-          sed -i 's/^MONGO_INITDB_ROOT_PASSWORD=.*/MONGO_INITDB_ROOT_PASSWORD=admin/' "$ENV_EXAMPLE_FILE"
-          sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=admin/' "$ENV_EXAMPLE_FILE"
-
-          # Validate modifications were successful
-          echo "Validating modifications..."
-          grep -q "MONGO_HOST=localhost" "$ENV_EXAMPLE_FILE" || echo "Warning: MONGO_HOST not updated"
-          grep -q "REDIS_HOST=localhost" "$ENV_EXAMPLE_FILE" || echo "Warning: REDIS_HOST not updated"
-
-          echo "Updated .env.example for CI:"
-          cat "$ENV_EXAMPLE_FILE"
-
-      - name: Prepare artifact
-        run: |
-          mkdir -p /tmp/artifacts
-          cp "${{ env.ENV_EXAMPLE_FILE }}" /tmp/artifacts/
-          echo "Artifact prepared:"
-          ls -lh /tmp/artifacts
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: env-file-modified
-          path: /tmp/artifacts/.env.example
-          retention-days: 1
-          if-no-files-found: error
-
   database-tests:
     uses: ./.github/workflows/reusable-ci-tests.yml
     needs: setup-databases
     with:
       service_name: "database"
       env_example_file: "apps/connections/database/.env.example"
-      artifact_name: "env-file-modified"
+      mongo_username: "admin"
+      mongo_password: "admin"
+      mongo_host: "localhost"
+      redis_password: "admin"
+      redis_host: "localhost"
