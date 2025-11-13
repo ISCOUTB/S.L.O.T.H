@@ -13,6 +13,7 @@ on:
         description: "Promote a staging version to production (e.g., 1.05-rc). Leave empty to create new version."
         required: false
         type: string
+        default: "true"
       bump_type:
         description: "Version bump type (only used if not promoting)"
         required: false
