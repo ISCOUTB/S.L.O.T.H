@@ -31,7 +31,7 @@ jobs:
           REDIS_PASSWORD: admin
 
   database-tests:
-    uses: ./.github/workflows/reusable-ci-tests.yml
+    uses: ./.github/workflows/reusable/ci-tests.yml
     needs: setup-databases
     with:
       service_name: "database"
