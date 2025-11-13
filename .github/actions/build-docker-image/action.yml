@@ -1,0 +1,47 @@
+name: "Build Docker Image"
+description: "Build and verify Docker image for a service"
+
+inputs:
+  service_name:
+    description: "Name of the service to build"
+    required: true
+  verify_image:
+    description: "Verify the image was built successfully"
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: moonrepo/setup-toolchain@v0
+      with:
+        auto-install: true
+
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/uv
+          .moon/cache
+        key: ${{ runner.os }}-uv-${{ hashFiles('**/pyproject.toml') }}
+
+    - name: Build Docker image
+      shell: bash
+      run: moon run ${{ inputs.service_name }}:docker-build
+
+    - name: Verify Docker image
+      if: inputs.verify_image == 'true'
+      shell: bash
+      run: |
+        IMAGE_NAME="${{ inputs.service_name }}"
+        if docker images | grep -q "$IMAGE_NAME"; then
+          echo "Docker image '$IMAGE_NAME' built successfully"
+          docker images | grep "$IMAGE_NAME"
+        else
+          echo "Docker image '$IMAGE_NAME' not found"
+          exit 1
+        fi
+
+    - name: Show all Docker images
+      if: always()
+      shell: bash
+      run: docker images

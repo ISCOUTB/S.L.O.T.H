@@ -4,6 +4,7 @@ on:
     branches:
       - main
       - staging
+      - feat/CI # temporal
     paths:
       - "apps/backend/api/**"
       - "packages/messaging-utils/messaging-utils-py/**"
@@ -16,8 +17,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - uses: ./.github/actions/run-tests
+      - uses: ./.github/actions/run-unit-tests
         with:
           service_name: "api"
           env_example_file: "apps/backend/api/.env.example"
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "api"

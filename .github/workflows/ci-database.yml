@@ -35,7 +35,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/run-tests
+      - uses: ./.github/actions/run-unit-tests
         with:
           service_name: "database"
           env_example_file: "apps/connections/database/.env.example"
@@ -44,3 +44,7 @@ jobs:
           mongo_host: "localhost"
           redis_password: "admin"
           redis_host: "localhost"
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "database"
