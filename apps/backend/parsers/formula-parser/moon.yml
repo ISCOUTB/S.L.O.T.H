@@ -68,8 +68,6 @@ tasks:
             - build
             - -f
             - apps/backend/parsers/formula-parser/Dockerfile
-            - -t
-            - formula-parser:latest
             - .
             - --network=host
         local: true
