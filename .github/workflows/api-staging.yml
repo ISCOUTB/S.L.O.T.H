@@ -1,4 +1,4 @@
-name: CI - API Docker Build and Push
+name: CI/CD Staging - API
 on:
   push:
     branches:

@@ -13,11 +13,11 @@ inputs:
   tag_pattern:
     description: "Pattern to match existing tags"
     required: false
-    default: "*.??-rc"
+    default: ""
   suffix:
-    description: "Suffix to append to version (e.g., rc, beta, alpha)"
+    description: "Suffix to append to version (e.g., rc, beta, alpha). Leave empty for production"
     required: false
-    default: "rc"
+    default: ""
   dry_run:
     description: "If true, calculate version but don't create or push tag"
     required: false
@@ -44,6 +44,23 @@ runs:
       id: calculate
       shell: bash
       run: |
+        # Determine tag pattern based on suffix
+        if [ -n "${{ inputs.suffix }}" ]; then
+          # With suffix (e.g., rc, beta)
+          TAG_PATTERN="${{ inputs.tag_pattern }}"
+          if [ -z "$TAG_PATTERN" ]; then
+            TAG_PATTERN="*.??-${{ inputs.suffix }}"
+          fi
+        else
+          # No suffix (production)
+          TAG_PATTERN="${{ inputs.tag_pattern }}"
+          if [ -z "$TAG_PATTERN" ]; then
+            TAG_PATTERN="[0-9]*.[0-9][0-9]"
+          fi
+        fi
+
+        echo "Using tag pattern: $TAG_PATTERN"
+
         # If custom version is provided, use it
         if [ -n "${{ inputs.custom_version }}" ]; then
           VERSION="${{ inputs.custom_version }}"
@@ -54,13 +71,22 @@ runs:
           MINOR=$(echo $VERSION | cut -d'.' -f2 | cut -d'-' -f1)
         else
           # Get the last tag that matches the pattern
-          LAST_TAG=$(git tag -l "${{ inputs.tag_pattern }}" | sort -V | tail -n 1)
+          if [ -n "${{ inputs.suffix }}" ]; then
+            LAST_TAG=$(git tag -l "$TAG_PATTERN" | sort -V | tail -n 1)
+          else
+            # For production (no suffix), exclude tags with hyphens
+            LAST_TAG=$(git tag -l "$TAG_PATTERN" | grep -v "\-" | sort -V | tail -n 1)
+          fi
 
           if [ -z "$LAST_TAG" ]; then
             # If there's no previous tag, start with 1.00
             MAJOR=1
             MINOR=0
-            echo "No previous tags found, starting at 1.00-${{ inputs.suffix }}"
+            if [ -n "${{ inputs.suffix }}" ]; then
+              echo "No previous tags found, starting at 1.00-${{ inputs.suffix }}"
+            else
+              echo "No previous tags found, starting at 1.00"
+            fi
           else
             # Extract major and minor from the last tag
             MAJOR=$(echo $LAST_TAG | cut -d'.' -f1)
@@ -74,20 +100,36 @@ runs:
               major)
                 MAJOR=$((MAJOR + 1))
                 MINOR=0
-                echo "Major bump: $MAJOR.00-${{ inputs.suffix }}"
+                if [ -n "${{ inputs.suffix }}" ]; then
+                  echo "Major bump: $MAJOR.00-${{ inputs.suffix }}"
+                else
+                  echo "Major bump: $MAJOR.00"
+                fi
                 ;;
               minor)
                 MINOR=$((MINOR + 1))
-                echo "Minor bump: $MAJOR.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+                if [ -n "${{ inputs.suffix }}" ]; then
+                  echo "Minor bump: $MAJOR.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+                else
+                  echo "Minor bump: $MAJOR.$(printf "%02d" $MINOR)"
+                fi
                 ;;
               auto)
                 MINOR=$((MINOR + 1))
                 if [ $MINOR -ge 100 ]; then
                   MAJOR=$((MAJOR + 1))
                   MINOR=0
-                  echo "Auto bump: Reached 100, incrementing to $MAJOR.00-${{ inputs.suffix }}"
+                  if [ -n "${{ inputs.suffix }}" ]; then
+                    echo "Auto bump: Reached 100, incrementing to $MAJOR.00-${{ inputs.suffix }}"
+                  else
+                    echo "Auto bump: Reached 100, incrementing to $MAJOR.00"
+                  fi
                 else
-                  echo "Auto bump: $MAJOR.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+                  if [ -n "${{ inputs.suffix }}" ]; then
+                    echo "Auto bump: $MAJOR.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+                  else
+                    echo "Auto bump: $MAJOR.$(printf "%02d" $MINOR)"
+                  fi
                 fi
                 ;;
               *)
@@ -98,7 +140,10 @@ runs:
           fi
 
           # Format version with leading zeros for minor
-          VERSION="${MAJOR}.$(printf "%02d" $MINOR)-${{ inputs.suffix }}"
+          VERSION="${MAJOR}.$(printf "%02d" $MINOR)"
+          if [ -n "${{ inputs.suffix }}" ]; then
+            VERSION="${VERSION}-${{ inputs.suffix }}"
+          fi
         fi
 
         # Output results
@@ -130,7 +175,12 @@ runs:
         fi
 
         # Create annotated tag with metadata
-        git tag -a "$VERSION" -m "Release candidate $VERSION - Created from ${{ github.ref_name }} by ${{ github.actor }}"
+        TAG_MESSAGE="Release candidate $VERSION - Created from ${{ github.ref_name }} by ${{ github.actor }}"
+        if [ -z "${{ inputs.suffix }}" ]; then
+          TAG_MESSAGE="Production release $VERSION - Created from ${{ github.ref_name }} by ${{ github.actor }}"
+        fi
+
+        git tag -a "$VERSION" -m "$TAG_MESSAGE"
 
         # Push tag to remote
         git push origin "$VERSION"
