@@ -31,6 +31,10 @@ jobs:
           REDIS_PASSWORD: admin
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: ./.github/actions/run-tests
         with:
           service_name: "database"
