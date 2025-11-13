@@ -256,7 +256,7 @@ services:
         networks:
             - monitoring
         ports:
-            - published: 5432
+            - published: 5431
               target: 5432
               protocol: tcp
               mode: ingress
