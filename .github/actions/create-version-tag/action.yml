@@ -48,7 +48,7 @@ runs:
         if [ -n "${{ inputs.custom_version }}" ]; then
           VERSION="${{ inputs.custom_version }}"
           echo "Using custom version: $VERSION"
- 
+
           # Extract major and minor from custom version
           MAJOR=$(echo $VERSION | cut -d'.' -f1)
           MINOR=$(echo $VERSION | cut -d'.' -f2 | cut -d'-' -f1)
@@ -125,17 +125,19 @@ runs:
 
         # Check if tag already exists
         if git rev-parse "$VERSION" >/dev/null 2>&1; then
-          echo "⚠️  Tag $VERSION already exists, skipping creation"
+          echo "Tag $VERSION already exists, skipping creation"
           exit 0
         fi
 
-        # Create annotated tag
-        git tag -a "$VERSION" -m "Release candidate $VERSION"
+        # Create annotated tag with metadata
+        git tag -a "$VERSION" -m "Release candidate $VERSION - Created from ${{ github.ref_name }} by ${{ github.actor }}"
 
         # Push tag to remote
         git push origin "$VERSION"
 
         echo "Tag $VERSION created and pushed successfully"
+        echo "  Branch: ${{ github.ref_name }}"
+        echo "  Commit: ${{ github.sha }}"
 
     - name: Dry run summary
       if: inputs.dry_run == 'true'
