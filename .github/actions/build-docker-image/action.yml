@@ -80,8 +80,8 @@ runs:
       if: inputs.push_image == 'true' && inputs.registry_username != '' && inputs.registry_password != ''
       uses: docker/login-action@v3
       with:
-        username: ${{ registry_username }}
-        password: ${{ registry_password }}
+        username: ${{ inputs.registry_username }}
+        password: ${{ inputs.registry_password }}
 
     - name: Push Docker image
       if: inputs.push_image == 'true'
