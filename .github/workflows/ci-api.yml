@@ -25,3 +25,5 @@ jobs:
         uses: ./.github/actions/build-docker-image
         with:
           service_name: "api"
+          verify_image: "true"
+          push_image: "false"
