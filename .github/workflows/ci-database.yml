@@ -48,3 +48,9 @@ jobs:
         uses: ./.github/actions/build-docker-image
         with:
           service_name: "database"
+          verify_image: "true"
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_name: "etl-database"
+          image_tag: ${{ github.sha }}
+          push_image: "true"
