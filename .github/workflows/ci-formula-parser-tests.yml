@@ -21,17 +21,8 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Setup moon
-              uses: moonrepo/setup-toolchain@v0
-              with:
-                  auto-install: true
-
             - name: Enable corepack for pnpm
               run: corepack enable
-
-            - name: Install dependencies
-              run: |
-                  moon formula-parser:pnpm -- install
 
             - name: Run tests
               uses: ./.github/actions/run-unit-tests

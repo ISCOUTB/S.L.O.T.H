@@ -2,6 +2,7 @@
     "name": "@etl-design/apps-formula-parser",
     "version": "1.0.0",
     "license": "ISC",
+    "type": "module",
     "dependencies": {
         "@etl-design/packages-proto-utils-js": "workspace:*",
         "@grpc/grpc-js": "^1.14.1",
