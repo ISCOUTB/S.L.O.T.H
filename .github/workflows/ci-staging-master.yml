@@ -1,0 +1,204 @@
+name: CI Staging - Master Orchestrator
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - "apps/**"
+      - "packages/**"
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - auto
+          - minor
+          - major
+        default: "auto"
+      custom_version:
+        description: "Custom version (optional, e.g., 2.00-rc)"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: false
+
+# Prevent multiple simultaneous orchestrations
+concurrency:
+  group: staging-orchestrator-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # to create tags
+
+jobs:
+  # Step 1: Create a single global version tag
+  create-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Global Version Tag
+        id: version
+        uses: ./.github/actions/create-version-tag
+        with:
+          bump_type: ${{ inputs.bump_type || 'auto' }}
+          custom_version: ${{ inputs.custom_version || '' }}
+          suffix: "rc"
+          dry_run: ${{ inputs.dry_run || 'false' }}
+
+      - name: Verify version output
+        run: |
+          echo "Version created: ${{ steps.version.outputs.version }}"
+          if [ -z "${{ steps.version.outputs.version }}" ]; then
+            echo "ERROR: Version is empty!"
+            exit 1
+          fi
+
+  # Step 1.5: Debug version output
+  debug-version:
+    needs: [create-version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show version details
+        run: |
+          echo "=== VERSION OUTPUT ==="
+          echo "Version: '${{ needs.create-version.outputs.version }}'"
+          echo "Version length: ${#version}"
+          echo "Is empty: $([[ -z '${{ needs.create-version.outputs.version }}' ]] && echo 'YES' || echo 'NO')"
+          echo ""
+          if [ -z "${{ needs.create-version.outputs.version }}" ]; then
+            echo "ERROR: Version is empty!"
+            exit 1
+          else
+            echo "SUCCESS: Version is set to '${{ needs.create-version.outputs.version }}'"
+          fi
+
+  # Step 2: Detect which services were modified
+  detect-services:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.changes.outputs.api }}
+      database: ${{ steps.changes.outputs.database }}
+      typechecking: ${{ steps.changes.outputs.typechecking }}
+      ddl-generator: ${{ steps.changes.outputs.ddl-generator }}
+      excel-reader: ${{ steps.changes.outputs.excel-reader }}
+      formula-parser: ${{ steps.changes.outputs.formula-parser }}
+      sql-builder: ${{ steps.changes.outputs.sql-builder }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed services
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          base: ${{ github.event.before }} # Compare against previous commit
+          filters: |
+            api:
+              - 'apps/backend/api/**'
+              - 'packages/messaging-utils/messaging-utils-py/**'
+            database:
+              - 'apps/connections/database/**'
+              - 'packages/proto/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            typechecking:
+              - 'apps/backend/typechecking/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            ddl-generator:
+              - 'apps/backend/parsers/ddl-generator/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            excel-reader:
+              - 'apps/backend/parsers/excel-reader/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            formula-parser:
+              - 'apps/backend/parsers/formula-parser/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            sql-builder:
+              - 'apps/backend/parsers/sql-builder/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+
+  # Step 3: Debug detection results
+  debug-detection:
+    needs: [create-version, detect-services]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show detection results
+        run: |
+          echo "=== CHANGED SERVICES ==="
+          echo "API: ${{ needs.detect-services.outputs.api }}"
+          echo "Database: ${{ needs.detect-services.outputs.database }}"
+          echo "Typechecking: ${{ needs.detect-services.outputs.typechecking }}"
+          echo "DDL Generator: ${{ needs.detect-services.outputs.ddl-generator }}"
+          echo "Excel Reader: ${{ needs.detect-services.outputs.excel-reader }}"
+          echo "Formula Parser: ${{ needs.detect-services.outputs.formula-parser }}"
+          echo "SQL Builder: ${{ needs.detect-services.outputs.sql-builder }}"
+          echo ""
+          echo "=== VERSION TO USE ==="
+          echo "Version: '${{ needs.create-version.outputs.version }}'"
+
+  # Step 4: Call individual service workflows (only if service changed)
+  deploy-api:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.api == 'true'
+    uses: ./.github/workflows/ci-api-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-database:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.database == 'true'
+    uses: ./.github/workflows/ci-database-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-typechecking:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.typechecking == 'true'
+    uses: ./.github/workflows/ci-typechecking-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-ddl-generator:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.ddl-generator == 'true'
+    uses: ./.github/workflows/ci-ddl-generator-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-excel-reader:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.excel-reader == 'true'
+    uses: ./.github/workflows/ci-excel-reader-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-formula-parser:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.formula-parser == 'true'
+    uses: ./.github/workflows/ci-formula-parser-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-sql-builder:
+    needs: [create-version, detect-services, debug-version, debug-detection]
+    if: needs.detect-services.outputs.sql-builder == 'true'
+    uses: ./.github/workflows/ci-sql-builder-staging.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
