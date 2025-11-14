@@ -1,11 +1,29 @@
-name: CI/CD Production - SQL Builder
+name: CI/CD Production - Typechecking
 on:
   push:
     branches:
       - main
+      - feat/CI # temporal
     paths:
-      - "apps/backend/parsers/sql-builder/**"
+      - "apps/backend/typechecking/**"
+      - "packages/messaging-utils/messaging-utils-py/**"
       - "packages/proto-utils/proto-utils-py/**"
+  workflow_dispatch:
+    inputs:
+      staging_version:
+        description: "Staging version to promote (e.g., 1.05-rc). Leave empty to use the latest."
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: true
+
+# Prevent multiple simultaneous deployments to production
+concurrency:
+  group: production-typechecking-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel, queue them instead
 
 permissions:
   contents: write # to create tags
@@ -23,18 +41,18 @@ jobs:
         id: version
         uses: ./.github/actions/create-production-version
         with:
-          staging_version: ""
-          dry_run: false
+          staging_version: ${{ inputs.staging_version || '' }}
+          dry_run: ${{ inputs.dry_run || 'false' }}
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
         with:
-          service_name: "sql-builder"
+          service_name: "typechecking"
           verify_image: "true"
           push_image: "true"
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_name: "sql-builder"
+          image_name: "typechecking"
           image_tag: ${{ steps.version.outputs.version }}
 
   # When docker stack is ready, there should be another job here to

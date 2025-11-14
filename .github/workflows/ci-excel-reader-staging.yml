@@ -3,9 +3,35 @@ on:
   push:
     branches:
       - staging
+      - feat/CI # temporal
     paths:
       - "apps/backend/parsers/excel-reader/**"
       - "packages/proto-utils/proto-utils-py/**"
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - auto
+          - minor
+          - major
+        default: "auto"
+      custom_version:
+        description: "Custom version (optional, e.g., 2.00-rc)"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: true
+
+# Prevent multiple simultaneous deployments to staging
+concurrency:
+  group: staging-excel-reader-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel, queue them instead
 
 permissions:
   contents: write # to create tags
@@ -22,10 +48,10 @@ jobs:
         id: version
         uses: ./.github/actions/create-version-tag
         with:
-          bump_type: auto
-          custom_version: ""
+          bump_type: ${{ inputs.bump_type || 'auto' }}
+          custom_version: ${{ inputs.custom_version || '' }}
           suffix: "rc"
-          dry_run: false
+          dry_run: ${{ inputs.dry_run || 'false' }}
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image

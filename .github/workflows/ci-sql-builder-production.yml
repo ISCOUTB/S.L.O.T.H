@@ -1,11 +1,28 @@
-name: CI/CD Production - DDL Generator
+name: CI/CD Production - SQL Builder
 on:
   push:
     branches:
       - main
+      - feat/CI # temporal
     paths:
-      - "apps/backend/parsers/ddl-generator/**"
+      - "apps/backend/parsers/sql-builder/**"
       - "packages/proto-utils/proto-utils-py/**"
+  workflow_dispatch:
+    inputs:
+      staging_version:
+        description: "Staging version to promote (optional, e.g., 2.00-rc). Leave empty to use latest"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: true
+
+# Prevent multiple simultaneous deployments to production
+concurrency:
+  group: production-sql-builder-${{ github.ref }}
+  cancel-in-progress: false # Don't cancel, queue them instead
 
 permissions:
   contents: write # to create tags
@@ -23,18 +40,18 @@ jobs:
         id: version
         uses: ./.github/actions/create-production-version
         with:
-          staging_version: ""
-          dry_run: false
+          staging_version: ${{ inputs.staging_version || '' }}
+          dry_run: ${{ inputs.dry_run || 'false' }}
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
         with:
-          service_name: "ddl-generator"
+          service_name: "sql-builder"
           verify_image: "true"
           push_image: "true"
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_name: "ddl-generator"
+          image_name: "sql-builder"
           image_tag: ${{ steps.version.outputs.version }}
 
   # When docker stack is ready, there should be another job here to
