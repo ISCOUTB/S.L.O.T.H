@@ -18,6 +18,8 @@ tasks:
             - node_modules/vitest/vitest.mjs
             - --run
             - --coverage
+        deps:
+            - proto-utils-js:build
         toolchain: node
 
     pnpm:
