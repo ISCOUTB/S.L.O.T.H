@@ -286,5 +286,3 @@ The service handles various error conditions:
 - Migration of dependent services that currently use REST endpoints
 
 **Timeline**: Migration will be coordinated with overall system architecture standardization to ensure minimal disruption to existing integrations.
-
-<!-- well well well -->
