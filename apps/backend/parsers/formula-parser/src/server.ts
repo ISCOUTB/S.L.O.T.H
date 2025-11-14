@@ -1,17 +1,17 @@
+import { BindPortError, settings } from "@/core/";
+import { handler } from "@/handlers/handler";
+import { logger } from "@/utils/index.ts";
 import type { formula_parser } from "@etl-design/packages-proto-utils-js";
-import type { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
-import process from "node:process";
 import {
     requestDeserialize,
     requestSerialize,
     responseDeserialize,
     responseSerialize,
 } from "@etl-design/packages-proto-utils-js";
+import type { sendUnaryData, ServerUnaryCall } from "@grpc/grpc-js";
 import { Server, ServerCredentials } from "@grpc/grpc-js";
 import { Effect } from "effect";
-import { BindPortError, settings } from "@/core/";
-import { handler } from "@/handlers/handler";
-import { logger } from "@/utils/index.ts";
+import process from "node:process";
 
 export function parseFormula(
     call: ServerUnaryCall<
@@ -27,6 +27,8 @@ export function parseFormula(
             callback(error, null);
         });
 }
+
+// If you read this, puto el que lo lea
 
 export function getServer() {
     return Effect.sync(() => {
