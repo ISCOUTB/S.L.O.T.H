@@ -56,7 +56,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" == "workflow_call" ]; then
+          if [ "${{ github.event_name }}" == "push" ]; then
             echo "version=${{ inputs.version_tag }}" >> $GITHUB_OUTPUT
             echo "Using version from orchestrator: ${{ inputs.version_tag }}"
           else

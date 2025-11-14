@@ -17,7 +17,7 @@ on:
         description: "Dry run (calculate version but don't create tag)"
         required: false
         type: boolean
-        default: true
+        default: false
 
 # Prevent multiple simultaneous orchestrations
 concurrency:
