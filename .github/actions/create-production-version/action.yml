@@ -1,0 +1,122 @@
+name: "Create Production Version"
+description: "Create a production version by promoting from staging or creating a new version"
+
+inputs:
+  promote_from_staging:
+    description: "Staging version to promote (e.g., 1.05-rc). Leave empty to create new version."
+    required: false
+    default: ""
+  bump_type:
+    description: "Version bump type (only used if not promoting): auto, minor, or major"
+    required: false
+    default: "auto"
+  custom_version:
+    description: "Custom version (optional, e.g., 2.00)"
+    required: false
+    default: ""
+  dry_run:
+    description: "If true, calculate version but don't create or push tag"
+    required: false
+    default: "false"
+
+outputs:
+  version:
+    description: "The production version created or calculated"
+    value: ${{ steps.final_version.outputs.version }}
+  is_promotion:
+    description: "Whether this was a promotion from staging"
+    value: ${{ steps.determine.outputs.is_promotion }}
+  staging_version:
+    description: "The staging version that was promoted (if applicable)"
+    value: ${{ steps.determine.outputs.staging_version }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Determine production version
+      id: determine
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.promote_from_staging }}" ]; then
+          # Promote from staging: remove the -rc suffix
+          STAGING_VERSION="${{ inputs.promote_from_staging }}"
+          PROD_VERSION="${STAGING_VERSION%-rc}"
+          
+          # Verify that the staging tag exists
+          if ! git tag -l "$STAGING_VERSION" | grep -q "$STAGING_VERSION"; then
+            echo "Error: Staging tag $STAGING_VERSION does not exist"
+            echo ""
+            echo "Available staging tags (last 10):"
+            git tag -l "*.??-rc" | sort -V | tail -10
+            exit 1
+          fi
+          
+          # Check if production tag already exists
+          if git tag -l "$PROD_VERSION" | grep -q "$PROD_VERSION"; then
+            echo "Warning: Production tag $PROD_VERSION already exists"
+            echo ""
+            echo "Existing production tags:"
+            git tag -l "[0-9]*.[0-9][0-9]" | grep -v "\-" | sort -V | tail -5
+            exit 1
+          fi
+          
+          echo "Promoting $STAGING_VERSION → $PROD_VERSION"
+          echo "version=$PROD_VERSION" >> $GITHUB_OUTPUT
+          echo "is_promotion=true" >> $GITHUB_OUTPUT
+          echo "staging_version=$STAGING_VERSION" >> $GITHUB_OUTPUT
+        else
+          echo "is_promotion=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create version tag (promotion)
+      if: steps.determine.outputs.is_promotion == 'true' && inputs.dry_run != 'true'
+      shell: bash
+      run: |
+        VERSION="${{ steps.determine.outputs.version }}"
+        STAGING_VERSION="${{ steps.determine.outputs.staging_version }}"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Create production tag pointing to the same commit as staging tag
+        STAGING_COMMIT=$(git rev-list -n 1 "$STAGING_VERSION")
+        git tag -a "$VERSION" "$STAGING_COMMIT" -m "Production release $VERSION - Promoted from $STAGING_VERSION"
+        git push origin "$VERSION"
+
+        echo "Production tag $VERSION created (promoted from $STAGING_VERSION)"
+        echo "Commit: $STAGING_COMMIT"
+
+    - name: Promotion dry run summary
+      if: steps.determine.outputs.is_promotion == 'true' && inputs.dry_run == 'true'
+      shell: bash
+      run: |
+        VERSION="${{ steps.determine.outputs.version }}"
+        STAGING_VERSION="${{ steps.determine.outputs.staging_version }}"
+        STAGING_COMMIT=$(git rev-list -n 1 "$STAGING_VERSION")
+
+        echo "DRY RUN MODE - Promotion"
+        echo ""
+        echo "   Would promote: $STAGING_VERSION → $VERSION"
+        echo "   Commit: $STAGING_COMMIT"
+        echo ""
+        echo "   (Tag was NOT created or pushed)"
+
+    - name: Create version tag (new version)
+      if: steps.determine.outputs.is_promotion != 'true'
+      id: new_version
+      uses: ./.github/actions/create-version-tag
+      with:
+        bump_type: ${{ inputs.bump_type }}
+        custom_version: ${{ inputs.custom_version }}
+        suffix: ""
+        dry_run: ${{ inputs.dry_run }}
+
+    - name: Set final version
+      id: final_version
+      shell: bash
+      run: |
+        if [ "${{ steps.determine.outputs.is_promotion }}" == "true" ]; then
+          echo "version=${{ steps.determine.outputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${{ steps.new_version.outputs.version }}" >> $GITHUB_OUTPUT
+        fi
