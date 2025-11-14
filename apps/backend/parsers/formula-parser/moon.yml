@@ -71,7 +71,6 @@ tasks:
             - -t
             - formula-parser:latest
             - .
-            - --network=host
         local: true
         platform: system
         options:
