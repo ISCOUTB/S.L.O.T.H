@@ -164,4 +164,4 @@ Main dependencies include:
 - **redis**: Official Redis client  
 - **pydantic-settings**: Type-safe configuration management
 
-<!-- Test Github actions -->
+<!-- Test Github actions AÑAÑA -->
