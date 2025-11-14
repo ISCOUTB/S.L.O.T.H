@@ -437,5 +437,3 @@ api/
 - [Typechecking Service](../typechecking/): Background processing workers
 - [Database Service](../../connections/database/): Centralized database operations
 - [Protocol Definitions](../../../packages/proto/): Shared interface specifications
-
-<!-- Test Github actions -->

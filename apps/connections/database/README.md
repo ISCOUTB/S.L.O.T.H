@@ -163,5 +163,3 @@ Main dependencies include:
 - **pymongo**: Official MongoDB client
 - **redis**: Official Redis client  
 - **pydantic-settings**: Type-safe configuration management
-
-<!-- Test Github actions -->
