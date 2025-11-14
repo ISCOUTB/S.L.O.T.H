@@ -71,7 +71,6 @@ tasks:
             - -f
             - apps/backend/parsers/formula-parser/Dockerfile
             - .
-            - --network=host
         local: true
         platform: system
         options:

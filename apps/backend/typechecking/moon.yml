@@ -29,6 +29,13 @@ tasks:
         options:
             runFromWorkspaceRoot: false
 
+    uv:
+        command: uv
+        toolchain: python
+        options:
+            runFromWorkspaceRoot: false
+            cache: false
+
     format:
         command: uv
         args:

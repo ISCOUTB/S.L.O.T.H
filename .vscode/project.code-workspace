@@ -33,6 +33,10 @@
             "path": "../apps/backend/typechecking"
         },
         {
+            "name": "[ App ] Connections -> Database",
+            "path": "../apps/connections/database"
+        },
+        {
             "name": "[ Package ] Proto-Javascript",
             "path": "../packages/proto-utils/proto-utils-js"
         },
