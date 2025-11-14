@@ -1,0 +1,42 @@
+name: CI/CD Staging - Excel Reader
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - "apps/backend/parsers/excel-reader/**"
+      - "packages/proto-utils/proto-utils-py/**"
+
+permissions:
+  contents: write # to create tags
+
+jobs:
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create version tag
+        id: version
+        uses: ./.github/actions/create-version-tag
+        with:
+          bump_type: auto
+          custom_version: ""
+          suffix: "rc"
+          dry_run: false
+
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "excel-reader"
+          verify_image: "true"
+          push_image: "true"
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_name: "excel-reader"
+          image_tag: ${{ steps.version.outputs.version }}
+
+  # When docker stack is ready, there should be another job here to
+  # update docker-stack files and deploy to staging environment

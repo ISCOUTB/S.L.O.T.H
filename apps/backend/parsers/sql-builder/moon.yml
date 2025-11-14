@@ -48,8 +48,6 @@ tasks:
         command: docker
         args:
             - build
-            - -t
-            - sql-builder:latest
             - -f
             - ./apps/backend/parsers/sql-builder/Dockerfile
             - .

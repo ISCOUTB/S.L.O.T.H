@@ -48,8 +48,6 @@ tasks:
         command: docker
         args:
             - build
-            - -t
-            - excel-reader:latest
             - -f
             - ./apps/backend/parsers/excel-reader/Dockerfile
             - .

@@ -1,0 +1,42 @@
+name: CI/CD Production - Database
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/connections/database/**"
+      - "packages/messaging-utils/messaging-utils-py/**"
+      - "packages/proto-utils/proto-utils-py/**"
+
+permissions:
+  contents: write # to create tags
+  actions: write # to allow tagging commits that modify workflows
+
+jobs:
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Production Version
+        id: version
+        uses: ./.github/actions/create-production-version
+        with:
+          staging_version: ""
+          dry_run: false
+
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "database"
+          verify_image: "true"
+          push_image: "true"
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_name: "etl-database"
+          image_tag: ${{ steps.version.outputs.version }}
+
+  # When docker stack is ready, there should be another job here to
+  # update docker-stack files and deploy to production environment

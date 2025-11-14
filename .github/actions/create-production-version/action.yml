@@ -1,0 +1,130 @@
+name: "Create Production Version"
+description: "Create a production version by promoting the latest (or specified) staging version"
+
+inputs:
+  staging_version:
+    description: "Staging version to promote (e.g., 1.05-rc). If empty, uses the latest staging tag."
+    required: false
+    default: ""
+  dry_run:
+    description: "If true, calculate version but don't create or push tag"
+    required: false
+    default: "false"
+
+outputs:
+  version:
+    description: "The production version created"
+    value: ${{ steps.determine.outputs.version }}
+  staging_version:
+    description: "The staging version that was promoted"
+    value: ${{ steps.determine.outputs.staging_version }}
+  tag_exists:
+    description: "Whether the production tag already existed"
+    value: ${{ steps.determine.outputs.tag_exists }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Determine production version
+      id: determine
+      shell: bash
+      run: |
+        # Get staging version (provided or latest)
+        if [ -n "${{ inputs.staging_version }}" ]; then
+          STAGING_VERSION="${{ inputs.staging_version }}"
+          echo "Using specified staging version: $STAGING_VERSION"
+        else
+          # Get the latest staging tag
+          STAGING_VERSION=$(git tag -l "*.??-rc" | sort -V | tail -n 1 || true)
+
+          if [ -z "$STAGING_VERSION" ]; then
+            echo "Error: No staging tags found"
+            exit 1
+          fi
+
+          echo "Using latest staging version: $STAGING_VERSION"
+        fi
+
+        # Remove the -rc suffix to get production version
+        PROD_VERSION="${STAGING_VERSION%-rc}"
+
+        # Verify that the staging tag exists
+        if ! git tag -l "$STAGING_VERSION" | grep -q "$STAGING_VERSION"; then
+          echo "Error: Staging tag $STAGING_VERSION does not exist"
+          echo ""
+          echo "Available staging tags (last 10):"
+          git tag -l "*.??-rc" | sort -V | tail -10
+          exit 1
+        fi
+
+        # Check if production tag already exists
+        if git tag -l "$PROD_VERSION" | grep -q "$PROD_VERSION"; then
+          echo "Production tag $PROD_VERSION already exists"
+          echo ""
+          echo "This staging version was already promoted to production."
+          echo "Will use the existing tag for deployment."
+          echo ""
+        fi
+
+        echo ""
+        echo "Version: $STAGING_VERSION → $PROD_VERSION"
+        echo ""
+
+        echo "version=$PROD_VERSION" >> $GITHUB_OUTPUT
+        echo "staging_version=$STAGING_VERSION" >> $GITHUB_OUTPUT
+        echo "tag_exists=$(git tag -l "$PROD_VERSION" | grep -q "$PROD_VERSION" && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+
+    - name: Create version tag (promotion)
+      if: inputs.dry_run != 'true' && steps.determine.outputs.tag_exists != 'true'
+      shell: bash
+      run: |
+        VERSION="${{ steps.determine.outputs.version }}"
+        STAGING_VERSION="${{ steps.determine.outputs.staging_version }}"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Create production tag pointing to the same commit as staging tag
+        STAGING_COMMIT=$(git rev-list -n 1 "$STAGING_VERSION")
+
+        # Create tag locally
+        git tag -a "$VERSION" "$STAGING_COMMIT" -m "Production release $VERSION - Promoted from $STAGING_VERSION"
+
+        # Push tag (will fail if commit modifies workflows without proper permissions)
+        if git push origin "$VERSION" 2>&1 | tee /tmp/git-push.log; then
+          echo ""
+          echo "Production tag $VERSION created (promoted from $STAGING_VERSION)"
+          echo "Commit: $STAGING_COMMIT"
+          echo ""
+        else
+          # Check if it's a workflow permission error
+          if grep -q "refusing to allow.*workflow.*without.*workflows.*permission" /tmp/git-push.log; then
+            echo ""
+            echo "Note: Tag $VERSION was created locally but couldn't be pushed to remote."
+            echo "This is expected when the commit modifies workflow files."
+            echo ""
+            echo "The tag will be available once this branch is merged."
+            echo "Commit: $STAGING_COMMIT"
+            echo ""
+          else
+            # Re-throw the error if it's something else
+            exit 1
+          fi
+        fi
+
+    - name: Dry run summary
+      if: inputs.dry_run == 'true'
+      shell: bash
+      run: |
+        VERSION="${{ steps.determine.outputs.version }}"
+        STAGING_VERSION="${{ steps.determine.outputs.staging_version }}"
+        STAGING_COMMIT=$(git rev-list -n 1 "$STAGING_VERSION")
+
+        echo ""
+        echo "DRY RUN MODE"
+        echo ""
+        echo "   Would promote: $STAGING_VERSION → $VERSION"
+        echo "   Commit: $STAGING_COMMIT"
+        echo ""
+        echo "   Tag was NOT created or pushed"
+        echo ""
