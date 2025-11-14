@@ -7,6 +7,17 @@ on:
     paths:
       - "apps/backend/api/**"
       - "packages/messaging-utils/messaging-utils-py/**"
+  workflow_dispatch:
+    inputs:
+      staging_version:
+        description: "Staging version to promote (e.g., 1.05-rc). Leave empty to use the latest."
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: write # to create tags
@@ -23,10 +34,8 @@ jobs:
         id: version
         uses: ./.github/actions/create-production-version
         with:
-          promote_from_staging: "yes"
-          bump_type: "auto"
-          custom_version: ""
-          dry_run: "false"
+          staging_version: ${{ inputs.staging_version || '' }}
+          dry_run: ${{ inputs.dry_run || 'false' }}
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
