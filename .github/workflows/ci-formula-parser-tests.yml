@@ -11,7 +11,7 @@ on:
             - packages/proto-utils/proto-utils-js/src/**
             - tools/eslint/src/**
             - tools/tsconfig/**
-            - .github\workflows\ci-formula-parser-tests.yml
+            - .github/workflows/ci-formula-parser-tests.yml
 
 jobs:
     tests:
