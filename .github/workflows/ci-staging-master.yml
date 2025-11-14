@@ -151,7 +151,7 @@ jobs:
   deploy-api:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.api == 'true'
-    uses: ./.github/workflows/staging/ci-api.yml
+    uses: ./.github/workflows/ci-api-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
@@ -159,7 +159,7 @@ jobs:
   deploy-database:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.database == 'true'
-    uses: ./.github/workflows/staging/ci-database.yml
+    uses: ./.github/workflows/ci-database-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
@@ -167,7 +167,7 @@ jobs:
   deploy-typechecking:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.typechecking == 'true'
-    uses: ./.github/workflows/staging/ci-typechecking.yml
+    uses: ./.github/workflows/ci-typechecking-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
@@ -175,7 +175,7 @@ jobs:
   deploy-ddl-generator:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.ddl-generator == 'true'
-    uses: ./.github/workflows/staging/ci-ddl-generator.yml
+    uses: ./.github/workflows/ci-ddl-generator-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
@@ -183,7 +183,7 @@ jobs:
   deploy-excel-reader:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.excel-reader == 'true'
-    uses: ./.github/workflows/staging/ci-excel-reader.yml
+    uses: ./.github/workflows/ci-excel-reader-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
@@ -191,7 +191,7 @@ jobs:
   deploy-formula-parser:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.formula-parser == 'true'
-    uses: ./.github/workflows/staging/ci-formula-parser.yml
+    uses: ./.github/workflows/ci-formula-parser-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
@@ -199,7 +199,7 @@ jobs:
   deploy-sql-builder:
     needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.sql-builder == 'true'
-    uses: ./.github/workflows/staging/ci-sql-builder.yml
+    uses: ./.github/workflows/ci-sql-builder-staging.yml
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
