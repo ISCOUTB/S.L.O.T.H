@@ -42,7 +42,7 @@ tasks:
         command: node
         args:
             - --env-file=.env
-            - dist/server.js
+            - dist/server.cjs
         deps:
             - formula-parser:build
         local: true

@@ -1,11 +1,25 @@
 {
+    "name": "@etl-design/packages-proto-utils-js",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "Protobuf utilities for JavaScript",
+    "license": "ISC",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
     "dependencies": {
         "@grpc/grpc-js": "^1.14.1",
         "google-protobuf": "^4.0.0",
         "protoc": "^33.0.0",
         "protoc-gen-ts": "^0.8.7"
     },
-    "description": "Protobuf utilities for JavaScript",
     "devDependencies": {
         "@etl-design/tools-eslint": "workspace:*",
         "@etl-design/tools-tsconfig": "workspace:*",
@@ -14,21 +28,5 @@
         "eslint": "^9.39.1",
         "tsup": "^8.5.0",
         "typescript": "^5.9.3"
-    },
-    "exports": {
-        ".": {
-            "import": "./dist/index.mjs",
-            "require": "./dist/index.js",
-            "types": "./dist/index.d.ts"
-        }
-    },
-    "files": [
-        "dist"
-    ],
-    "license": "ISC",
-    "main": "./dist/index.js",
-    "module": "./dist/index.mjs",
-    "name": "@etl-design/packages-proto-utils-js",
-    "types": "./dist/index.d.ts",
-    "version": "1.0.0"
+    }
 }

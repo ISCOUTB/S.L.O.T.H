@@ -47,4 +47,4 @@ COPY --from=builder /app/pnpm-workspace.yaml /app/pnpm-workspace.yaml
 RUN --mount=type=cache,target=/app/.pnpm \
     pnpm i --prod
 
-CMD [ "node", "dist/server.js" ]
+CMD [ "node", "dist/server.cjs" ]
