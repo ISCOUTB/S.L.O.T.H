@@ -8,7 +8,6 @@ language: typescript
 
 toolchain:
     node:
-        version: "22.11.0"
 
 tasks:
     test:
