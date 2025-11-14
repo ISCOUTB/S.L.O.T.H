@@ -46,6 +46,33 @@ jobs:
           staging_version: ${{ inputs.staging_version || '' }}
           dry_run: ${{ inputs.dry_run || 'false' }}
 
+      - name: Verify version output
+        run: |
+          echo "Version created: ${{ steps.version.outputs.version }}"
+          if [ -z "${{ steps.version.outputs.version }}" ]; then
+            echo "ERROR: Version is empty!"
+            exit 1
+          fi
+
+  # Step 1.5: Debug version output
+  debug-version:
+    needs: [create-version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show version details
+        run: |
+          echo "=== VERSION OUTPUT ==="
+          echo "Version: '${{ needs.create-version.outputs.version }}'"
+          echo "Version length: ${#version}"
+          echo "Is empty: $([[ -z '${{ needs.create-version.outputs.version }}' ]] && echo 'YES' || echo 'NO')"
+          echo ""
+          if [ -z "${{ needs.create-version.outputs.version }}" ]; then
+            echo "ERROR: Version is empty!"
+            exit 1
+          else
+            echo "SUCCESS: Version is set to '${{ needs.create-version.outputs.version }}'"
+          fi
+
   # Step 2: Detect which services were modified
   detect-services:
     runs-on: ubuntu-latest
@@ -59,11 +86,14 @@ jobs:
       sql-builder: ${{ steps.changes.outputs.sql-builder }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect changed services
         uses: dorny/paths-filter@v3
         id: changes
         with:
+          base: ${{ github.event.before }} # Compare against previous commit
           filters: |
             api:
               - 'apps/backend/api/**'
@@ -88,9 +118,28 @@ jobs:
               - 'apps/backend/parsers/sql-builder/**'
               - 'packages/proto-utils/proto-utils-py/**'
 
-  # Step 3: Call individual service workflows (only if service changed)
-  deploy-api:
+  # Step 3: Debug detection results
+  debug-detection:
     needs: [create-version, detect-services]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show detection results
+        run: |
+          echo "=== CHANGED SERVICES ==="
+          echo "API: ${{ needs.detect-services.outputs.api }}"
+          echo "Database: ${{ needs.detect-services.outputs.database }}"
+          echo "Typechecking: ${{ needs.detect-services.outputs.typechecking }}"
+          echo "DDL Generator: ${{ needs.detect-services.outputs.ddl-generator }}"
+          echo "Excel Reader: ${{ needs.detect-services.outputs.excel-reader }}"
+          echo "Formula Parser: ${{ needs.detect-services.outputs.formula-parser }}"
+          echo "SQL Builder: ${{ needs.detect-services.outputs.sql-builder }}"
+          echo ""
+          echo "=== VERSION TO USE ==="
+          echo "Version: '${{ needs.create-version.outputs.version }}'"
+
+  # Step 4: Call individual service workflows (only if service changed)
+  deploy-api:
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.api == 'true'
     uses: ./.github/workflows/ci-api-production.yml
     with:
@@ -98,7 +147,7 @@ jobs:
     secrets: inherit
 
   deploy-database:
-    needs: [create-version, detect-services]
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.database == 'true'
     uses: ./.github/workflows/ci-database-production.yml
     with:
@@ -106,7 +155,7 @@ jobs:
     secrets: inherit
 
   deploy-typechecking:
-    needs: [create-version, detect-services]
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.typechecking == 'true'
     uses: ./.github/workflows/ci-typechecking-production.yml
     with:
@@ -114,7 +163,7 @@ jobs:
     secrets: inherit
 
   deploy-ddl-generator:
-    needs: [create-version, detect-services]
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.ddl-generator == 'true'
     uses: ./.github/workflows/ci-ddl-generator-production.yml
     with:
@@ -122,7 +171,7 @@ jobs:
     secrets: inherit
 
   deploy-excel-reader:
-    needs: [create-version, detect-services]
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.excel-reader == 'true'
     uses: ./.github/workflows/ci-excel-reader-production.yml
     with:
@@ -130,7 +179,7 @@ jobs:
     secrets: inherit
 
   deploy-formula-parser:
-    needs: [create-version, detect-services]
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.formula-parser == 'true'
     uses: ./.github/workflows/ci-formula-parser-production.yml
     with:
@@ -138,7 +187,7 @@ jobs:
     secrets: inherit
 
   deploy-sql-builder:
-    needs: [create-version, detect-services]
+    needs: [create-version, detect-services, debug-version, debug-detection]
     if: needs.detect-services.outputs.sql-builder == 'true'
     uses: ./.github/workflows/ci-sql-builder-production.yml
     with:
