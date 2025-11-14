@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write # to create tags
+  actions: write # to allow tagging commits that modify workflows
 
 jobs:
   docker-build-and-push:
@@ -34,8 +35,8 @@ jobs:
         id: version
         uses: ./.github/actions/create-production-version
         with:
-          staging_version: ${{ inputs.staging_version || '' }}
-          dry_run: ${{ inputs.dry_run || 'false' }}
+          staging_version: ""
+          dry_run: false
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
@@ -47,6 +48,6 @@ jobs:
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
           image_name: "etl-api"
           image_tag: ${{ steps.version.outputs.version }}
-    
+
   # When docker stack is ready, there should be another job here to
   # update docker-stack files and deploy to production environment
