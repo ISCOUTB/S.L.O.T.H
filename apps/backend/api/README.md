@@ -438,4 +438,4 @@ api/
 - [Database Service](../../connections/database/): Centralized database operations
 - [Protocol Definitions](../../../packages/proto/): Shared interface specifications
 
-<!-- Test Github actions AÑAÑA -->
+<!-- Test Github actions -->
