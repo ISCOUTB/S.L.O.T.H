@@ -1,11 +1,12 @@
-name: CI/CD Production - API
+name: CI/CD Production - Typechecking
 on:
   push:
     branches:
       - main
     paths:
-      - "apps/backend/api/**"
+      - "apps/backend/typechecking/**"
       - "packages/messaging-utils/messaging-utils-py/**"
+      - "packages/proto-utils/proto-utils-py/**"
 
 permissions:
   contents: write # to create tags
@@ -29,12 +30,12 @@ jobs:
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
         with:
-          service_name: "api"
+          service_name: "typechecking"
           verify_image: "true"
           push_image: "true"
           registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_name: "etl-api"
+          image_name: "typechecking"
           image_tag: ${{ steps.version.outputs.version }}
 
   # When docker stack is ready, there should be another job here to
