@@ -1,0 +1,89 @@
+name: CI Staging - API
+on:
+  # Called by the orchestrator workflow
+  workflow_call:
+    inputs:
+      version_tag:
+        description: "Version tag to use (provided by orchestrator)"
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+  # Manual trigger (for testing individual services)
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Version bump type"
+        required: true
+        type: choice
+        options:
+          - auto
+          - minor
+          - major
+        default: "auto"
+      custom_version:
+        description: "Custom version (optional, e.g., 2.00-rc)"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: true
+
+# Prevent multiple simultaneous deployments to staging
+concurrency:
+  group: staging-api-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false # Don't cancel, queue them instead
+
+permissions:
+  contents: write # to create tags
+
+jobs:
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Only create tag when triggered manually (workflow_dispatch)
+      - name: Create version tag
+        if: github.event_name == 'workflow_dispatch'
+        id: version_dispatch
+        uses: ./.github/actions/create-version-tag
+        with:
+          bump_type: ${{ inputs.bump_type || 'auto' }}
+          custom_version: ${{ inputs.custom_version || '' }}
+          suffix: "rc"
+          dry_run: ${{ inputs.dry_run || 'false' }}
+
+      # Determine which version to use
+      - name: Set version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "version=${{ inputs.version_tag }}" >> $GITHUB_OUTPUT
+            echo "Using version from orchestrator: ${{ inputs.version_tag }}"
+          else
+            echo "version=${{ steps.version_dispatch.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "Using version from manual trigger: ${{ steps.version_dispatch.outputs.version }}"
+          fi
+
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "api"
+          verify_image: "true"
+          push_image: "true"
+          registry_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_name: "etl-api"
+          image_tag: ${{ steps.version.outputs.version }}
+
+  # When docker stack is ready, there should be another job here to
+  # update docker-stack files and deploy to staging environment
