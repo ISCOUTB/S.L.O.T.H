@@ -4,8 +4,10 @@ on:
         branches:
             - main
             - staging
+            - feat/CI
         paths:
-            - apps/backend/parsers/formula-parser/**
+            - apps/backend/parsers/formula-parser/src/**
+            - apps/backend/parsers/formula-parser/tests/**
             - packages/proto-utils/proto-utils-js/src/**
             - tools/eslint/src/**
             - tools/tsconfig/**
