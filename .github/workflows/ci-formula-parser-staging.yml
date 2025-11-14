@@ -1,12 +1,18 @@
-name: CI/CD Staging - Formula Parser
+name: CI Staging - Formula Parser
 on:
-  push:
-    branches:
-      - staging
-      - feat/CI # temporal
-    paths:
-      - "apps/backend/parsers/formula-parser/**"
-      - "packages/proto-utils/proto-utils-py/**"
+  # Called by the orchestrator workflow
+  workflow_call:
+    inputs:
+      version_tag:
+        description: "Version tag to use (provided by orchestrator)"
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+  # Manual trigger (for testing individual services)
   workflow_dispatch:
     inputs:
       bump_type:
@@ -30,7 +36,7 @@ on:
 
 # Prevent multiple simultaneous deployments to staging
 concurrency:
-  group: staging-formula-parser-${{ github.ref }}
+  group: staging-formula-parser-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false # Don't cancel, queue them instead
 
 permissions:
@@ -44,14 +50,29 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Only create tag when triggered manually (workflow_dispatch)
       - name: Create version tag
-        id: version
+        if: github.event_name == 'workflow_dispatch'
+        id: version_dispatch
         uses: ./.github/actions/create-version-tag
         with:
           bump_type: ${{ inputs.bump_type || 'auto' }}
           custom_version: ${{ inputs.custom_version || '' }}
           suffix: "rc"
           dry_run: ${{ inputs.dry_run || 'false' }}
+
+      # Determine which version to use
+      - name: Set version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_call" ]; then
+            echo "version=${{ inputs.version_tag }}" >> $GITHUB_OUTPUT
+            echo "Using version from orchestrator: ${{ inputs.version_tag }}"
+          else
+            echo "version=${{ steps.version_dispatch.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "Using version from manual trigger: ${{ steps.version_dispatch.outputs.version }}"
+          fi
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image

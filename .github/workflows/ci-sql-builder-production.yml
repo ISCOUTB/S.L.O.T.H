@@ -1,12 +1,18 @@
-name: CI/CD Production - SQL Builder
+name: CI Production - SQL Builder
 on:
-  push:
-    branches:
-      - main
-      - feat/CI # temporal
-    paths:
-      - "apps/backend/parsers/sql-builder/**"
-      - "packages/proto-utils/proto-utils-py/**"
+  # Called by the orchestrator workflow
+  workflow_call:
+    inputs:
+      version_tag:
+        description: "Version tag to use (provided by orchestrator)"
+        required: true
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+  # Manual trigger (for testing individual services)
   workflow_dispatch:
     inputs:
       staging_version:
@@ -21,7 +27,7 @@ on:
 
 # Prevent multiple simultaneous deployments to production
 concurrency:
-  group: production-sql-builder-${{ github.ref }}
+  group: production-sql-builder-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false # Don't cancel, queue them instead
 
 permissions:
@@ -36,12 +42,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Only create version when triggered manually (workflow_dispatch)
       - name: Create Production Version
-        id: version
+        if: github.event_name == 'workflow_dispatch'
+        id: version_dispatch
         uses: ./.github/actions/create-production-version
         with:
           staging_version: ${{ inputs.staging_version || '' }}
           dry_run: ${{ inputs.dry_run || 'false' }}
+
+      # Determine which version to use
+      - name: Set version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_call" ]; then
+            echo "version=${{ inputs.version_tag }}" >> $GITHUB_OUTPUT
+            echo "Using version from orchestrator: ${{ inputs.version_tag }}"
+          else
+            echo "version=${{ steps.version_dispatch.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "Using version from manual trigger: ${{ steps.version_dispatch.outputs.version }}"
+          fi
 
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image

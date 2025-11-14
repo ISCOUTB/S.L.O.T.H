@@ -1,0 +1,146 @@
+name: CI Production - Master Orchestrator
+on:
+  push:
+    branches:
+      - main
+      - feat/CI # temporal
+    paths:
+      - "apps/**"
+      - "packages/**"
+  workflow_dispatch:
+    inputs:
+      staging_version:
+        description: "Staging version to promote (optional, e.g., 2.00-rc). Leave empty to use latest"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (calculate version but don't create tag)"
+        required: false
+        type: boolean
+        default: true
+
+# Prevent multiple simultaneous orchestrations
+concurrency:
+  group: production-orchestrator-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # to create tags
+  actions: write # to allow tagging commits that modify workflows
+
+jobs:
+  # Step 1: Create a single global production version tag
+  create-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Global Production Version
+        id: version
+        uses: ./.github/actions/create-production-version
+        with:
+          staging_version: ${{ inputs.staging_version || '' }}
+          dry_run: ${{ inputs.dry_run || 'false' }}
+
+  # Step 2: Detect which services were modified
+  detect-services:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.changes.outputs.api }}
+      database: ${{ steps.changes.outputs.database }}
+      typechecking: ${{ steps.changes.outputs.typechecking }}
+      ddl-generator: ${{ steps.changes.outputs.ddl-generator }}
+      excel-reader: ${{ steps.changes.outputs.excel-reader }}
+      formula-parser: ${{ steps.changes.outputs.formula-parser }}
+      sql-builder: ${{ steps.changes.outputs.sql-builder }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed services
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            api:
+              - 'apps/backend/api/**'
+              - 'packages/messaging-utils/messaging-utils-py/**'
+            database:
+              - 'apps/connections/database/**'
+              - 'packages/proto/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            typechecking:
+              - 'apps/backend/typechecking/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            ddl-generator:
+              - 'apps/backend/parsers/ddl-generator/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            excel-reader:
+              - 'apps/backend/parsers/excel-reader/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            formula-parser:
+              - 'apps/backend/parsers/formula-parser/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+            sql-builder:
+              - 'apps/backend/parsers/sql-builder/**'
+              - 'packages/proto-utils/proto-utils-py/**'
+
+  # Step 3: Call individual service workflows (only if service changed)
+  deploy-api:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.api == 'true'
+    uses: ./.github/workflows/ci-api-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-database:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.database == 'true'
+    uses: ./.github/workflows/ci-database-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-typechecking:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.typechecking == 'true'
+    uses: ./.github/workflows/ci-typechecking-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-ddl-generator:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.ddl-generator == 'true'
+    uses: ./.github/workflows/ci-ddl-generator-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-excel-reader:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.excel-reader == 'true'
+    uses: ./.github/workflows/ci-excel-reader-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-formula-parser:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.formula-parser == 'true'
+    uses: ./.github/workflows/ci-formula-parser-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
+
+  deploy-sql-builder:
+    needs: [create-version, detect-services]
+    if: needs.detect-services.outputs.sql-builder == 'true'
+    uses: ./.github/workflows/ci-sql-builder-production.yml
+    with:
+      version_tag: ${{ needs.create-version.outputs.version }}
+    secrets: inherit
