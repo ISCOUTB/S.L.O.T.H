@@ -7,8 +7,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-ENV_FILE="swarm/development/.env"
-STACK_FILE="swarm/development/docker-stack.yml"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/development/.env"
+STACK_FILE="$PROJECT_ROOT/development/docker-stack.yml"
 
 if [ ! -f "$ENV_FILE" ]; then
     echo -e "${RED}[ ERROR ] file does not exists: $ENV_FILE${NC}"
