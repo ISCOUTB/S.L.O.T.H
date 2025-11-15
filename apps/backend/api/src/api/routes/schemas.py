@@ -73,7 +73,6 @@ async def upload_schema(
 @router.get("/status")
 async def get_schema_task(
     database_client: DatabaseClientDep,
-    publisher: PublisherDep,
     task_id: str = "",
     import_name: str = "",
 ) -> list[dtypes.ApiResponse] | dtypes.ApiResponse:
