@@ -35,7 +35,7 @@ variable "availability_zones" {
 
 variable "allowed_ssh_cidr" {
   description = "CIDR block for SSH access"
-  type        = string
+  type        = list(string)
 }
 
 variable "tags" {

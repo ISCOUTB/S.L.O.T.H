@@ -49,7 +49,7 @@ availability_zones = [
 # IMPORTANT: Replace with your actual public IP for SSH access
 # Get your IP: curl ifconfig.me
 # Format: "YOUR_IP/32" for single IP or "0.0.0.0/0" for anywhere (not recommended)
-allowed_ssh_cidr = "AAA.BBB.CCC.DDD/32"
+allowed_ssh_cidr = ["AAA.BBB.CCC.DDD/32"]
 
 # ============================================
 # Additional Tags
