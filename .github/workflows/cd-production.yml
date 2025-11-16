@@ -21,22 +21,20 @@ jobs:
         with:
           auto-install: true
 
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PRODUCTION_PRIVATE_SSH_KEY }}
+
+      - name: Configure SSH known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.PRODUCTION_SSH_HOST }} >> ~/.ssh/known_hosts
+
       - name: Setup basic files
         id: setup-files
         run: |
-          SSH_KEY_PATH="iac/terraform/environments/production/ssh-keys/swarm-key.pem"
-          SSH_KEY_FULL_PATH="$(pwd)/$SSH_KEY_PATH"
-          echo "ssh-key-full-path=$SSH_KEY_FULL_PATH" >> $GITHUB_OUTPUT
-
           echo "${{ secrets.PRODUCTION_ENV_FILE }}" > iac/swarm/production/.env
-          echo "${{ secrets.PRODUCTION_PRIVATE_SSH_KEY }}" > ${SSH_KEY_FULL_PATH}
-          chmod 600 ${SSH_KEY_FULL_PATH}
-
-      - name: Edit ssh config to use the key
-        run: |
-          SSH_KEY_FULL_PATH="${{ steps.setup-files.outputs.ssh-key-full-path }}"
-          echo -e "Host ${{ secrets.PRODUCTION_SSH_HOST }}\n\tStrictHostKeyChecking no\n\tIdentityFile ${SSH_KEY_FULL_PATH}\n\tUserKnownHostsFile /dev/null\n" >> ~/.ssh/config
-          chmod 644 ~/.ssh/config
 
       - name: Configure Docker Context
         run: |
@@ -44,4 +42,9 @@ jobs:
           docker context use remote-production
 
       - name: Deploy Docker Stack to Production
-        run: moon run iac:swarm:deploy-production
+        run: |
+          moon run iac:swarm:deploy-production
+
+      - name: Cleanup
+        if: always()
+        run: rm -f iac/swarm/production/.env
