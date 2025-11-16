@@ -39,6 +39,7 @@ concurrency:
 
 permissions:
   contents: write # to create tags
+  actions: write # to allow tagging commits that modify workflows
 
 jobs:
   # Step 1: Create a single global version tag
