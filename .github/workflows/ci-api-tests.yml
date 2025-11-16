@@ -5,8 +5,11 @@ on:
       - main
       - staging
     paths:
-      - "apps/backend/api/**"
-      - "packages/messaging-utils/messaging-utils-py/**"
+      - apps/backend/api/**
+      - packages/messaging-utils/messaging-utils-py/**
+      - .github/actions/run-unit-tests/**
+      - .github/workflows/ci-api-tests.yml
+
 jobs:
   api-tests:
     # API uses PostgreSQL database, so...

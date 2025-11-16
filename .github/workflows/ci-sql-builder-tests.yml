@@ -5,8 +5,10 @@ on:
       - main
       - staging
     paths:
-      - "apps/backend/parsers/sql-builder/**"
-      - "packages/proto-utils/proto-utils-py/**"
+      - apps/backend/parsers/sql-builder/**
+      - packages/proto-utils/proto-utils-py/**
+      - .github/actions/run-unit-tests/**
+      - .github/workflows/ci-sql-builder-tests.yml
 
 jobs:
   sql_builder-tests:

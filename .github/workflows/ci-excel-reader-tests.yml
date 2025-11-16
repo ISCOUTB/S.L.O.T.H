@@ -5,8 +5,10 @@ on:
       - main
       - staging
     paths:
-      - "apps/backend/parsers/excel-reader/**"
-      - "packages/proto-utils/proto-utils-py/**"
+      - apps/backend/parsers/excel-reader/**
+      - packages/proto-utils/proto-utils-py/**
+      - .github/actions/run-unit-tests/**
+      - .github/workflows/ci-excel-reader-tests.yml
 
 jobs:
   excel_reader-tests:
