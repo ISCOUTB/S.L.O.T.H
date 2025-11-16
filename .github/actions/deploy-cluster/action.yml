@@ -1,0 +1,60 @@
+name: Deploy to Swarm Cluster
+description: "Deploys a Docker Stack to a Swarm cluster via SSH"
+
+inputs:
+  private_ssh_key:
+    description: "The private SSH key to access the cluster nodes"
+    required: true
+  ssh_host:
+    description: "The SSH host of the cluster"
+    required: true
+  ssh_user:
+    description: "The SSH user to connect as"
+    required: false
+    default: "ubuntu"
+  env_file:
+    description: "The content of the .env file for deployment"
+    required: true
+  environment:
+    description: "The target environment to deploy to (development, staging, production)"
+    required: true
+    default: "development"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: moonrepo/setup-toolchain@v0
+      with:
+        auto-install: true
+
+    - name: Setup SSH Agent
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ inputs.private_ssh_key }}
+
+    - name: Configure SSH known hosts
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H ${{ inputs.ssh_host }} >> ~/.ssh/known_hosts
+
+    - name: Setup basic files
+      id: setup-files
+      shell: bash
+      run: |
+        echo "${{ inputs.env_file }}" > iac/swarm/${{ inputs.environment }}/.env
+
+    - name: Configure Docker Context
+      shell: bash
+      run: |
+        docker context create remote --docker "host=ssh://${{ inputs.ssh_user }}@${{ inputs.ssh_host }}"
+        docker context use remote
+
+    - name: Deploy Docker Stack to Production
+      shell: bash
+      run: moon run iac:swarm-${{ inputs.environment }}
+
+    - name: Cleanup
+      if: always()
+      shell: bash
+      run: rm -f iac/swarm/${{ inputs.environment }}/.env

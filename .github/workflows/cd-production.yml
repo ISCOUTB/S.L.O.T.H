@@ -1,0 +1,25 @@
+name: CD Production - Deploy to Production Environment
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - iac/swarm/production/docker-stack.yml
+      - .github/workflows/cd-production.yml
+
+jobs:
+  deploy:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/deploy-cluster
+        with:
+          private_ssh_key: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          ssh_host: ${{ secrets.PRODUCTION_SSH_HOST }}
+          ssh_user: "ubuntu"
+          env_file: ${{ secrets.PRODUCTION_ENV_FILE }}
+          environment: "production"
