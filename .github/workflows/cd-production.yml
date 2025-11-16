@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - feat/CD # temporal
     paths:
       - iac/swarm/production/docker-stack.yml
       - .github/workflows/cd-production.yml
