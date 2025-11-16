@@ -249,7 +249,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Install yq
         run: |
@@ -283,36 +283,36 @@ jobs:
 
           # Typechecking
           if [ "${{ needs.deploy-typechecking.result }}" == "success" ]; then
-            echo "Updating Typechecking image to ${DOCKERHUB_USERNAME}/etl-typechecking:${VERSION}"
-            yq eval -i ".services.typechecking.image=\"${DOCKERHUB_USERNAME}/etl-typechecking:${VERSION}\"" "$STACK_FILE" -I 4
+            echo "Updating Typechecking image to ${DOCKERHUB_USERNAME}/typechecking:${VERSION}"
+            yq eval -i ".services.typechecking.image=\"${DOCKERHUB_USERNAME}/typechecking:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
 
           # DDL Generator
           if [ "${{ needs.deploy-ddl-generator.result }}" == "success" ]; then
-            echo "Updating DDL Generator image to ${DOCKERHUB_USERNAME}/etl-ddl-generator:${VERSION}"
-            yq eval -i ".services.ddl-generator.image=\"${DOCKERHUB_USERNAME}/etl-ddl-generator:${VERSION}\"" "$STACK_FILE" -I 4
+            echo "Updating DDL Generator image to ${DOCKERHUB_USERNAME}/ddl-generator:${VERSION}"
+            yq eval -i ".services.ddl-generator.image=\"${DOCKERHUB_USERNAME}/ddl-generator:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
 
           # Excel Reader
           if [ "${{ needs.deploy-excel-reader.result }}" == "success" ]; then
-            echo "Updating Excel Reader image to ${DOCKERHUB_USERNAME}/etl-excel-reader:${VERSION}"
-            yq eval -i ".services.excel-reader.image=\"${DOCKERHUB_USERNAME}/etl-excel-reader:${VERSION}\"" "$STACK_FILE" -I 4
+            echo "Updating Excel Reader image to ${DOCKERHUB_USERNAME}/excel-reader:${VERSION}"
+            yq eval -i ".services.excel-reader.image=\"${DOCKERHUB_USERNAME}/excel-reader:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
 
           # Formula Parser
           if [ "${{ needs.deploy-formula-parser.result }}" == "success" ]; then
-            echo "Updating Formula Parser image to ${DOCKERHUB_USERNAME}/etl-formula-parser:${VERSION}"
-            yq eval -i ".services.formula-parser.image=\"${DOCKERHUB_USERNAME}/etl-formula-parser:${VERSION}\"" "$STACK_FILE" -I 4
+            echo "Updating Formula Parser image to ${DOCKERHUB_USERNAME}/formula-parser:${VERSION}"
+            yq eval -i ".services.formula-parser.image=\"${DOCKERHUB_USERNAME}/formula-parser:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
 
           # SQL Builder
           if [ "${{ needs.deploy-sql-builder.result }}" == "success" ]; then
-            echo "Updating SQL Builder image to ${DOCKERHUB_USERNAME}/etl-sql-builder:${VERSION}"
-            yq eval -i ".services.sql-builder.image=\"${DOCKERHUB_USERNAME}/etl-sql-builder:${VERSION}\"" "$STACK_FILE" -I 4
+            echo "Updating SQL Builder image to ${DOCKERHUB_USERNAME}/sql-builder:${VERSION}"
+            yq eval -i ".services.sql-builder.image=\"${DOCKERHUB_USERNAME}/sql-builder:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
 
