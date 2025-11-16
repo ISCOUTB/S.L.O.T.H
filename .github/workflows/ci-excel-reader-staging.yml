@@ -86,17 +86,3 @@ jobs:
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
           image_name: "excel-reader"
           image_tag: ${{ steps.version.outputs.version }}
-
-  update-docker-stack:
-    needs: docker-build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Update Docker Stack for Staging
-        shell: bash
-        run: |
-          echo "Updating Docker Stack for staging with image tag: ${{ needs.docker-build-and-push.outputs.version }}"
-          yq -i '.services.excel-reader.image="${{ secrets.DOCKERHUB_USERNAME }}/excel-reader:${{ needs.docker-build-and-push.outputs.version }}"' iac/swarm/staging/docker-stack.yml -I 4
