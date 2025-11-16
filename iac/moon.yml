@@ -11,3 +11,17 @@ tasks:
             - swarm/scripts/dev-deploy.sh
         options:
             cache: false
+
+    swarm-staging:
+        command: bash
+        args:
+            - swarm/scripts/staging-deploy.sh
+        options:
+            cache: false
+
+    swarm-production:
+        command: bash
+        args:
+            - swarm/scripts/production-deploy.sh
+        options:
+            cache: false
