@@ -43,7 +43,7 @@ jobs:
 
       - name: Deploy Docker Stack to Production
         run: |
-          moon run iac:swarm-deploy-production
+          moon run iac:swarm-production
 
       - name: Cleanup
         if: always()
