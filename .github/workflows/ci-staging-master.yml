@@ -111,31 +111,38 @@ jobs:
               - 'apps/backend/api/**'
               - 'packages/messaging-utils/messaging-utils-py/**'
               - '.github/workflows/ci-api-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
             database:
               - 'apps/connections/database/**'
               - 'packages/proto/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-database-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
             typechecking:
               - 'apps/backend/typechecking/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-typechecking-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
             ddl-generator:
               - 'apps/backend/parsers/ddl-generator/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-ddl-generator-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
             excel-reader:
               - 'apps/backend/parsers/excel-reader/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-excel-reader-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
             formula-parser:
               - 'apps/backend/parsers/formula-parser/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-formula-parser-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
             sql-builder:
               - 'apps/backend/parsers/sql-builder/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-sql-builder-staging.yml'
+              - '.github/workflows/ci-staging-master.yml'
 
   # Step 3: Debug detection results
   debug-detection:
@@ -225,8 +232,19 @@ jobs:
       - deploy-excel-reader
       - deploy-formula-parser
       - deploy-sql-builder
-    # Run even if some jobs were skipped (but not if they failed)
-    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    # Run if at least one deploy job succeeded (even if others failed or were skipped)
+    if: |
+      always() && 
+      !contains(needs.*.result, 'cancelled') &&
+      (
+        needs.deploy-api.result == 'success' ||
+        needs.deploy-database.result == 'success' ||
+        needs.deploy-typechecking.result == 'success' ||
+        needs.deploy-ddl-generator.result == 'success' ||
+        needs.deploy-excel-reader.result == 'success' ||
+        needs.deploy-formula-parser.result == 'success' ||
+        needs.deploy-sql-builder.result == 'success'
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
