@@ -17,34 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: moonrepo/setup-toolchain@v0
+      - uses: ./.github/actions/deploy-cluster
         with:
-          auto-install: true
-
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.PRODUCTION_PRIVATE_SSH_KEY }}
-
-      - name: Configure SSH known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.PRODUCTION_SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Setup basic files
-        id: setup-files
-        run: |
-          echo "${{ secrets.PRODUCTION_ENV_FILE }}" > iac/swarm/production/.env
-
-      - name: Configure Docker Context
-        run: |
-          docker context create remote-production --docker "host=ssh://ubuntu@${{ secrets.PRODUCTION_SSH_HOST }}"
-          docker context use remote-production
-
-      - name: Deploy Docker Stack to Production
-        run: |
-          moon run iac:swarm-production
-
-      - name: Cleanup
-        if: always()
-        run: rm -f iac/swarm/production/.env
+          private_ssh_key: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          ssh_host: ${{ secrets.PRODUCTION_SSH_HOST }}
+          ssh_user: "ubuntu"
+          env_file: ${{ secrets.PRODUCTION_ENV_FILE }}
+          environment: "production"
