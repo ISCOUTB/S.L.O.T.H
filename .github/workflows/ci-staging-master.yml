@@ -3,15 +3,14 @@ on:
   push:
     branches:
       - staging
-      - feat/CI-update-docker-stack
     paths:
-      - "apps/**"
-      - "packages/**"
-      - ".github/workflows/ci-*-staging.yml"
-      - ".github/workflows/ci-staging-master.yml"
-      - ".github/actions/build-docker-image/**"
-      - ".github/actions/create-version-tag/**"
-      - ".github/actions/update-docker-stack/**"
+      - apps/**
+      - packages/**
+      - .github/workflows/ci-*-staging.yml
+      - .github/workflows/ci-staging-master.yml
+      - .github/actions/build-docker-image/**
+      - .github/actions/create-version-tag/**
+      - .github/actions/update-docker-stack/**
   workflow_dispatch:
     inputs:
       bump_type:
@@ -116,7 +115,6 @@ jobs:
               - '.github/workflows/ci-api-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
             database:
               - 'apps/connections/database/**'
               - 'packages/proto/**'
@@ -124,42 +122,36 @@ jobs:
               - '.github/workflows/ci-database-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
             typechecking:
               - 'apps/backend/typechecking/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-typechecking-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
             ddl-generator:
               - 'apps/backend/parsers/ddl-generator/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-ddl-generator-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
             excel-reader:
               - 'apps/backend/parsers/excel-reader/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-excel-reader-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
             formula-parser:
               - 'apps/backend/parsers/formula-parser/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-formula-parser-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
             sql-builder:
               - 'apps/backend/parsers/sql-builder/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-sql-builder-staging.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-version-tag/**'
-              - '.github/workflows/ci-staging-master.yml'
 
   # Step 3: Debug detection results
   debug-detection:
@@ -282,63 +274,63 @@ jobs:
         run: |
           STACK_FILE="iac/swarm/staging/docker-stack.yml"
           UPDATED=false
-          
+
           echo "=== Applying docker-stack updates ==="
-          
+
           # API
           if [ "${{ needs.deploy-api.result }}" == "success" ]; then
             echo "Updating API image to ${DOCKERHUB_USERNAME}/etl-api:${VERSION}"
             yq eval -i ".services.api.image=\"${DOCKERHUB_USERNAME}/etl-api:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           # Database
           if [ "${{ needs.deploy-database.result }}" == "success" ]; then
             echo "Updating Database image to ${DOCKERHUB_USERNAME}/etl-database:${VERSION}"
             yq eval -i ".services.database.image=\"${DOCKERHUB_USERNAME}/etl-database:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           # Typechecking
           if [ "${{ needs.deploy-typechecking.result }}" == "success" ]; then
             echo "Updating Typechecking image to ${DOCKERHUB_USERNAME}/etl-typechecking:${VERSION}"
             yq eval -i ".services.typechecking.image=\"${DOCKERHUB_USERNAME}/etl-typechecking:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           # DDL Generator
           if [ "${{ needs.deploy-ddl-generator.result }}" == "success" ]; then
             echo "Updating DDL Generator image to ${DOCKERHUB_USERNAME}/etl-ddl-generator:${VERSION}"
             yq eval -i ".services.ddl-generator.image=\"${DOCKERHUB_USERNAME}/etl-ddl-generator:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           # Excel Reader
           if [ "${{ needs.deploy-excel-reader.result }}" == "success" ]; then
             echo "Updating Excel Reader image to ${DOCKERHUB_USERNAME}/etl-excel-reader:${VERSION}"
             yq eval -i ".services.excel-reader.image=\"${DOCKERHUB_USERNAME}/etl-excel-reader:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           # Formula Parser
           if [ "${{ needs.deploy-formula-parser.result }}" == "success" ]; then
             echo "Updating Formula Parser image to ${DOCKERHUB_USERNAME}/etl-formula-parser:${VERSION}"
             yq eval -i ".services.formula-parser.image=\"${DOCKERHUB_USERNAME}/etl-formula-parser:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           # SQL Builder
           if [ "${{ needs.deploy-sql-builder.result }}" == "success" ]; then
             echo "Updating SQL Builder image to ${DOCKERHUB_USERNAME}/etl-sql-builder:${VERSION}"
             yq eval -i ".services.sql-builder.image=\"${DOCKERHUB_USERNAME}/etl-sql-builder:${VERSION}\"" "$STACK_FILE" -I 4
             UPDATED=true
           fi
-          
+
           if [ "$UPDATED" = false ]; then
             echo "No updates were applied"
             exit 0
           fi
-          
+
           echo "=== Changes applied successfully ==="
 
       - name: Configure Git
