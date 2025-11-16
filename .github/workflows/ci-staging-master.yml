@@ -260,7 +260,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Install yq
         run: |
@@ -363,6 +363,7 @@ jobs:
                      -m "- Excel Reader: ${{ needs.deploy-excel-reader.result == 'success' && '✓' || '✗' }}" \
                      -m "- Formula Parser: ${{ needs.deploy-formula-parser.result == 'success' && '✓' || '✗' }}" \
                      -m "- SQL Builder: ${{ needs.deploy-sql-builder.result == 'success' && '✓' || '✗' }}"
+                     -m "[skip ci]"
 
           # Push changes
           git push origin ${{ github.ref_name }}
