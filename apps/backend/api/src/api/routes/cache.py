@@ -8,7 +8,7 @@ from src.api.deps import get_db_client
 router = APIRouter()
 
 
-@router.get("")
+@router.get("/")
 async def get_cache(database_client: DatabaseClient = Depends(get_db_client)) -> dict:
     """
     Get all cached data from Redis.

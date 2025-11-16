@@ -1,0 +1,6 @@
+{
+    "devDependencies": {
+        "@etl-design/tools-eslint": "workspace:*",
+        "eslint": "^9.39.1"
+    }
+}

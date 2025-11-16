@@ -5,9 +5,11 @@ on:
       - main
       - staging
     paths:
-      - "apps/connections/database/**"
-      - "packages/messaging-utils/messaging-utils-py/**"
-      - "packages/proto-utils/proto-utils-py/**"
+      - apps/connections/database/**
+      - packages/messaging-utils/messaging-utils-py/**
+      - packages/proto-utils/proto-utils-py/**
+      - .github/actions/run-unit-tests/**
+      - .github/workflows/ci-database-tests.yml
 
 jobs:
   database-tests:

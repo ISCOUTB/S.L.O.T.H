@@ -1,4 +1,9 @@
-dist
 node_modules
-scripts
-tests
+dist
+coverage
+README.md
+TODO.md
+tests/
+.gitignore
+**/.gitkeep
+

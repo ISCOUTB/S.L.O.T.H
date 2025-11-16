@@ -164,9 +164,259 @@ services:
             labels:
                 - scaler.enabled=true
 
+    rabbitmq:
+        image: rabbitmq:4-management
+        environment:
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+            RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+        networks:
+            - monitoring
+            - rabbit
+        ports:
+            - published: 5672
+              target: 5672
+              protocol: tcp
+              mode: ingress
+
+            - published: 15672
+              target: 15672
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+
+    mongo:
+        image: mongo:7.0
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+        networks:
+            - monitoring
+            - mongo
+        ports:
+            - published: 27017
+              target: 27017
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - mongo-data:/data/db
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+
+    redis:
+        image: redis:7-alpine
+        command:
+            - "redis-server"
+            - "--requirepass"
+            - "${REDIS_PASSWORD}"
+        environment:
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+        networks:
+            - monitoring
+            - redis
+        ports:
+            - published: 6379
+              target: 6379
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - redis-data:/data
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+
+    postgres:
+        image: postgres:17
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+            PGDATA: /var/lib/postgresql/data/pgdata
+        networks:
+            - monitoring
+            - postgres
+        ports:
+            - published: 5431
+              target: 5432
+              protocol: tcp
+              mode: ingress
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "256m"
+                limits:
+                    memory: "512m"
+
+    database:
+        image: vulcan99/etl-database:1.03
+        environment:
+            MONGO_HOST: mongo
+            MONGO_PORT: 27017
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+            MONGO_DB: ${MONGO_DB}
+            MONGO_SCHEMAS_COLLECTION: ${MONGO_SCHEMAS_COLLECTION}
+            MONGO_TASKS_COLLECTION: ${MONGO_TASKS_COLLECTION}
+            MONGO_MAX_RETRIES: ${MONGO_MAX_RETRIES}
+            MONGO_RETRY_DELAY_SECONDS: ${MONGO_RETRY_DELAY_SECONDS}
+            MONGO_RETRY_BACKOFF_FACTOR: ${MONGO_RETRY_BACKOFF_FACTOR}
+
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
+            REDIS_DB: ${REDIS_DB}
+            REDIS_PASSWORD: ${REDIS_PASSWORD}
+            REDIS_EXPIRE_SECONDS: ${REDIS_EXPIRE_SECONDS}
+            REDIS_MAX_RETRIES: ${REDIS_MAX_RETRIES}
+            REDIS_RETRY_DELAY_SECONDS: ${REDIS_RETRY_DELAY_SECONDS}
+            REDIS_RETRY_BACKOFF_FACTOR: ${REDIS_RETRY_BACKOFF_FACTOR}
+
+            DATABASE_CONNECTION_HOST: ${DATABASE_CONNECTION_HOST}
+            DATABASE_CONNECTION_PORT: ${DATABASE_CONNECTION_PORT}
+            DATABASE_CONNECTION_DEBUG: ${DATABASE_CONNECTION_DEBUG}
+
+            TASK_TTL_PENDING_SECONDS: ${TASK_TTL_PENDING_SECONDS}
+            TASK_TTL_PROCESSING_SECONDS: ${TASK_TTL_PROCESSING_SECONDS}
+            TASK_TTL_COMPLETED_SECONDS: ${TASK_TTL_COMPLETED_SECONDS}
+            TASK_TTL_PUBLISHED_SECONDS: ${TASK_TTL_PUBLISHED_SECONDS}
+            TASK_TTL_FAILED_SECONDS: ${TASK_TTL_FAILED_SECONDS}
+
+            USER_CACHE_TTL_SECONDS: ${USER_CACHE_TTL_SECONDS}
+            USER_LIST_CACHE_TTL_SECONDS: ${USER_LIST_CACHE_TTL_SECONDS}
+            SCHEMA_CACHE_TTL_SECONDS: ${SCHEMA_CACHE_TTL_SECONDS}
+
+            DEFAULT_TTL_SECONDS: ${DEFAULT_TTL_SECONDS}
+        networks:
+            - monitoring
+            - mongo
+            - redis
+            - grpc
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "512m"
+                limits:
+                    memory: "1024m"
+            labels:
+                - scaler.enabled=true
+
+    typechecking:
+        image: vulcan99/typechecking
+        environment:
+            MINIMAL_SERVER_HOST: ${DATABASE_CONNECTION_HOST}
+            MINIMAL_SERVER_PORT: ${DATABASE_CONNECTION_PORT}
+            MINIMAL_SERVER_DEBUG: ${DATABASE_CONNECTION_DEBUG}
+
+            RABBITMQ_HOST: rabbitmq
+            RABBITMQ_PORT: 5672
+            RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+            RABBITMQ_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+            RABBITMQ_MAX_RETRIES: ${RABBITMQ_MAX_RETRIES}
+            RABBITMQ_RETRY_DELAY_SECONDS: ${RABBITMQ_RETRY_DELAY_SECONDS}
+            RABBITMQ_BACKOFF_MULTIPLIER: ${RABBITMQ_BACKOFF_MULTIPLIER}
+            RABBITMQ_THRESHOLD_SECONDS: ${RABBITMQ_THRESHOLD_SECONDS}
+
+            MAX_WORKERS: ${MAX_WORKERS}
+            WORKER_PREFETCH_COUNT: ${WORKER_PREFETCH_COUNT}
+
+            DATABASE_CONNECTION_HOST: database
+            DATABASE_CONNECTION_PORT: ${DATABASE_CONNECTION_PORT}
+            DATABASE_MAX_RETRIES: ${DATABASE_MAX_RETRIES}
+            DATABASE_RETRY_DELAY_SECONDS: ${DATABASE_RETRY_DELAY_SECONDS}
+            DATABASE_BACKOFF_MULTIPLIER: ${DATABASE_BACKOFF_MULTIPLIER}
+        networks:
+            - monitoring
+            - rabbit
+            - grpc
+        deploy:
+            replicas: 1
+            resources:
+                reservations:
+                    memory: "768m"
+                limits:
+                    memory: "1536m"
+            labels:
+                - scaler.enabled=true
+
+    api:
+        image: vulcan99/etl-api:1.01
+        environment:
+            API_V1_STR: ${API_V1_STR}
+            CORS_ORIGINS: ${CORS_ORIGINS}
+            SERVER_HOST: ${SERVER_HOST}
+            SERVER_PORT: ${SERVER_PORT}
+            SERVER_DEBUG: ${SERVER_DEBUG}
+            SECRET_KEY: ${SECRET_KEY}
+
+            FIRST_SUPERUSER: ${FIRST_SUPERUSER}
+            FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD}
+
+            DATABASE_CONNECTION_HOST: database
+            DATABASE_CONNECTION_PORT: ${DATABASE_CONNECTION_PORT}
+            DATABASE_MAX_RETRIES: ${DATABASE_MAX_RETRIES}
+            DATABASE_RETRY_DELAY_SECONDS: ${DATABASE_RETRY_DELAY_SECONDS}
+            DATABASE_BACKOFF_MULTIPLIER: ${DATABASE_BACKOFF_MULTIPLIER}
+
+            RABBITMQ_HOST: rabbitmq
+            RABBITMQ_PORT: 5672
+            RABBITMQ_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+            RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+            RABBITMQ_MAX_RETRIES: ${RABBITMQ_MAX_RETRIES}
+            RABBITMQ_RETRY_DELAY_SECONDS: ${RABBITMQ_RETRY_DELAY_SECONDS}
+            RABBITMQ_BACKOFF_MULTIPLIER: ${RABBITMQ_BACKOFF_MULTIPLIER}
+
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5431
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        networks:
+            - monitoring
+            - postgres
+            - grpc
+            - rabbit
+        deploy:
+            resources:
+                reservations:
+                    memory: "768m"
+                limits:
+                    memory: "1536m"
+            labels:
+                - scaler.enabled=true
 networks:
     monitoring:
     parsers:
+    redis:
+    postgres:
+    mongo:
+    rabbit:
+    grpc:
 
 volumes:
     prometheus-data:
+    rabbitmq-data:
+    mongo-data:
+    redis-data:
+    postgres-data:

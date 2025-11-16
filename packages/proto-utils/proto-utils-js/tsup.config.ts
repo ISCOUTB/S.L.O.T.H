@@ -14,5 +14,25 @@ export default defineConfig(() => {
         minify: isProduction,
         platform: "node",
         external: ["@grpc/grpc-js", "google-protobuf"],
+        outExtension({ format }) {
+            if (format === "esm") {
+                return {
+                    js: ".mjs",
+                    dts: ".d.mts",
+                };
+            }
+
+            if (format === "cjs") {
+                return {
+                    js: ".cjs",
+                    dts: ".d.cts",
+                };
+            }
+
+            return {
+                js: ".js",
+                dts: ".d.ts",
+            };
+        },
     };
 });

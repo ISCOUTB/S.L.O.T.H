@@ -105,17 +105,13 @@ runs:
 
         # Determine which commit to tag
         if [ "$IS_INITIAL" == "true" ]; then
-          # Initial version: tag current commit
-          TARGET_COMMIT="${{ github.sha }}"
           TAG_MESSAGE="Production release $VERSION - Initial version"
         else
-          # Promotion: tag the same commit as staging
-          TARGET_COMMIT=$(git rev-list -n 1 "$STAGING_VERSION")
           TAG_MESSAGE="Production release $VERSION - Promoted from $STAGING_VERSION"
         fi
 
         # Create tag locally
-        git tag -a "$VERSION" "$TARGET_COMMIT" -m "$TAG_MESSAGE"
+        git tag -a "$VERSION" -m "$TAG_MESSAGE"
 
         # Push tag (will fail if commit modifies workflows without proper permissions)
         if git push origin "$VERSION" 2>&1 | tee /tmp/git-push.log; then
@@ -125,7 +121,7 @@ runs:
           else
             echo "Production tag $VERSION created (promoted from $STAGING_VERSION)"
           fi
-          echo "Commit: $TARGET_COMMIT"
+          echo "Commit: ${{ github.sha }}"
           echo ""
         else
           # Check if it's a workflow permission error
@@ -135,7 +131,7 @@ runs:
             echo "This is expected when the commit modifies workflow files."
             echo ""
             echo "The tag will be available once this branch is merged."
-            echo "Commit: $TARGET_COMMIT"
+            echo "Commit: ${{ github.sha }}"
             echo ""
           else
             # Re-throw the error if it's something else

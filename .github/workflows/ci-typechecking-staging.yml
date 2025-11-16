@@ -45,6 +45,8 @@ permissions:
 jobs:
   docker-build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -84,6 +86,3 @@ jobs:
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
           image_name: "typechecking"
           image_tag: ${{ steps.version.outputs.version }}
-
-  # When docker stack is ready, there should be another job here to
-  # update docker-stack files and deploy to staging environment

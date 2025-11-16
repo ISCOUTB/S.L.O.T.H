@@ -1,0 +1,25 @@
+name: CD Staging - Deploy to Staging Environment
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - iac/swarm/staging/docker-stack.yml
+      - .github/workflows/cd-staging.yml
+
+jobs:
+  deploy:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/deploy-cluster
+        with:
+          private_ssh_key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          ssh_host: ${{ secrets.STAGING_SSH_HOST }}
+          ssh_user: "ubuntu"
+          env_file: ${{ secrets.STAGING_ENV_FILE }}
+          environment: "staging"
