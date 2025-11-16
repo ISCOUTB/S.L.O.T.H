@@ -6,6 +6,7 @@ on:
       - feat/CD # temporal
     paths:
       - iac/swarm/production/docker-stack.yml
+      - .github/workflows/cd-production.yml
 
 jobs:
   deploy:
