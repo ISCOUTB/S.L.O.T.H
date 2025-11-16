@@ -60,6 +60,8 @@ tasks:
         command: npx
         args:
             - tsup
+        deps:
+            - proto-utils-js:build
         toolchain: node
         options:
             runFromWorkspaceRoot: false
