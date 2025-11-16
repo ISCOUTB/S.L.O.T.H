@@ -84,7 +84,7 @@ services:
                 constraints:
                     - node.role == manager
     formula-parser:
-        image: vulcan99/formula-parser:latest
+        image: vulcan99/formula-parser:1.07
         environment:
             FORMULA_PARSER_HOST: ${PARSERS_FORMULA_PARSER_HOST}
             FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT}
@@ -110,7 +110,7 @@ services:
                 - scaler.up=80
                 - scaler.down=20
     ddl-generator:
-        image: vulcan99/etl-ddl-generator:1.05
+        image: vulcan99/ddl-generator:1.07
         environment:
             DDL_GENERATOR_HOST: ${PARSERS_DDL_GENERATOR_HOST}
             DDL_GENERATOR_PORT: ${PARSERS_DDL_GENERATOR_PORT}
@@ -136,7 +136,7 @@ services:
                 - scaler.up=80
                 - scaler.down=20
     sql-builder:
-        image: vulcan99/etl-sql-builder:1.05
+        image: vulcan99/sql-builder:1.07
         environment:
             SQL_BUILDER_HOST: ${PARSERS_SQL_BUILDER_HOST}
             SQL_BUILDER_PORT: ${PARSERS_SQL_BUILDER_PORT}
@@ -162,7 +162,7 @@ services:
                 - scaler.up=80
                 - scaler.down=20
     excel-reader:
-        image: vulcan99/etl-excel-reader:1.05
+        image: vulcan99/excel-reader:1.07
         environment:
             FORMULA_PARSER_HOST: "formula-parser"
             FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT}
@@ -308,7 +308,7 @@ services:
             labels:
                 - scaler.enabled=true
     database:
-        image: vulcan99/etl-database:1.05
+        image: vulcan99/etl-database:1.07
         environment:
             MONGO_HOST: mongo
             MONGO_PORT: 27017
@@ -363,7 +363,7 @@ services:
                 - scaler.up=80
                 - scaler.down=20
     typechecking:
-        image: vulcan99/etl-typechecking:1.05
+        image: vulcan99/typechecking:1.07
         environment:
             MINIMAL_SERVER_HOST: ${DATABASE_CONNECTION_HOST}
             MINIMAL_SERVER_PORT: ${DATABASE_CONNECTION_PORT}
@@ -406,7 +406,7 @@ services:
                 - scaler.up=80
                 - scaler.down=20
     api:
-        image: vulcan99/etl-api:1.05
+        image: vulcan99/etl-api:1.07
         environment:
             API_V1_STR: ${API_V1_STR}
             CORS_ORIGINS: ${CORS_ORIGINS}
