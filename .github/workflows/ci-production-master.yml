@@ -3,10 +3,9 @@ on:
   push:
     branches:
       - main
-      - feat/CI-update-docker-stack # temporal for testing
     paths:
-      - "apps/**"
-      - "packages/**"
+      - apps/**
+      - packages/**
       - .github/workflows/ci-*-production.yml
       - .github/workflows/ci-production-master.yml
       - .github/actions/build-docker-image/**
@@ -106,7 +105,6 @@ jobs:
               - '.github/workflows/ci-api-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
             database:
               - 'apps/connections/database/**'
               - 'packages/proto/**'
@@ -114,42 +112,36 @@ jobs:
               - '.github/workflows/ci-database-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
             typechecking:
               - 'apps/backend/typechecking/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-typechecking-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
             ddl-generator:
               - 'apps/backend/parsers/ddl-generator/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-ddl-generator-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
             excel-reader:
               - 'apps/backend/parsers/excel-reader/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-excel-reader-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
             formula-parser:
               - 'apps/backend/parsers/formula-parser/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-formula-parser-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
             sql-builder:
               - 'apps/backend/parsers/sql-builder/**'
               - 'packages/proto-utils/proto-utils-py/**'
               - '.github/workflows/ci-sql-builder-production.yml'
               - '.github/actions/build-docker-image/**'
               - '.github/actions/create-production-version/**'
-              - '.github/workflows/ci-production-master.yml'
 
   # Step 3: Debug detection results
   debug-detection:
