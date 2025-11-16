@@ -31,22 +31,24 @@ if [ $# -lt 1 ] || [ $# -gt 2 ]; then
     show_usage
 fi
 
-ENVIRONMENT=$1
+ENVIRONMENT=""
 AUTO_APPROVE=false
 
-# Check for -y flag
-if [ $# -eq 2 ]; then
-    if [ "$2" == "-y" ]; then
+# Parse arguments in any order
+for arg in "$@"; do
+    if [ "$arg" == "-y" ]; then
         AUTO_APPROVE=true
+    elif [[ "$arg" =~ ^(development|staging|production)$ ]]; then
+        ENVIRONMENT="$arg"
     else
-        echo -e "${RED}Error: Invalid option '$2'${NC}\n"
+        echo -e "${RED}Error: Invalid argument '$arg'${NC}\n"
         show_usage
     fi
-fi
+done
 
-# Validate environment
-if [[ ! "$ENVIRONMENT" =~ ^(development|staging|production)$ ]]; then
-    echo -e "${RED}Error: Invalid environment '$ENVIRONMENT'${NC}"
+# Validate that environment was provided
+if [ -z "$ENVIRONMENT" ]; then
+    echo -e "${RED}Error: Environment not specified${NC}"
     echo -e "${RED}Must be one of: development, staging, production${NC}\n"
     show_usage
 fi

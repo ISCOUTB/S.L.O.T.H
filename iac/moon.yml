@@ -25,3 +25,30 @@ tasks:
             - swarm/scripts/production-deploy.sh
         options:
             cache: false
+
+    setup-cluster:
+        command: bash
+        args:
+            - scripts/setup.sh
+        options:
+            runFromWorkspaceRoot: false
+
+    # Pass as argument the environment to deploy (dev, staging, production)
+
+    # e.g. moon run iac:deploy-cluster -- staging
+    deploy-cluster:
+        command: bash
+        args:
+            - scripts/deploy.sh
+            - -y
+        options:
+            runFromWorkspaceRoot: false
+
+    # e.g. moon run iac:cleanup-cluster -- staging
+    cleanup-cluster:
+        command: bash
+        args:
+            - scripts/cleanup.sh
+            - -y
+        options:
+            runFromWorkspaceRoot: false
