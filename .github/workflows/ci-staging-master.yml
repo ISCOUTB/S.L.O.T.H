@@ -3,9 +3,12 @@ on:
   push:
     branches:
       - staging
+      - feat/CI-update-docker-stack
     paths:
       - "apps/**"
       - "packages/**"
+      - ".github/workflows/ci-*-staging.yml"
+      - ".github/workflows/ci-staging-master.yml"
   workflow_dispatch:
     inputs:
       bump_type:
@@ -107,25 +110,32 @@ jobs:
             api:
               - 'apps/backend/api/**'
               - 'packages/messaging-utils/messaging-utils-py/**'
+              - '.github/workflows/ci-api-staging.yml'
             database:
               - 'apps/connections/database/**'
               - 'packages/proto/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-database-staging.yml'
             typechecking:
               - 'apps/backend/typechecking/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-typechecking-staging.yml'
             ddl-generator:
               - 'apps/backend/parsers/ddl-generator/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-ddl-generator-staging.yml'
             excel-reader:
               - 'apps/backend/parsers/excel-reader/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-excel-reader-staging.yml'
             formula-parser:
               - 'apps/backend/parsers/formula-parser/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-formula-parser-staging.yml'
             sql-builder:
               - 'apps/backend/parsers/sql-builder/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-sql-builder-staging.yml'
 
   # Step 3: Debug detection results
   debug-detection:
@@ -202,3 +212,57 @@ jobs:
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
+
+  # Step 5: Commit and push all docker-stack.yml changes
+  commit-stack-changes:
+    needs:
+      - create-version
+      - detect-services
+      - deploy-api
+      - deploy-database
+      - deploy-typechecking
+      - deploy-ddl-generator
+      - deploy-excel-reader
+      - deploy-formula-parser
+      - deploy-sql-builder
+    # Run even if some jobs were skipped (but not if they failed)
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push changes
+        run: |
+          # Check if there are any changes to commit
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          echo "Changes detected in docker-stack files"
+          git status
+
+          # Add only docker-stack.yml files
+          git add iac/swarm/staging/docker-stack.yml
+
+          # Commit with version info
+          git commit -m "chore(staging): update docker stack images to version ${{ needs.create-version.outputs.version }}" \
+                     -m "Updated services:" \
+                     -m "- API: ${{ needs.detect-services.outputs.api }}" \
+                     -m "- Database: ${{ needs.detect-services.outputs.database }}" \
+                     -m "- Typechecking: ${{ needs.detect-services.outputs.typechecking }}" \
+                     -m "- DDL Generator: ${{ needs.detect-services.outputs.ddl-generator }}" \
+                     -m "- Excel Reader: ${{ needs.detect-services.outputs.excel-reader }}" \
+                     -m "- Formula Parser: ${{ needs.detect-services.outputs.formula-parser }}" \
+                     -m "- SQL Builder: ${{ needs.detect-services.outputs.sql-builder }}"
+
+          # Push changes
+          git push origin ${{ github.ref_name }}

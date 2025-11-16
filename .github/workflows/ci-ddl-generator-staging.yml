@@ -45,6 +45,8 @@ permissions:
 jobs:
   docker-build-and-push:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,5 +87,16 @@ jobs:
           image_name: "ddl-generator"
           image_tag: ${{ steps.version.outputs.version }}
 
-  # When docker stack is ready, there should be another job here to
-  # update docker-stack files and deploy to staging environment
+  update-docker-stack:
+    needs: docker-build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Docker Stack for Staging
+        shell: bash
+        run: |
+          echo "Updating Docker Stack for staging with image tag: ${{ needs.docker-build-and-push.outputs.version }}"
+          yq -i '.services.ddl-generator.image="${{ secrets.DOCKERHUB_USERNAME }}/ddl-generator:${{ needs.docker-build-and-push.outputs.version }}"' iac/swarm/staging/docker-stack.yml -I 4
