@@ -1,0 +1,37 @@
+name: CI - Formula Parser Tests
+on:
+    pull_request:
+        branches:
+            - main
+            - staging
+        paths:
+            - apps/backend/parsers/formula-parser/src/**
+            - apps/backend/parsers/formula-parser/tests/**
+            - packages/proto-utils/proto-utils-js/src/**
+            - tools/eslint/src/**
+            - tools/tsconfig/**
+            - .github/workflows/ci-formula-parser-tests.yml
+
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Enable corepack for pnpm
+              run: corepack enable
+
+            - name: Run tests
+              uses: ./.github/actions/run-unit-tests
+              with:
+                  service_name: "formula-parser"
+                  env_example_file: "apps/backend/parsers/formula-parser/.env.example"
+
+            - name: Build Docker Image
+              uses: ./.github/actions/build-docker-image
+              with:
+                  service_name: formula-parser
+                  verify_image: true
+                  push_image: false

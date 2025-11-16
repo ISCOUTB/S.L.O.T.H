@@ -1,0 +1,51 @@
+name: CI - Database Tests
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+    paths:
+      - "apps/connections/database/**"
+      - "packages/messaging-utils/messaging-utils-py/**"
+      - "packages/proto-utils/proto-utils-py/**"
+
+jobs:
+  database-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin
+
+      redis:
+        image: bitnami/redis:latest
+        ports:
+          - 6379:6379
+        env:
+          REDIS_PASSWORD: admin
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/run-unit-tests
+        with:
+          service_name: "database"
+          env_example_file: "apps/connections/database/.env.example"
+          mongo_username: "admin"
+          mongo_password: "admin"
+          mongo_host: "localhost"
+          redis_password: "admin"
+          redis_host: "localhost"
+      - name: Build Docker Image
+        uses: ./.github/actions/build-docker-image
+        with:
+          service_name: "database"
+          verify_image: "true"
+          push_image: "false"

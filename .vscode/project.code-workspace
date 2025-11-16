@@ -5,6 +5,10 @@
             "path": ".."
         },
         {
+            "name": "Github",
+            "path": "../.github/"
+        },
+        {
             "name": "[ IAC ] Code",
             "path": "../iac"
         },
@@ -27,6 +31,10 @@
         {
             "name": "[ App ] Typechecking",
             "path": "../apps/backend/typechecking"
+        },
+        {
+            "name": "[ App ] API",
+            "path": "../apps/backend/api"
         },
         {
             "name": "[ App ] Connections -> Database",
