@@ -1,0 +1,67 @@
+# ============================================
+# Production Environment Configuration
+# ============================================
+
+# Environment name
+environment = "production"
+
+# Project name
+project_name = "etl-design"
+
+# ============================================
+# Cluster Configuration
+# ============================================
+
+# Number of manager nodes (must be odd for quorum)
+# 3 managers provide high availability and fault tolerance
+manager_count = 3
+
+# Number of worker nodes
+# Scale based on workload requirements
+worker_count = 3
+
+# ============================================
+# EC2 Instance Configuration
+# ============================================
+
+# Instance type for production workloads
+# t3.small provides 2 vCPUs and 2 GB RAM
+# Consider t3.medium (2 vCPUs, 4 GB RAM) for higher workloads
+instance_type = "t3.small"
+
+# ============================================
+# Network Configuration
+# ============================================
+
+# VPC CIDR block (different from staging to avoid conflicts)
+vpc_cidr = "10.1.0.0/16"
+
+# Availability zones for high availability
+# Distributes nodes across multiple AZs for fault tolerance
+availability_zones = [
+  "us-east-1a",
+  "us-east-1b",
+  "us-east-1c"
+]
+
+# ============================================
+# Security Configuration
+# ============================================
+
+# SSH access restricted to specific IP or VPN
+# NEVER use 0.0.0.0/0 in production!
+# Get your IP: curl ifconfig.me
+allowed_ssh_cidr = ["AAA.BBB.CCC.DDD/32"]
+
+# ============================================
+# Additional Tags
+# ============================================
+
+tags = {
+  Team        = "DevOps"
+  CostCenter  = "Engineering"
+  ManagedBy   = "Terraform"
+  Purpose     = "Production Environment for ETL Design Project"
+  Backup      = "Daily"
+  Compliance  = "Required"
+}

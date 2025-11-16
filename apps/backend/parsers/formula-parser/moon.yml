@@ -17,6 +17,8 @@ tasks:
             - node_modules/vitest/vitest.mjs
             - --run
             - --coverage
+        deps:
+            - proto-utils-js:build
         toolchain: node
 
     pnpm:
@@ -40,7 +42,7 @@ tasks:
         command: node
         args:
             - --env-file=.env
-            - dist/server.js
+            - dist/server.cjs
         deps:
             - formula-parser:build
         local: true
@@ -58,6 +60,8 @@ tasks:
         command: npx
         args:
             - tsup
+        deps:
+            - proto-utils-js:build
         toolchain: node
         options:
             runFromWorkspaceRoot: false
@@ -69,7 +73,6 @@ tasks:
             - -f
             - apps/backend/parsers/formula-parser/Dockerfile
             - .
-            - --network=host
         local: true
         platform: system
         options:

@@ -1,6 +1,13 @@
+import grpc
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pika.exceptions import AMQPError
 
+from src.api.exceptions import (
+    general_exception_handler,
+    grpc_exception_handler,
+    rabbitmq_exception_handler,
+)
 from src.api.main import router as api_router
 from src.core.config import settings
 from src.utils.uvicorn_logger import LOGGING_CONFIG
@@ -21,6 +28,9 @@ if settings.CORS_ORIGINS:
 
 app.include_router(api_router, prefix=settings.API_V1_STR, tags=["api"])
 
+app.add_exception_handler(grpc.RpcError, grpc_exception_handler)
+app.add_exception_handler(AMQPError, rabbitmq_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
 
 if __name__ == "__main__":
     import uvicorn

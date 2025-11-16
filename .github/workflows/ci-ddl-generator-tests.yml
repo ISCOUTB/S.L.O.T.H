@@ -5,8 +5,10 @@ on:
       - main
       - staging
     paths:
-      - "apps/backend/parsers/ddl-generator/**"
-      - "packages/proto-utils/proto-utils-py/**"
+      - apps/backend/parsers/ddl-generator/**
+      - packages/proto-utils/proto-utils-py/**
+      - .github/actions/run-unit-tests/**
+      - .github/workflows/ci-ddl-generator-tests.yml
 
 jobs:
   ddl_generator-tests:

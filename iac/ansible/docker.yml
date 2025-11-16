@@ -3,63 +3,63 @@
   remote_user: ubuntu
   become: yes
   tasks:
-      - name: Install required packages
-        apt:
-            update_cache: yes
-            name:
-                - ca-certificates
-                - curl
+  - name: Install required packages
+    apt:
+      update_cache: yes
+      name:
+      - ca-certificates
+      - curl
 
-      # sudo install -m 0755 -d /etc/apt/keyrings
-      - name: Create keyrings directory
-        file:
-            path: /etc/apt/keyrings
-            state: directory
-            mode: "0755"
+  # sudo install -m 0755 -d /etc/apt/keyrings
+  - name: Create keyrings directory
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: "0755"
 
-      # sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-      # sudo chmod a+r /etc/apt/keyrings/docker.asc
-      - name: Add Docker's official GPG key
-        get_url:
-            url: https://download.docker.com/linux/ubuntu/gpg
-            dest: /etc/apt/keyrings/docker.asc
-            mode: "0644"
-            force: no
+  # sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  # sudo chmod a+r /etc/apt/keyrings/docker.asc
+  - name: Add Docker's official GPG key
+    get_url:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      dest: /etc/apt/keyrings/docker.asc
+      mode: "0644"
+      force: no
 
-      # echo "deb [arch=$( dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc]
-      # https://download.docker.com/linux/ubuntu $(./etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-      # stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-      - name: Add Docker repository
-        apt_repository:
-            repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-            state: present
-            filename: docker
-            update_cache: yes
+  # echo "deb [arch=$( dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc]
+  # https://download.docker.com/linux/ubuntu $(./etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+  # stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  - name: Add Docker repository
+    apt_repository:
+      repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      state: present
+      filename: docker
+      update_cache: yes
 
-      # sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin
-      # docker-compose-plugin
-      - name: Install Docker Engine, containerd and Docker Compose
-        apt:
-            name:
-                - docker-ce
-                - docker-ce-cli
-                - containerd.io
-                - docker-buildx-plugin
-                - docker-compose-plugin
+  # sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin
+  # docker-compose-plugin
+  - name: Install Docker Engine, containerd and Docker Compose
+    apt:
+      name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
 
-      # sudo systemctl enable docker.service containerd.service
-      - name: Configure Docker to start on boot
-        systemd:
-            name: "{{ item }}"
-            enabled: yes
-            state: started
-        loop:
-            - docker.service
-            - containerd.service
+  # sudo systemctl enable docker.service containerd.service
+  - name: Configure Docker to start on boot
+    systemd:
+      name: "{{ item }}"
+      enabled: yes
+      state: started
+    loop:
+    - docker.service
+    - containerd.service
 
-      # sudo groupadd docker && sudo usermod -aG docker $USER
-      - name: Add user to docker group
-        user:
-            name: "{{ ansible_user }}"
-            groups: docker
-            append: yes
+  # sudo groupadd docker && sudo usermod -aG docker $USER
+  - name: Add user to docker group
+    user:
+      name: "{{ ansible_user }}"
+      groups: docker
+      append: yes
