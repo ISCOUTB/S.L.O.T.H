@@ -3,9 +3,15 @@ on:
   push:
     branches:
       - main
+      - feat/CI-update-docker-stack # temporal for testing
     paths:
       - "apps/**"
       - "packages/**"
+      - .github/workflows/ci-*-production.yml
+      - .github/workflows/ci-production-master.yml
+      - .github/actions/build-docker-image/**
+      - .github/actions/create-production-version/**
+      - .github/actions/update-docker-stack/**
   workflow_dispatch:
     inputs:
       staging_version:
@@ -97,25 +103,53 @@ jobs:
             api:
               - 'apps/backend/api/**'
               - 'packages/messaging-utils/messaging-utils-py/**'
+              - '.github/workflows/ci-api-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
             database:
               - 'apps/connections/database/**'
               - 'packages/proto/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-database-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
             typechecking:
               - 'apps/backend/typechecking/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-typechecking-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
             ddl-generator:
               - 'apps/backend/parsers/ddl-generator/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-ddl-generator-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
             excel-reader:
               - 'apps/backend/parsers/excel-reader/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-excel-reader-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
             formula-parser:
               - 'apps/backend/parsers/formula-parser/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-formula-parser-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
             sql-builder:
               - 'apps/backend/parsers/sql-builder/**'
               - 'packages/proto-utils/proto-utils-py/**'
+              - '.github/workflows/ci-sql-builder-production.yml'
+              - '.github/actions/build-docker-image/**'
+              - '.github/actions/create-production-version/**'
+              - '.github/workflows/ci-production-master.yml'
 
   # Step 3: Debug detection results
   debug-detection:
@@ -192,3 +226,140 @@ jobs:
     with:
       version_tag: ${{ needs.create-version.outputs.version }}
     secrets: inherit
+
+  # Step 5: Commit and push all docker-stack.yml changes
+  commit-stack-changes:
+    needs:
+      - create-version
+      - detect-services
+      - deploy-api
+      - deploy-database
+      - deploy-typechecking
+      - deploy-ddl-generator
+      - deploy-excel-reader
+      - deploy-formula-parser
+      - deploy-sql-builder
+    # Run if at least one deploy job succeeded (even if others failed or were skipped)
+    if: |
+      always() && 
+      !contains(needs.*.result, 'cancelled') &&
+      (
+        needs.deploy-api.result == 'success' ||
+        needs.deploy-database.result == 'success' ||
+        needs.deploy-typechecking.result == 'success' ||
+        needs.deploy-ddl-generator.result == 'success' ||
+        needs.deploy-excel-reader.result == 'success' ||
+        needs.deploy-formula-parser.result == 'success' ||
+        needs.deploy-sql-builder.result == 'success'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Apply docker-stack updates
+        shell: bash
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          VERSION: ${{ needs.create-version.outputs.version }}
+        run: |
+          STACK_FILE="iac/swarm/production/docker-stack.yml"
+          UPDATED=false
+
+          echo "=== Applying docker-stack updates ==="
+
+          # API
+          if [ "${{ needs.deploy-api.result }}" == "success" ]; then
+            echo "Updating API image to ${DOCKERHUB_USERNAME}/etl-api:${VERSION}"
+            yq eval -i ".services.api.image=\"${DOCKERHUB_USERNAME}/etl-api:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          # Database
+          if [ "${{ needs.deploy-database.result }}" == "success" ]; then
+            echo "Updating Database image to ${DOCKERHUB_USERNAME}/etl-database:${VERSION}"
+            yq eval -i ".services.database.image=\"${DOCKERHUB_USERNAME}/etl-database:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          # Typechecking
+          if [ "${{ needs.deploy-typechecking.result }}" == "success" ]; then
+            echo "Updating Typechecking image to ${DOCKERHUB_USERNAME}/etl-typechecking:${VERSION}"
+            yq eval -i ".services.typechecking.image=\"${DOCKERHUB_USERNAME}/etl-typechecking:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          # DDL Generator
+          if [ "${{ needs.deploy-ddl-generator.result }}" == "success" ]; then
+            echo "Updating DDL Generator image to ${DOCKERHUB_USERNAME}/etl-ddl-generator:${VERSION}"
+            yq eval -i ".services.ddl-generator.image=\"${DOCKERHUB_USERNAME}/etl-ddl-generator:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          # Excel Reader
+          if [ "${{ needs.deploy-excel-reader.result }}" == "success" ]; then
+            echo "Updating Excel Reader image to ${DOCKERHUB_USERNAME}/etl-excel-reader:${VERSION}"
+            yq eval -i ".services.excel-reader.image=\"${DOCKERHUB_USERNAME}/etl-excel-reader:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          # Formula Parser
+          if [ "${{ needs.deploy-formula-parser.result }}" == "success" ]; then
+            echo "Updating Formula Parser image to ${DOCKERHUB_USERNAME}/etl-formula-parser:${VERSION}"
+            yq eval -i ".services.formula-parser.image=\"${DOCKERHUB_USERNAME}/etl-formula-parser:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          # SQL Builder
+          if [ "${{ needs.deploy-sql-builder.result }}" == "success" ]; then
+            echo "Updating SQL Builder image to ${DOCKERHUB_USERNAME}/etl-sql-builder:${VERSION}"
+            yq eval -i ".services.sql-builder.image=\"${DOCKERHUB_USERNAME}/etl-sql-builder:${VERSION}\"" "$STACK_FILE" -I 4
+            UPDATED=true
+          fi
+
+          if [ "$UPDATED" = false ]; then
+            echo "No updates were applied"
+            exit 0
+          fi
+
+          echo "=== Changes applied successfully ==="
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push changes
+        run: |
+          # Check if there are any changes to commit
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          echo "Changes detected in docker-stack files"
+          git status
+
+          # Add only docker-stack.yml files
+          git add iac/swarm/production/docker-stack.yml
+
+          # Commit with version info
+          git commit -m "chore(production): update docker stack images to version ${{ needs.create-version.outputs.version }}" \
+                     -m "Updated services:" \
+                     -m "- API: ${{ needs.deploy-api.result == 'success' && '✓' || '✗' }}" \
+                     -m "- Database: ${{ needs.deploy-database.result == 'success' && '✓' || '✗' }}" \
+                     -m "- Typechecking: ${{ needs.deploy-typechecking.result == 'success' && '✓' || '✗' }}" \
+                     -m "- DDL Generator: ${{ needs.deploy-ddl-generator.result == 'success' && '✓' || '✗' }}" \
+                     -m "- Excel Reader: ${{ needs.deploy-excel-reader.result == 'success' && '✓' || '✗' }}" \
+                     -m "- Formula Parser: ${{ needs.deploy-formula-parser.result == 'success' && '✓' || '✗' }}" \
+                     -m "- SQL Builder: ${{ needs.deploy-sql-builder.result == 'success' && '✓' || '✗' }}"
+
+          # Push changes
+          git push origin ${{ github.ref_name }}

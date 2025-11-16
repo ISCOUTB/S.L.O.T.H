@@ -74,6 +74,3 @@ jobs:
           registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
           image_name: "typechecking"
           image_tag: ${{ steps.version.outputs.version }}
-
-  # When docker stack is ready, there should be another job here to
-  # update docker-stack files and deploy to production environment
