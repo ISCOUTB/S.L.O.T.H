@@ -1,36 +1,32 @@
 version: 2
 updates:
-    - package-ecosystem: "npm"
-      directory: "/apps/backend/parsers/formula-parser"
+    - package-ecosystem: npm
       schedule:
-          interval: "weekly"
+          interval: weekly
+      directory: /
       allow:
           - dependency-type: direct
-      versioning-strategy: increase
       groups:
           dependencies:
               patterns:
                   - "*"
 
-    - package-ecosystem: "npm"
-      directory: "/packages/proto-utils/proto-utils-js"
+    - package-ecosystem: uv
       schedule:
-          interval: "weekly"
+          interval: weekly
+      directories:
+          - /apps/backend/api
+          - /apps/backend/parsers/ddl-generator
+          - /apps/backend/parsers/excel-reader
+          - /apps/backend/parsers/sql-builder
+          - /apps/backend/typechecking
+          - /apps/connections/database
+          - /packages/autoscaler
+          - /packages/messaging-utils/messaging-utils-py
+          - /packages/proto-utils/proto-utils-py
+          - /tools/benchmarks
       allow:
           - dependency-type: direct
-      versioning-strategy: increase
-      groups:
-          dependencies:
-              patterns:
-                  - "*"
-
-    - package-ecosystem: "npm"
-      directory: "/tools/eslint"
-      schedule:
-          interval: "weekly"
-      allow:
-          - dependency-type: direct
-      versioning-strategy: increase
       groups:
           dependencies:
               patterns:
