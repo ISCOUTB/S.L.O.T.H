@@ -3,7 +3,12 @@ $schema: https://moonrepo.dev/schemas/toolchain.json
 node:
     packageManager: pnpm
 
-unstable_python:
+python:
+    version: "3.12.10"
     packageManager: uv
+    plugin: ""
+    uv:
+        version: "0.13.4"
 
-unstable_uv: {}
+proto:
+    version: "latest"
