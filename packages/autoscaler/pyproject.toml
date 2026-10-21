@@ -6,16 +6,16 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "dataclasses>=0.8",
-    "docker>=7.1.0",
+    "docker>=7.2.0",
     "httpx>=0.28.1",
     "pydantic>=2.13.4",
-    "pydantic-settings>=2.14.1",
-    "python-dotenv>=1.2.1",
+    "pydantic-settings>=2.15.0",
+    "python-dotenv>=1.2.3",
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.15.15",
+    "ruff>=0.16.4",
 ]
 
 [tool.ruff]
