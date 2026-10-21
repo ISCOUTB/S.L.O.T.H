@@ -13,11 +13,18 @@
     });
 
     const properties = computed(() => {
-        if (!tables.state.value.selectedSchema) {
+        const schema = tables.state.value.selectedSchema?.active_schema;
+        if (!schema) {
             return;
         }
 
-        return Object.entries(tables.state.value.selectedSchema.active_schema.properties);
+        return Object.entries(schema.properties).map(([column, config]): [string, typeof config] => [
+            column,
+            {
+                ...config,
+                optional: config.optional ?? !schema.required.includes(column),
+            },
+        ]);
     });
 
     const animations = useCollapsibleAnimations();
@@ -81,18 +88,13 @@
                             </ItemTitle>
                         </ItemContent>
                         <ItemActions>
-                            <ChevronsRight
-                                :class="cn('size-5 transition-transform', open && 'rotate-90')"
-                            />
+                            <ChevronsRight :class="cn('size-5 transition-transform', open && 'rotate-90')" />
                         </ItemActions>
                     </Item>
                 </CollapsibleTrigger>
                 <Transition :css="false" @enter="animations.onEnter" @leave="animations.onLeave">
                     <CollapsibleContent v-if="open" force-mount class="mt-4">
-                        <CodeBlock
-                            :file="tableName"
-                            :content="tables.state.value.selectedSchema.active_schema"
-                        />
+                        <CodeBlock :file="tableName" :content="tables.state.value.selectedSchema.active_schema" />
                     </CollapsibleContent>
                 </Transition>
             </Collapsible>

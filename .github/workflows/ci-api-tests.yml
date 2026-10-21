@@ -43,6 +43,7 @@ jobs:
           postgres_username: "admin"
           postgres_password: "admin"
           postgres_db: "api_db"
+          first_superuser_email: "admin@example.com"
       - name: Build Docker Image
         uses: ./.github/actions/build-docker-image
         with:

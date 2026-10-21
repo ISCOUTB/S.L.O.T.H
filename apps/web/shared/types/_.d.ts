@@ -35,6 +35,12 @@ declare global {
     };
 
     type Branded<T, Brand> = T & { __brand: Brand };
+
+    type DotNotation<T, Prefix extends string = ""> = {
+        [K in keyof T]: T[K] extends Record<string, unknown>
+            ? DotNotation<T[K], `${Prefix}${K & string}.`>
+            : `${Prefix}${K & string}`
+    }[keyof T];
 }
 
-export {};
+export { };

@@ -39,6 +39,8 @@
             })
             .finally(() => (loading.value = false));
     });
+
+    const { service } = useAppServices();
 </script>
 
 <template>
@@ -79,7 +81,7 @@
             </VeeField>
 
             <Field>
-                <Button :disabled="loading" type="submit">
+                <Button :disabled="loading || !service('auth.signIn')" type="submit">
                     <UtilsLoading :loading="loading" />
                     {{ $t("auth.sign_in.submit") }}
                 </Button>

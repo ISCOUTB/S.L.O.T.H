@@ -160,7 +160,13 @@ class SpreadsheetDtypesSchema(BaseModel):
             DtypesEnum.BOOLEAN: "boolean",
         }
 
-        property_schema = {"type": type_mapping[self.dtype]}
+        property_schema = {
+            "type": type_mapping[self.dtype],
+            "unique": self.unique,
+            "optional": self.optional,
+            "primary_key": self.primary_key,
+        }
+
         if self.constraints:
             property_schema.update(self.constraints.to_jsonschema_constraints())
 

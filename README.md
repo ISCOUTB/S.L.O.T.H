@@ -16,6 +16,16 @@ The system is split into these main runtime areas:
 4. **Parsing Subsystem**: Excel Reader plus modular formula, DDL, and SQL generation services.
 5. **Typechecking Service**: RabbitMQ consumers for validation and insertion workflows.
 
+## 📚 Publications
+
+The S.L.O.T.H. architecture and its research contributions have been presented in the following IEEE conference publications:
+
+1. **Optimized ETL-Based Architecture for Migrating Business Logic Contained in Spreadsheets** — IEEE Colombian Caribbean Conference (C3), 2025. [https://doi.org/10.1109/C366505.2025.11340371](https://doi.org/10.1109/C366505.2025.11340371)
+   - Presents a microservices architecture with asynchronous parallel processing, RabbitMQ-based task distribution, and formula parsing with ASTs and dependency graphs to translate spreadsheet logic into SQL.
+
+2. **ETL-Based Architecture for Business Rule Centralization and Version Control** — IEEE Colombian Caribbean Conference (BCC), 2025. [https://doi.org/10.1109/BCC63751.2025.11725832](https://doi.org/10.1109/BCC63751.2025.11725832)
+   - Addresses the extraction, standardization, centralization, reuse, and version control of business rules through an ETL-based architecture.
+
 ## ⚠️ MVP Status & Future Development
 
 **This project is currently a Minimum Viable Product (MVP)** developed as part of an engineering degree project. It is functional and demonstrates the full architecture, but there are still areas that need refinement before production use.

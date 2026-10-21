@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from "vue";
+import { NuxtKeys } from "#shared/utils/keys";
 import { createContext } from "reka-ui";
-import { NuxtKeys } from "@/utils/keys";
 
 export const SIDEBAR_COOKIE_NAME = NuxtKeys.Sidebar.CookieOpen;
 export const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;

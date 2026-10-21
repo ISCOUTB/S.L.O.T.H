@@ -45,6 +45,8 @@
             .catch((error) => emit("error", error))
             .finally(() => (loading.value = false));
     });
+
+    const { service } = useAppServices();
 </script>
 
 <template>
@@ -116,7 +118,7 @@
             </VeeField>
 
             <Field>
-                <Button :disabled="loading" type="submit">
+                <Button :disabled="loading || !service('auth.signUp')" type="submit">
                     <UtilsLoading :loading="loading" />
                     {{ $t("auth.sign_up.submit") }}
                 </Button>

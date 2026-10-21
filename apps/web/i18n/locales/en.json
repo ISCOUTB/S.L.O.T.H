@@ -545,6 +545,7 @@
                         "back": "Back to tables",
                         "edit": "Edit Schema",
                         "delete": "Delete",
+                        "query_table": "Query Table",
                         "overview": {
                             "active": "Active",
                             "columns": "{count} columns",

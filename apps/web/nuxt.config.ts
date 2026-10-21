@@ -97,7 +97,16 @@ export default defineNuxtConfig({
         },
         public: {
             API_BASE: process.env.API_BASE_URL,
-            HOMEPAGE_URL: process.env.HOMEPAGE_URL,
+            i18n: {
+                baseUrl: process.env.NUXT_SITE_URL,
+            },
+            services: {
+                ai: !!(process.env.MODEL_API_KEY && process.env.MODEL_ENDPOINT),
+                auth: {
+                    signUp: true,
+                    signIn: true,
+                },
+            },
         },
         keys: {
             MODEL_API_KEY: process.env.MODEL_API_KEY,
@@ -110,6 +119,14 @@ export default defineNuxtConfig({
                 USER: process.env.DEFAULT_PROJECT_POSTGRES_USER,
                 PASSWORD: process.env.DEFAULT_PROJECT_POSTGRES_PASSWORD,
                 DB: process.env.DEFAULT_PROJECT_POSTGRES_DB,
+            },
+            redis: {
+                HOST: process.env.REDIS_HOST,
+                PORT: process.env.REDIS_PORT,
+                PASSWORD: process.env.REDIS_PASSWORD,
+                DB: process.env.REDIS_DB,
+                MAX_RETRIES: process.env.REDIS_MAX_RETRIES,
+                BACKOFF_FACTOR: process.env.REDIS_RETRY_BACKOFF_FACTOR,
             },
         },
     },
@@ -126,7 +143,6 @@ export default defineNuxtConfig({
         classSuffix: "",
     },
     i18n: {
-        baseUrl: process.env.HOMEPAGE_URL,
         skipSettingLocaleOnNavigate: false,
         detectBrowserLanguage: {
             useCookie: true,
@@ -258,11 +274,13 @@ export default defineNuxtConfig({
         payloadExtraction: false,
         appManifest: false,
         scanPageMeta: true,
-        buildCache: true,
     },
     nitro: {
         experimental: {
             websocket: true,
+        },
+        externals: {
+            inline: ["xlsx"],
         },
         imports: {
             dirs: ["./shared/utils/**/!(*test|*.spec).{ts,js,mjs,mts}"],

@@ -26,9 +26,7 @@
     });
 
     const { $localeRoute } = useNuxtApp();
-    const {
-        public: { homePageURL },
-    } = useRuntimeConfig();
+    const runtimeConfig = useRuntimeConfig();
     const { locale } = useI18n();
     const { BREADCRUMB_OVERRIDES } = useGlobalState();
     const projectId = useRouteParams("id");
@@ -38,8 +36,8 @@
     useSeoMeta({
         description: () => $t("projects.edit.header.description"),
 
-        ogImage: () => `${homePageURL}/icon.jpeg`,
-        twitterImage: () => `${homePageURL}/icon.jpeg`,
+        ogImage: () => `${runtimeConfig.public.i18n.baseUrl}/icon.jpeg`,
+        twitterImage: () => `${runtimeConfig.public.i18n.baseUrl}/icon.jpeg`,
 
         ogType: "website",
         ogTitle: () => $t("projects.edit.title"),

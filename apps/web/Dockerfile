@@ -23,7 +23,6 @@ FROM gcr.io/distroless/nodejs22-debian13 AS runner
 ENV NODE_ENV="production"
 WORKDIR /app
 
-COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/apps/web/.output /app/.output
 
 EXPOSE 3000

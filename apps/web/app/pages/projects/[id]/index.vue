@@ -27,9 +27,7 @@
     });
 
     const { locale } = useI18n();
-    const {
-        public: { homePageURL },
-    } = useRuntimeConfig();
+    const runtimeConfig = useRuntimeConfig();
     const { BREADCRUMB_OVERRIDES } = useGlobalState();
     const projectId = useRouteParams("id");
     const setI18nParams = useSetI18nParams();
@@ -44,8 +42,8 @@
             }),
         description: () => $t("projects.id.description"),
 
-        ogImage: () => `${homePageURL}/icon.jpeg`,
-        twitterImage: () => `${homePageURL}/icon.jpeg`,
+        ogImage: () => `${runtimeConfig.public.i18n.baseUrl}/icon.jpeg`,
+        twitterImage: () => `${runtimeConfig.public.i18n.baseUrl}/icon.jpeg`,
 
         ogType: "website",
         ogTitle: () => $t("projects.id.fallback_title"),

@@ -184,3 +184,9 @@ export const ModalKeys = {
         },
     },
 } as const;
+
+export const WebSocketKeys = {
+    User: {
+        Connected: (id: string) => `user:connected:${id}`,
+    },
+};
