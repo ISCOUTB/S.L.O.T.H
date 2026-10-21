@@ -76,6 +76,10 @@
             "name": "[ Tool ] TS-Config",
             "path": "../tools/tsconfig",
         },
+        {
+            "name": "[ Tool] Benchmarks",
+            "path": "../tools/benchmarks",
+        }
     ],
     "settings": {
         "files.exclude": {
