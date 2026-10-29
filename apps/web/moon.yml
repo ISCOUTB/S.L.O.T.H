@@ -66,3 +66,5 @@ tasks:
         options:
             runFromWorkspaceRoot: true
             cache: false
+            interactive: false
+            runInCI: always
