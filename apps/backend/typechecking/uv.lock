@@ -177,12 +177,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fastuuid7"
-version = "0.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2d/bf/d13b5905ba4d35cd5b8445dacbf5aa478cd55f544e8ca2e0b9a7c877d993/fastuuid7-0.1.0.tar.gz", hash = "sha256:e88e6fc79e894e3c3974acfffb98f90c6edeae6665a3fc5e27b2d86851b92ee3", size = 14479, upload-time = "2026-01-23T14:12:05.734Z" }
-
-[[package]]
 name = "googleapis-common-protos"
 version = "1.73.0"
 source = { registry = "https://pypi.org/simple" }
@@ -326,7 +320,6 @@ version = "0.1.0"
 source = { editable = "../../../packages/messaging-utils/messaging-utils-py" }
 dependencies = [
     { name = "aio-pika" },
-    { name = "fastuuid7" },
     { name = "pika" },
     { name = "proto-utils" },
     { name = "pydantic-settings" },
@@ -335,7 +328,6 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aio-pika", specifier = ">=9.5.7" },
-    { name = "fastuuid7", specifier = ">=0.1.0" },
     { name = "pika", specifier = ">=1.4.1" },
     { name = "proto-utils", editable = "../../../packages/proto-utils/proto-utils-py" },
     { name = "pydantic-settings", specifier = ">=2.14.1" },

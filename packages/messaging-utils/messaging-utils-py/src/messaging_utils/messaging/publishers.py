@@ -12,6 +12,7 @@ for reliable delivery and processing.
 import json
 import logging
 import time
+import uuid
 from datetime import datetime
 from typing import Any, Callable, Optional, TypeVar
 
@@ -22,7 +23,6 @@ from pika.exceptions import (
     AMQPConnectionError,
     StreamLostError,
 )
-from uuidv7 import uuid7
 
 from messaging_utils.core.connection_params import messaging_params
 from messaging_utils.messaging.connection_factory import (
@@ -286,8 +286,7 @@ class Publisher:
         def _publish() -> str:
             nonlocal task_id
             if task_id is None:
-                # actually, it is already str, but for type clarity
-                task_id = str(uuid7())
+                task_id = str(uuid.uuid4())
 
             message = ValidationMessage(
                 id=task_id,
@@ -376,7 +375,7 @@ class Publisher:
             nonlocal task_id
             if task_id is None:
                 # actually, it is already str, but for type clarity
-                task_id = str(uuid7())
+                task_id = str(uuid.uuid4())
 
             message = InsertionMessage(
                 id=task_id,
