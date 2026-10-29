@@ -1,10 +1,10 @@
-FROM node:lts-alpine AS builder
+FROM node:22-alpine AS builder
 
 ENV NODE_ENV="production"
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable
+RUN npm install --global pnpm@12.16.1
 
 WORKDIR /workspace
 
@@ -20,13 +20,13 @@ RUN --mount=type=cache,target=/pnpm/store \
 RUN pnpm --filter @sloth/packages-proto-utils-js exec tsup
 RUN pnpm --filter @etl-design/apps-formula-parser build
 
-FROM node:lts-alpine AS runner
+FROM node:22-alpine AS runner
 
 ENV NODE_ENV="production"
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable
+RUN npm install --global pnpm@12.16.1
 
 WORKDIR /app
 

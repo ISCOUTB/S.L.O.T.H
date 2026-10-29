@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 
 [[package]]
@@ -202,15 +202,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fastuuid7"
-version = "0.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2d/bf/d13b5905ba4d35cd5b8445dacbf5aa478cd55f544e8ca2e0b9a7c877d993/fastuuid7-0.1.0.tar.gz", hash = "sha256:e88e6fc79e894e3c3974acfffb98f90c6edeae6665a3fc5e27b2d86851b92ee3", size = 14479, upload-time = "2026-01-23T14:12:05.734Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/f1/efebbc111ea18de0460d132e3fd233b58676edb50484ace88903168f0d01/fastuuid7-0.1.0-cp313-cp313-manylinux2014_x86_64.whl", hash = "sha256:e7334b732351da0c9e467b8506ac5f5e923ebc220942e5381fa2a9d5d0883524", size = 22127, upload-time = "2026-01-23T14:12:04.558Z" },
-]
-
-[[package]]
 name = "googleapis-common-protos"
 version = "1.73.1"
 source = { registry = "https://pypi.org/simple" }
@@ -330,7 +321,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "aio-pika" },
-    { name = "fastuuid7" },
     { name = "pika" },
     { name = "proto-utils" },
     { name = "pydantic-settings" },
@@ -348,7 +338,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aio-pika", specifier = ">=9.5.7" },
-    { name = "fastuuid7", specifier = ">=0.1.0" },
     { name = "pika", specifier = ">=1.4.1" },
     { name = "proto-utils", editable = "../../proto-utils/proto-utils-py" },
     { name = "pydantic-settings", specifier = ">=2.14.1" },
@@ -616,7 +605,7 @@ requires-dist = [
     { name = "grpcio", specifier = ">=1.80.0" },
     { name = "grpcio-tools", specifier = ">=1.80.0" },
     { name = "opentelemetry-exporter-otlp-proto-http", specifier = ">=1.41.1" },
-    { name = "opentelemetry-sdk", specifier = ">=1.41.1" },
+    { name = "opentelemetry-sdk", specifier = ">=1.42.1" },
 ]
 
 [[package]]

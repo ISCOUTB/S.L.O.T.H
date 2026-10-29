@@ -9,7 +9,6 @@ dependencies = [
     "pika>=1.4.1",
     "aio-pika>=9.5.7",
     "pydantic-settings>=2.14.1",
-    "fastuuid7>=0.1.0",
 ]
 
 [dependency-groups]

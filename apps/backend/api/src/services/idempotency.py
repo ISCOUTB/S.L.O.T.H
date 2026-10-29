@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -12,7 +13,6 @@ from proto_utils.database import dtypes
 from proto_utils.database.base_client import DatabaseClient
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
-from uuidv7 import uuid7
 
 from src import models, schemas
 from src.core.config import settings
@@ -109,7 +109,7 @@ class IdempotencyService:
             metadata=VALIDATION_TASK,
         )
 
-        task_id = str(uuid7())
+        task_id = str(uuid.uuid4())
 
         # Create Metadata object obtained from the uploaded file
         metadata = Metadata(
@@ -298,7 +298,7 @@ class IdempotencyService:
             metadata=INSERTION_TASK,
         )
 
-        task_id = str(uuid7())
+        task_id = str(uuid.uuid4())
 
         metadata = Metadata(
             filename=spreadsheet_file.filename,
@@ -485,7 +485,7 @@ class IdempotencyService:
             metadata=f"{VALIDATION_TASK}&{INSERTION_TASK}",
         )
 
-        task_id = str(uuid7())
+        task_id = str(uuid.uuid4())
         metadata = Metadata(
             filename=spreadsheet_file.filename,
             content_type=spreadsheet_file.content_type,
