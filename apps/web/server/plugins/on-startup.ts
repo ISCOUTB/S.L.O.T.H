@@ -1,10 +1,16 @@
-export default defineNitroPlugin(() => {
+export default defineNitroPlugin(async () => {
+    if (import.meta.prerender) {
+        return;
+    }
+
     const logger = Logger.getInstance();
 
     logger.warn(useRuntimeConfig());
 
-    const redis = RedisService.getInstance();
-    redis.ping()
-        .then((response) => logger.warn(response))
-        .catch((error) => logger.error(error));
+    try {
+        const redis = await RedisService.getInstance();
+        logger.warn(await redis.ping());
+    } catch (error) {
+        logger.error(error);
+    }
 });
