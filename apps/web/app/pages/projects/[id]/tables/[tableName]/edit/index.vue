@@ -48,15 +48,13 @@
     });
 
     const { locale } = useI18n();
-    const {
-        public: { homePageURL },
-    } = useRuntimeConfig();
+    const runtimeConfig = useRuntimeConfig();
 
     useSeoMeta({
         description: () => $t("projects.id.tables.edit.header.description"),
 
-        ogImage: () => `${homePageURL}/icon.jpeg`,
-        twitterImage: () => `${homePageURL}/icon.jpeg`,
+        ogImage: () => `${runtimeConfig.public.i18n.baseUrl}/icon.jpeg`,
+        twitterImage: () => `${runtimeConfig.public.i18n.baseUrl}/icon.jpeg`,
 
         ogType: "website",
         ogTitle: () => $t("projects.id.tables.edit.header.title"),

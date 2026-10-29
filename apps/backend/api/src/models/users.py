@@ -11,7 +11,6 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.orm import relationship
-from uuidv7 import uuid7
 
 from src.core.database_sql import BaseModel
 from src.models.dtypes import Status, UserRole, status_enum, user_role_enum
@@ -36,7 +35,7 @@ class User(BaseModel):
     id = Column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=lambda: uuid.UUID(str(uuid7())),
+        default=lambda: uuid.uuid4(),
         nullable=False,
     )
     name = Column(String, default=None, nullable=False)

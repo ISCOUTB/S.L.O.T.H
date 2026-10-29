@@ -78,5 +78,10 @@ export const logger = winston.createLogger({
         span_id: defaultSpanId,
         trace_flags: "00",
     },
-    transports: [new winston.transports.Console()],
+    transports: [
+        new winston.transports.Console(),
+        ...(isDebugEnabled
+            ? [new winston.transports.File({ filename: "formula-parser.log" })]
+            : []),
+    ],
 });

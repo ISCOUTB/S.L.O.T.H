@@ -40,6 +40,10 @@ inputs:
     description: "PostgreSQL database name"
     required: false
     default: ""
+  first_superuser_email:
+    description: "Initial superuser email"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -94,6 +98,9 @@ runs:
         fi
         if [ -n "${{ inputs.postgres_db }}" ]; then
           sed -i "s/^POSTGRES_DB=.*/POSTGRES_DB=${{ inputs.postgres_db }}/" "$ENV_EXAMPLE_FILE"
+        fi
+        if [ -n "${{ inputs.first_superuser_email }}" ]; then
+          sed -i "s/^FIRST_SUPERUSER_EMAIL=.*/FIRST_SUPERUSER_EMAIL=${{ inputs.first_superuser_email }}/" "$ENV_EXAMPLE_FILE"
         fi
 
         cp "$ENV_EXAMPLE_FILE" "$(dirname "$ENV_EXAMPLE_FILE")/.env"

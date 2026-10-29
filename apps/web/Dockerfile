@@ -1,4 +1,4 @@
-FROM node:lts AS builder
+FROM node:22 AS builder
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -23,7 +23,6 @@ FROM gcr.io/distroless/nodejs22-debian13 AS runner
 ENV NODE_ENV="production"
 WORKDIR /app
 
-COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/apps/web/.output /app/.output
 
 EXPOSE 3000

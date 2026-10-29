@@ -545,6 +545,7 @@
                         "back": "Volver a tablas",
                         "edit": "Editar esquema",
                         "delete": "Eliminar",
+                        "query_table": "Consultar Tabla",
                         "overview": {
                             "active": "Activo",
                             "columns": "{count} columnas",

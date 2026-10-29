@@ -13,6 +13,7 @@ tasks:
             - swarm/scripts/dev-deploy.sh
         options:
             cache: false
+        preset: utility
 
     swarm-staging:
         command: bash

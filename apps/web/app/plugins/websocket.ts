@@ -1,4 +1,4 @@
-import { $makeWebSocketMessage } from "#shared/utils/websocket";
+import { WebSocketMessage } from "#shared/utils/websocket";
 
 export default defineNuxtPlugin({
     name: "websocket",
@@ -9,7 +9,10 @@ export default defineNuxtPlugin({
         const socket = useWebSocket<WebSocket.Message>(config.handlers.websocket.url, {
             autoReconnect: true,
             heartbeat: {
-                message: $makeWebSocketMessage({ key: "ping" }).serialize(),
+                message: WebSocketMessage.builder("ping")
+                    .set("userId", auth.data.value?.user.id)
+                    .build
+                    .serialize(),
                 pongTimeout: config.handlers.websocket.pongTimeout,
                 scheduler: (callback) =>
                     useIntervalFn(callback, config.handlers.websocket.pingInterval),
@@ -25,11 +28,9 @@ export default defineNuxtPlugin({
                     auth.data.value?.user
                 ) {
                     socket.send(
-                        $makeWebSocketMessage({
-                            key: "user-logged",
-                            userId: auth.data.value.user.id,
-                            accessToken: auth.data.value.accessToken,
-                        }).serialize(),
+                        WebSocketMessage.builder("user-logged")
+                            .set("userId", auth.data.value.user.id)
+                            .build.serialize(),
                     );
                 }
             },

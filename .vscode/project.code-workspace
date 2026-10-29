@@ -10,7 +10,7 @@
         },
         {
             "name": "Docs",
-            "path": "../docs"
+            "path": "../docs",
         },
         {
             "name": "[ IAC ] Code",
@@ -76,6 +76,10 @@
             "name": "[ Tool ] TS-Config",
             "path": "../tools/tsconfig",
         },
+        {
+            "name": "[ Tool] Benchmarks",
+            "path": "../tools/benchmarks",
+        }
     ],
     "settings": {
         "files.exclude": {
@@ -84,6 +88,10 @@
             "**/.hg": true,
             "**/.svn": true,
             "**/Thumbs.db": true,
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[typescript]": {
+            "editor.defaultFormatter": "esbenp.prettier-vscode",
         },
     },
 }

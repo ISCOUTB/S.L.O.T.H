@@ -9,3 +9,8 @@
 node_modules
 .actrc
 
+# Just for agents (I wish I could have use them before :c)
+.atl/
+graphify-out/
+.codegraph/
+odd/

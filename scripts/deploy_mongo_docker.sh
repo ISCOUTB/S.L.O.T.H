@@ -15,4 +15,4 @@ docker run -d --name $CONTAINER_NAME \
   -e MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD} \
   -e MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE} \
   -v typechecking_mongo_data:/data/db \
-  mongo:latest
+  mongo:7.0

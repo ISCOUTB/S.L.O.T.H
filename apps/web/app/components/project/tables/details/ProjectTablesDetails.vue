@@ -55,9 +55,7 @@
                 </Button>
                 <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-3">
-                        <div
-                            class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10"
-                        >
+                        <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                             <Table2 class="size-5 text-primary" />
                         </div>
                         <div>
@@ -74,18 +72,17 @@
                 <div class="space-x-2">
                     <Button variant="outline" @click="handleQuery">
                         <Pickaxe />
-                        Query Table
+                        {{ $t('projects.id.sections.tables.details.query_table') }}
                     </Button>
                     <Button v-if="project" variant="outline" as-child>
                         <NuxtLink
-                            :to="
-                                $localePath({
-                                    name: 'projects-id-tables-tableName-edit',
-                                    params: { id: project.id, tableName },
-                                    query: {
-                                        callbackUrl: $route.fullPath,
-                                    },
-                                })
+                            :to="$localePath({
+                                name: 'projects-id-tables-tableName-edit',
+                                params: { id: project.id, tableName },
+                                query: {
+                                    callbackUrl: $route.fullPath,
+                                },
+                            })
                             "
                         >
                             <Pencil class="size-4" />
@@ -93,10 +90,8 @@
                         </NuxtLink>
                     </Button>
                     <Button
-                        v-if="tables.state.value.selectedSchema"
-                        variant="destructive"
-                        :disabled="tables.state.value.selectedSchema.schemas_releases.length > 0"
-                        class="cursor-pointer"
+                        v-if="tables.state.value.selectedSchema" variant="destructive"
+                        :disabled="tables.state.value.selectedSchema.schemas_releases.length > 0" class="cursor-pointer"
                         @click="handleDelete"
                     >
                         <Trash2 class="size-4" />

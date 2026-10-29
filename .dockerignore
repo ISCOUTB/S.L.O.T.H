@@ -2,11 +2,16 @@
 .moon/cache/**
 .git
 .github
+
 docs
 iac
-.output
-.nuxt
-.venv
-node_modules
-dist
 
+**/.output
+**/.nuxt
+**/.venv
+**/node_modules
+**/dist
+**/dist/**
+
+**/.env
+**/.env.*
