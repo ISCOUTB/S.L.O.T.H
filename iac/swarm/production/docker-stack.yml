@@ -318,7 +318,7 @@ services:
     # Parsers: Formula Parser, DDL Generator, SQL Builder, Excel Reader
     # =============================================================================
     formula-parser:
-        image: vulcan99/formula-parser:1.02
+        image: vulcan99/formula-parser:1.06
         environment:
             FORMULA_PARSER_HOST: "0.0.0.0"
             FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT?Variable not set}
@@ -355,7 +355,7 @@ services:
                 - prometheus-port=9090
                 - prometheus-path=/metrics
     ddl-generator:
-        image: vulcan99/ddl-generator:1.02
+        image: vulcan99/ddl-generator:1.06
         environment:
             DDL_GENERATOR_HOST: "0.0.0.0"
             DDL_GENERATOR_PORT: ${PARSERS_DDL_GENERATOR_PORT?Variable not set}
@@ -395,7 +395,7 @@ services:
                 - prometheus-port=9090
                 - prometheus-path=/metrics
     sql-builder:
-        image: vulcan99/sql-builder:1.02
+        image: vulcan99/sql-builder:1.06
         environment:
             SQL_BUILDER_HOST: "0.0.0.0"
             SQL_BUILDER_PORT: ${PARSERS_SQL_BUILDER_PORT?Variable not set}
@@ -430,7 +430,7 @@ services:
                 - prometheus-port=9090
                 - prometheus-path=/metrics
     excel-reader:
-        image: vulcan99/excel-reader:1.02
+        image: vulcan99/excel-reader:1.06
         environment:
             FORMULA_PARSER_HOST: formula-parser
             FORMULA_PARSER_PORT: ${PARSERS_FORMULA_PARSER_PORT?Variable not set}
@@ -659,7 +659,7 @@ services:
                 - "traefik.http.routers.pgadmin.middlewares=internal-maintenance@swarm"
                 - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
     database:
-        image: vulcan99/etl-database:1.02
+        image: vulcan99/etl-database:1.06
         healthcheck:
             test: ["CMD", "python", "-c", "import os,socket; s=socket.create_connection(('127.0.0.1', int(os.environ['DATABASE_CONNECTION_PORT'])), 3); s.close()"]
             interval: 10s
@@ -746,7 +746,7 @@ services:
     # Application Services: API Server, Web, Type Checking Worker, Pre‑start Initialization
     # =============================================================================
     typechecking:
-        image: vulcan99/typechecking:1.02
+        image: vulcan99/typechecking:1.06
         environment:
             MINIMAL_SERVER_HOST: "0.0.0.0"
             MINIMAL_SERVER_PORT: ${TYPECHECKING_MINIMAL_SERVER_PORT?Variable not set}
@@ -878,7 +878,7 @@ services:
                 delay: 5s
                 max_attempts: 3
     api:
-        image: vulcan99/etl-api:1.02
+        image: vulcan99/etl-api:1.06
         environment:
             API_V1_STR: ${API_V1_STR-/api/v1}
             CORS_ORIGINS: ${CORS_ORIGINS?Variable not set},http://web,https://${DOMAIN}
@@ -982,7 +982,7 @@ services:
                 - prometheus-port=${SERVER_PORT?Variable not set}
                 - prometheus-path=/api/v1/metrics
     web:
-        image: vulcan99/web:1.03
+        image: vulcan99/web:1.06
         environment:
             NUXT_SITE_ENV: production
             API_BASE_URL: ${API_V1_STR-/api/v1}
